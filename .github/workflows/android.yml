@@ -1,0 +1,35 @@
+name: Android ilova
+
+on:
+  push:
+    branches: [main]
+    paths: ["android/**", ".github/workflows/android.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.7"
+      - name: APK yig'ish
+        run: gradle -p android assembleRelease --no-daemon
+      - name: Faylni nomlash
+        run: cp android/app/build/outputs/apk/release/app-release.apk bron-uz.apk
+      - name: Releases sahifasiga joylash
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-latest
+          name: bron.uz Android ilovasi
+          body: "Telefoningizda shu sahifani oching va bron-uz.apk faylini yuklab o'rnating."
+          files: bron-uz.apk
+          make_latest: true

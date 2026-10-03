@@ -56,3 +56,6 @@ GitHub Pages'da server yo'q, shuning uchun u yerda hisob faqat foydalanuvchi qur
 
 ## Suratlar
 Shahar suratlari Wikimedia Commons'dan olinadi (`public/data.js` dagi `BRON_PHOTOS`). Joyning o'z suratini admin paneldagi "Surat havolasi" maydoniga qo'yish mumkin.
+
+## Android ilova
+`android/` — saytni ochadigan Android ilova. `main` ga push qilinganda GitHub Actions APK yig'adi va uni Releases sahifasiga `bron-uz.apk` nomi bilan joylaydi.
