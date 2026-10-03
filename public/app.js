@@ -128,6 +128,31 @@
     return `<svg viewBox="0 0 400 250" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${sky1}"/><stop offset=".6" stop-color="${sky2}"/><stop offset="1" stop-color="${sky3}"/></linearGradient></defs><rect width="400" height="250" fill="url(#${id})"/>${stars}<circle cx="${300 + R() * 60}" cy="${60 + R() * 30}" r="22" fill="hsl(44 95% 78%)" opacity=".9"/>${scene}${ground}</svg>`;
   }
 
+  // ---------- photos (Wikimedia Commons) ----------
+  const PHOTOS = window.BRON_PHOTOS || {};
+  const photoUrl = (file, w) => `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=${w}`;
+  const filePage = (file) => `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(file)}`;
+  const hashOf = (s) => { let h = 0; for (const c of String(s)) h = (h * 33 + c.charCodeAt(0)) >>> 0; return h; };
+  // A listing shows photos of its city, starting at a different one per listing; admins may set their own photo URL.
+  function photosFor(x) {
+    const own = x.photo ? [{ url: x.photo, title: x.name }] : [];
+    const list = PHOTOS[x.city] || [];
+    const k = list.length ? hashOf(x.id) % list.length : 0;
+    return own.concat(list.slice(k), list.slice(0, k));
+  }
+  const srcOf = (p, w) => p.url || photoUrl(p.file, w);
+  const imgTag = (p, w) => p ? `<img class="ph" data-ph loading="lazy" decoding="async" alt="" src="${esc(srcOf(p, w))}">` : "";
+  document.addEventListener("load", (e) => { if (e.target.matches && e.target.matches("img[data-ph]")) e.target.classList.add("ready"); }, true);
+  document.addEventListener("error", (e) => { if (e.target.matches && e.target.matches("img[data-ph]")) e.target.remove(); }, true);
+
+  function heroPhoto() {
+    const p = (PHOTOS["Samarqand"] || [])[1];
+    if (!p) return;
+    const im = new Image();
+    im.onload = () => { const el = $("#heroPhoto"); el.style.backgroundImage = `url("${im.src}")`; el.classList.add("ready"); $("#phonePhoto").style.backgroundImage = `url("${im.src}")`; };
+    im.src = photoUrl(p.file, 1600);
+  }
+
   function heroArt() {
     // Wide silhouette skyline in three depths.
     const layer = (op, y, seed) => {
@@ -229,7 +254,7 @@
     return `
     <article class="item">
       <div style="position:relative">
-        <button class="thumb" type="button" data-open="${esc(x.id)}" aria-label="${esc(x.name)}: batafsil">${art(x.art, x.hue, x.id)}<span class="kind">${t.kind} · ${esc(x.city)}</span>${off ? `<span class="badge">−${off}%</span>` : ""}</button>
+        <button class="thumb" type="button" data-open="${esc(x.id)}" aria-label="${esc(x.name)}: batafsil">${art(x.art, x.hue, x.id)}${imgTag(photosFor(x)[0], 640)}<span class="kind">${t.kind} · ${esc(x.city)}</span>${off ? `<span class="badge">−${off}%</span>` : ""}${photosFor(x)[0] ? `<span class="place">${esc(photosFor(x)[0].title)}</span>` : ""}</button>
         <button class="fav" type="button" data-fav="${esc(x.id)}" aria-pressed="${favs.has(x.id)}" aria-label="Sevimlilarga qo'shish">${heart}</button>
       </div>
       <div class="item-body">
@@ -263,7 +288,7 @@
     $("#fCity").insertAdjacentHTML("beforeend", CITIES.map((c) => `<option>${esc(c.name)}</option>`).join(""));
     $("#cities").innerHTML = CITIES.map((c) => {
       const n = LISTINGS.filter((x) => x.city === c.name).length;
-      return `<button class="city" type="button" data-city="${esc(c.name)}">${art(c.art, c.hue, "city" + c.name)}<span class="c-count">${n} ta joy</span><span class="c-txt"><b>${esc(c.name)}</b><small>${esc(c.note)}</small></span></button>`;
+      return `<button class="city" type="button" data-city="${esc(c.name)}">${art(c.art, c.hue, "city" + c.name)}${imgTag((PHOTOS[c.name] || [])[0], 640)}<span class="c-count">${n} ta joy</span><span class="c-txt"><b>${esc(c.name)}</b><small>${esc(c.note)}</small></span></button>`;
     }).join("");
   }
 
@@ -272,7 +297,7 @@
     $("#takliflar").hidden = !list.length;
     $("#deals").innerHTML = list.map((x) => {
       const off = Math.round((1 - x.price / x.old) * 100);
-      return `<button class="deal" type="button" data-open="${esc(x.id)}"><div class="d-thumb">${art(x.art, x.hue, x.id)}</div><div><span class="badge">−${off}%</span><b>${esc(x.name)}</b><span class="muted small">${esc(x.city)} · ${TYPES[x.type].kind}</span><span class="price"><s>${som(x.old)}</s><b>${som(x.price)}</b></span></div></button>`;
+      return `<button class="deal" type="button" data-open="${esc(x.id)}"><div class="d-thumb">${art(x.art, x.hue, x.id)}${imgTag(photosFor(x)[0], 320)}</div><div><span class="badge">−${off}%</span><b>${esc(x.name)}</b><span class="muted small">${esc(x.city)} · ${TYPES[x.type].kind}</span><span class="price"><s>${som(x.old)}</s><b>${som(x.price)}</b></span></div></button>`;
     }).join("");
   }
 
@@ -295,7 +320,9 @@
     state.current = x;
     state.room = "standart";
     const t = TYPES[x.type];
-    $("#dArt").innerHTML = art(x.art, x.hue, x.id + "big");
+    const ps = photosFor(x);
+    $("#dArt").className = "gallery";
+    $("#dArt").innerHTML = art(x.art, x.hue, x.id + "big") + (ps.length ? `<div class="g-track" id="gTrack">${ps.map((p) => `<div class="g-slide"><img data-ph class="ph" alt="${esc(p.title)}" src="${esc(srcOf(p, 1200))}"><span class="g-cap">${esc(p.title)}${p.file ? `<a href="${filePage(p.file)}" target="_blank" rel="noopener">© Wikimedia Commons</a>` : ""}</span></div>`).join("")}</div>${ps.length > 1 ? `<button class="g-nav g-prev" type="button" data-g="-1" aria-label="Oldingi surat">‹</button><button class="g-nav g-next" type="button" data-g="1" aria-label="Keyingi surat">›</button>` : ""}` : "");
     $("#dKind").textContent = `${t.kind} · ${x.city}`;
     $("#dTitle").textContent = x.name;
     $("#dMeta").textContent = `${x.stars ? starStr(x.stars) + " · " : ""}${x.district || x.city} · ${Number(x.rating).toFixed(1)} ${ratingWord(x.rating)} (${x.reviews} sharh)`;
@@ -331,7 +358,8 @@
     $("#bookMsg").textContent = ""; $("#bookMsg").className = "form-msg";
     updateTotal();
     openDlg($("#bookDlg"));
-    setTimeout(() => $("#bName").focus(), 30);
+    if (user) { if (!$("#bName").value) $("#bName").value = user.name; if (!$("#bPhone").value) $("#bPhone").value = user.phone; }
+    setTimeout(() => (user ? $("#bFrom") : $("#bName")).focus(), 30);
   }
   const capOf = (item) => item.capacity + (item.type === "hotel" ? roomOf(item, state.room).extra : 0);
 
@@ -381,7 +409,9 @@
       const code = "BRN-" + Math.random().toString(36).slice(2, 8).toUpperCase();
       booking = { code, id: item.id, name: item.name, city: item.city, type: item.type, from, to, guests, sum: quote(item, from, to, guests, room).sum, phone: normPhone(phone) };
     }
+    if (user) booking.owner = user.phone;
     saveBookings([booking, ...memoryBookings]);
+    if (API && user) serverBookings = [booking, ...serverBookings];
     closeDlg($("#bookDlg"));
     $("#bookForm").reset();
     renderMine();
@@ -389,8 +419,12 @@
   }
 
   // ---------- my bookings ----------
+  function myBookings() {
+    if (API && user) return serverBookings;
+    return memoryBookings.filter((b) => user ? b.owner === user.phone : !b.owner);
+  }
   function renderMine() {
-    const list = memoryBookings;
+    const list = myBookings();
     $("#myCount").textContent = list.length;
     if (!list.length) {
       $("#myList").innerHTML = `<p class="mine-empty">Hali bron yo'q. Yuqoridan joy tanlab "Bron qilish" tugmasini bosing, bron shu yerda paydo bo'ladi.</p>`;
@@ -440,6 +474,9 @@
     $("#fFrom").min = $("#fTo").min = $("#bFrom").min = $("#bTo").min = iso(new Date());
 
     heroArt();
+    heroPhoto();
+    initAuth();
+    initApp();
     renderCities();
     renderDeals();
     $(".hero .eyebrow").textContent = `${CITIES.length} shahar · ${LISTINGS.length} joy · narxlar so'mda`;
@@ -475,6 +512,7 @@
       const city = t.closest("[data-city]");
       if (city) { const c = city.dataset.city === state.city ? "" : city.dataset.city; $("#fCity").value = c; readSearch(); render(); $("#natijalar").scrollIntoView({ block: "start" }); return; }
       if (t.closest("[data-reset]")) { resetFilters(); return; }
+      const g = t.closest("[data-g]"); if (g) { const tr = $("#gTrack"); if (tr) tr.scrollBy({ left: tr.clientWidth * +g.dataset.g, behavior: "smooth" }); return; }
       const close = t.closest("[data-close]"); if (close) closeDlg(close.closest("dialog"));
     });
     $$("dialog").forEach((d) => d.addEventListener("click", (e) => { if (e.target === d) closeDlg(d); }));
@@ -506,6 +544,151 @@
     loadListings();
   }
 
+  // ---------- accounts ----------
+  // With the server: real accounts (password hashed on the server, HttpOnly session cookie).
+  // Static hosting has no server, so accounts are kept on this device only, password hashed with PBKDF2.
+  const USERS_KEY = "bronuz.users", SESSION_KEY = "bronuz.session";
+  let user = null, serverBookings = [], authMode = "login";
+  const initials = (n) => n.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("") || "?";
+
+  async function localHash(pass, salt) {
+    if (window.crypto && crypto.subtle) {
+      const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(pass), "PBKDF2", false, ["deriveBits"]);
+      const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: new TextEncoder().encode(salt), iterations: 120000 }, key, 256);
+      return Array.from(new Uint8Array(bits)).map((b) => b.toString(16).padStart(2, "0")).join("");
+    }
+    let h = 0; for (const c of salt + pass) h = (h * 131 + c.charCodeAt(0)) >>> 0; return "w" + h.toString(16);
+  }
+  async function authRequest(path, body) {
+    const r = await fetch(path, { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || "Server javob bermadi.");
+    return data;
+  }
+  async function register(name, phone, pass) {
+    if (API) return authRequest("/api/auth/register", { name, phone, password: pass });
+    const users = store(USERS_KEY, {});
+    if (users[phone]) throw new Error("Bu raqam bilan hisob bor. \"Kirish\" ni tanlang.");
+    const salt = Math.random().toString(36).slice(2) + Date.now().toString(36);
+    users[phone] = { name, salt, hash: await localHash(pass, salt) };
+    keep(USERS_KEY, users);
+    keep(SESSION_KEY, phone);
+    return { name, phone };
+  }
+  async function login(phone, pass) {
+    if (API) return authRequest("/api/auth/login", { phone, password: pass });
+    const u = store(USERS_KEY, {})[phone];
+    if (!u || u.hash !== await localHash(pass, u.salt)) throw new Error("Telefon raqami yoki parol noto'g'ri.");
+    keep(SESSION_KEY, phone);
+    return { name: u.name, phone };
+  }
+  async function logout() {
+    if (API) await authRequest("/api/auth/logout", {}).catch(() => {});
+    try { localStorage.removeItem(SESSION_KEY); } catch (e) { /* ignore */ }
+    setUser(null);
+    toast("Hisobdan chiqdingiz.");
+  }
+  async function setUser(u) {
+    user = u;
+    $("#authLabel").textContent = u ? u.name.split(" ")[0] : "Kirish";
+    $("#authAvatar").hidden = !u;
+    $("#authAvatar").textContent = u ? initials(u.name) : "";
+    $("#tabProfileLbl").textContent = u ? "Profil" : "Kirish";
+    serverBookings = [];
+    if (u && API) {
+      try { const r = await fetch("/api/my/bookings", { credentials: "same-origin" }); if (r.ok) serverBookings = await r.json(); } catch (e) { /* offline */ }
+    }
+    renderMine();
+  }
+  async function restoreUser() {
+    if (API) {
+      try { const r = await fetch("/api/auth/me", { credentials: "same-origin" }); if (r.ok) return setUser(await r.json()); } catch (e) { /* offline */ }
+      return setUser(null);
+    }
+    const phone = store(SESSION_KEY, null);
+    const u = phone && store(USERS_KEY, {})[phone];
+    setUser(u ? { name: u.name, phone } : null);
+  }
+
+  function setAuthMode(mode) {
+    authMode = mode;
+    $$(".seg-b").forEach((b) => { const on = b.dataset.mode === mode; b.classList.toggle("is-on", on); b.setAttribute("aria-selected", String(on)); });
+    const reg = mode === "register";
+    $("#aNameWrap").hidden = !reg;
+    $("#aPass2Wrap").hidden = !reg;
+    $("#authTitle").textContent = reg ? "Ro'yxatdan o'tish" : "Kirish";
+    $("#authSubmit").textContent = reg ? "Hisob yaratish" : "Kirish";
+    $("#aPass").autocomplete = reg ? "new-password" : "current-password";
+    $("#authMsg").textContent = "";
+  }
+  function openAuth(mode) {
+    if (user) return openProfile();
+    setAuthMode(mode || "login");
+    $("#authNote").textContent = API ? "Parolingiz shifrlangan holda saqlanadi." : "Hozircha hisob shu qurilmada saqlanadi. Server ulangach, hisoblar hamma qurilmada ishlaydi.";
+    openDlg($("#authDlg"));
+    setTimeout(() => (authMode === "register" ? $("#aName") : $("#aPhone")).focus(), 30);
+  }
+  function openProfile() {
+    $("#pAvatar").textContent = initials(user.name);
+    $("#pName").textContent = user.name;
+    $("#pPhone").textContent = user.phone;
+    $("#pBookings").textContent = myBookings().length;
+    $("#pFavs").textContent = favs.size;
+    $("#profileNote").textContent = API ? "" : "Hisob shu qurilmada saqlangan.";
+    openDlg($("#profileDlg"));
+  }
+  async function submitAuth(e) {
+    e.preventDefault();
+    const msg = $("#authMsg");
+    msg.className = "form-msg err";
+    const name = $("#aName").value.trim(), phone = normPhone($("#aPhone").value.trim()), pass = $("#aPass").value;
+    if (authMode === "register" && name.length < 3) { msg.textContent = "Ism familiyangizni kiriting."; return; }
+    if (!validPhone(phone)) { msg.textContent = "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing."; return; }
+    if (pass.length < 6) { msg.textContent = "Parol kamida 6 belgidan iborat bo'lsin."; return; }
+    if (authMode === "register" && pass !== $("#aPass2").value) { msg.textContent = "Parollar bir xil emas."; return; }
+    const btn = $("#authSubmit"); btn.disabled = true;
+    try {
+      const u = authMode === "register" ? await register(name, phone, pass) : await login(phone, pass);
+      await setUser({ name: u.name, phone: u.phone });
+      closeDlg($("#authDlg"));
+      $("#authForm").reset();
+      toast(authMode === "register" ? `Xush kelibsiz, ${u.name.split(" ")[0]}! Hisob yaratildi.` : `Xush kelibsiz, ${u.name.split(" ")[0]}!`);
+    } catch (err) { msg.textContent = err.message; }
+    finally { btn.disabled = false; }
+  }
+  function initAuth() {
+    $("#authBtn").addEventListener("click", () => openAuth());
+    $("#tabProfile").addEventListener("click", () => openAuth());
+    $$(".seg-b").forEach((b) => b.addEventListener("click", () => setAuthMode(b.dataset.mode)));
+    $("#authForm").addEventListener("submit", submitAuth);
+    $("#aEye").addEventListener("click", () => { const show = $("#aPass").type === "password"; $("#aPass").type = $("#aPass2").type = show ? "text" : "password"; $("#aEye").textContent = show ? "Yashirish" : "Ko'rsatish"; });
+    $("#logoutBtn").addEventListener("click", () => { closeDlg($("#profileDlg")); logout(); });
+    restoreUser();
+  }
+
+  // ---------- installable app (PWA) ----------
+  let installEvt = null;
+  function initApp() {
+    const standalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const hint = $("#installHint");
+    if (standalone) { $("#installBtn").hidden = true; hint.textContent = "Ilova o'rnatilgan, rahmat!"; }
+    else if (ios) hint.textContent = "iPhone'da: Ulashish → \"Bosh ekranga qo'shish\".";
+    if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+      navigator.serviceWorker.register("sw.js").catch(() => {});
+    }
+    window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); installEvt = e; $("#installTop").hidden = false; });
+    window.addEventListener("appinstalled", () => { installEvt = null; $("#installTop").hidden = true; toast("Ilova o'rnatildi. Uni bosh ekrandan oching."); });
+    const install = async () => {
+      if (installEvt) { installEvt.prompt(); const r = await installEvt.userChoice.catch(() => null); if (r && r.outcome === "accepted") $("#installTop").hidden = true; installEvt = null; return; }
+      hint.textContent = ios ? "iPhone'da: pastdagi Ulashish belgisi → \"Bosh ekranga qo'shish\"." : "Brauzer menyusi ⋮ → \"Ilovani o'rnatish\" yoki \"Bosh ekranga qo'shish\".";
+      $("#ilova").scrollIntoView({ block: "center" });
+    };
+    $("#installBtn").addEventListener("click", install);
+    $("#installTop").addEventListener("click", install);
+    $("#tabFav").addEventListener("click", () => $("#favBtn").click());
+  }
+
   async function loadListings() {
     if (location.protocol === "file:") return;
     try {
@@ -515,6 +698,7 @@
       if (!Array.isArray(rows) || !rows.length) return;
       LISTINGS = rows;
       API = true;
+      restoreUser();
       $("#sampleNote").hidden = true;
       render(); renderDeals();
     } catch (e) { /* static hosting: keep sample data */ }

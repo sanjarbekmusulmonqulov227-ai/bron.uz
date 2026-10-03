@@ -41,11 +41,22 @@ db.exec(`
   );
 `);
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, phone TEXT NOT NULL UNIQUE,
+    pass_hash TEXT NOT NULL, salt TEXT NOT NULL, created TEXT NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS sessions (
+    token TEXT PRIMARY KEY, user_id INTEGER NOT NULL, expires INTEGER NOT NULL
+  );
+`);
+if (!db.prepare("PRAGMA table_info(bookings)").all().some((c) => c.name === "user_id")) db.exec("ALTER TABLE bookings ADD COLUMN user_id INTEGER");
+
 // Older databases lack the details column.
 if (!db.prepare("PRAGMA table_info(listings)").all().some((c) => c.name === "details")) db.exec("ALTER TABLE listings ADD COLUMN details TEXT DEFAULT '{}'");
 
 // Extra listing fields kept as JSON: district, stars, old price, free cancellation, amenities, description, art style.
-const DETAIL_KEYS = ["district", "stars", "old", "free", "amenities", "desc", "art"];
+const DETAIL_KEYS = ["district", "stars", "old", "free", "amenities", "desc", "art", "photo"];
 const pickDetails = (x) => Object.fromEntries(DETAIL_KEYS.filter((k) => x[k] !== undefined).map((k) => [k, x[k]]));
 
 if (db.prepare("SELECT COUNT(*) AS n FROM listings").get().n === 0) {
@@ -144,6 +155,24 @@ function limited(req) {
 }
 setInterval(() => { const now = Date.now(); for (const [k, v] of hits) if (v.every((t) => now - t > 60000)) hits.delete(k); }, 300000).unref();
 
+// ---------- customer accounts ----------
+const SESSION_DAYS = 30;
+const hashPass = (pass, salt) => crypto.scryptSync(pass, salt, 64).toString("hex");
+const cookies = (req) => Object.fromEntries((req.headers.cookie || "").split(";").map((c) => c.trim().split("=")).filter((p) => p[0]).map(([k, ...v]) => [k, decodeURIComponent(v.join("="))]));
+function currentUser(req) {
+  const t = cookies(req).bron_session;
+  if (!t) return null;
+  const row = db.prepare("SELECT u.id, u.name, u.phone FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token = ? AND s.expires > ?").get(t, Date.now());
+  return row || null;
+}
+function startSession(req, res, userId) {
+  const token = crypto.randomBytes(32).toString("hex");
+  db.prepare("INSERT INTO sessions (token,user_id,expires) VALUES (?,?,?)").run(token, userId, Date.now() + SESSION_DAYS * 86400000);
+  const secure = (req.headers["x-forwarded-proto"] || "").includes("https") || req.socket.encrypted ? "; Secure" : "";
+  return `bron_session=${token}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${SESSION_DAYS * 86400}${secure}`;
+}
+setInterval(() => db.prepare("DELETE FROM sessions WHERE expires < ?").run(Date.now()), 3600000).unref();
+
 function isAdmin(req) {
   if (!ADMIN_PASSWORD) return false;
   const m = /^Basic (.+)$/.exec(req.headers.authorization || "");
@@ -174,7 +203,8 @@ function validListing(b, id) {
       district: str(b.district, 80), stars: Math.min(5, Math.max(0, parseInt(b.stars, 10) || 0)) || undefined,
       old: parseInt(b.old, 10) > 0 ? parseInt(b.old, 10) : undefined, free: b.free === undefined ? true : !!b.free,
       amenities: Array.isArray(b.amenities) ? b.amenities.map((t) => str(t, 20)).slice(0, 12) : undefined,
-      desc: str(b.desc, 600), art: str(b.art, 20) || undefined
+      desc: str(b.desc, 600), art: str(b.art, 20) || undefined,
+      photo: /^https:\/\/\S+$/.test(str(b.photo, 500)) ? str(b.photo, 500) : undefined
     },
     tags: (Array.isArray(b.tags) ? b.tags : String(b.tags || "").split(",")).map((t) => str(t, 40)).filter(Boolean).slice(0, 8),
     hue: (parseInt(b.hue, 10) || 200) % 360, glyph: str(b.glyph, 4), active: b.active === undefined ? true : !!b.active
@@ -194,6 +224,43 @@ async function handle(req, res) {
   const M = req.method;
 
   // Public API
+  if (p === "/api/auth/register" && M === "POST") {
+    if (limited(req)) return fail(res, 429, "Juda ko'p urinish. Bir daqiqadan keyin qayta urinib ko'ring.");
+    const b = await readJson(req);
+    const name = str(b.name, 80), phone = normPhone(b.phone), pass = String(b.password || "");
+    if (name.length < 3) return fail(res, 400, "Ism familiyangizni kiriting.");
+    if (!validPhone(phone)) return fail(res, 400, "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing.");
+    if (pass.length < 6 || pass.length > 200) return fail(res, 400, "Parol kamida 6 belgidan iborat bo'lsin.");
+    if (db.prepare("SELECT 1 FROM users WHERE phone = ?").get(phone)) return fail(res, 409, "Bu raqam bilan hisob bor. \"Kirish\" ni tanlang.");
+    const salt = crypto.randomBytes(16).toString("hex");
+    const r = db.prepare("INSERT INTO users (name,phone,pass_hash,salt,created) VALUES (?,?,?,?,?)").run(name, phone, hashPass(pass, salt), salt, new Date().toISOString());
+    const id = Number(r.lastInsertRowid);
+    return send(res, 201, { id, name, phone }, { "set-cookie": startSession(req, res, id) });
+  }
+  if (p === "/api/auth/login" && M === "POST") {
+    if (limited(req)) return fail(res, 429, "Juda ko'p urinish. Bir daqiqadan keyin qayta urinib ko'ring.");
+    const b = await readJson(req);
+    const u = db.prepare("SELECT * FROM users WHERE phone = ?").get(normPhone(b.phone));
+    const ok = u && crypto.timingSafeEqual(Buffer.from(hashPass(String(b.password || ""), u.salt), "hex"), Buffer.from(u.pass_hash, "hex"));
+    if (!ok) return fail(res, 401, "Telefon raqami yoki parol noto'g'ri.");
+    return send(res, 200, { id: u.id, name: u.name, phone: u.phone }, { "set-cookie": startSession(req, res, u.id) });
+  }
+  if (p === "/api/auth/logout" && M === "POST") {
+    const t = cookies(req).bron_session;
+    if (t) db.prepare("DELETE FROM sessions WHERE token = ?").run(t);
+    return send(res, 200, { ok: true }, { "set-cookie": "bron_session=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0" });
+  }
+  if (p === "/api/auth/me" && M === "GET") {
+    const u = currentUser(req);
+    return u ? send(res, 200, u) : fail(res, 401, "Kirilmagan.");
+  }
+  if (p === "/api/my/bookings" && M === "GET") {
+    const u = currentUser(req);
+    if (!u) return fail(res, 401, "Avval hisobingizga kiring.");
+    const rows = db.prepare("SELECT code, listing_id AS id, listing_name AS name, city, type, date_from AS 'from', date_to AS 'to', guests, sum, status, phone FROM bookings WHERE user_id = ? ORDER BY created DESC LIMIT 100").all(u.id);
+    return send(res, 200, rows);
+  }
+
   if (p === "/api/listings" && M === "GET") {
     const rows = db.prepare("SELECT * FROM listings WHERE active = 1").all().map(rowToListing);
     return send(res, 200, rows);
@@ -223,9 +290,9 @@ async function handle(req, res) {
     if (guests > item.capacity + roomOf(item, room).extra) return fail(res, 400, `Bu xona ${item.capacity + roomOf(item, room).extra} kishigacha.`);
     const sum = quote(item, from, to, guests, room);
     const code = "BRN-" + crypto.randomBytes(4).toString("hex").toUpperCase().slice(0, 6);
-    const booking = { code, listing_id: item.id, listing_name: item.name, city: item.city, type: item.type, date_from: from, date_to: to, guests, sum, pay, client, phone, note: str(b.note, 500), status: "yangi", created: new Date().toISOString() };
-    db.prepare(`INSERT INTO bookings (code,listing_id,listing_name,city,type,date_from,date_to,guests,sum,pay,client,phone,note,status,created)
-                VALUES (:code,:listing_id,:listing_name,:city,:type,:date_from,:date_to,:guests,:sum,:pay,:client,:phone,:note,:status,:created)`).run(booking);
+    const booking = { code, listing_id: item.id, listing_name: item.name, city: item.city, type: item.type, date_from: from, date_to: to, guests, sum, pay, client, phone, note: str(b.note, 500), status: "yangi", created: new Date().toISOString(), user_id: currentUser(req)?.id ?? null };
+    db.prepare(`INSERT INTO bookings (code,listing_id,listing_name,city,type,date_from,date_to,guests,sum,pay,client,phone,note,status,created,user_id)
+                VALUES (:code,:listing_id,:listing_name,:city,:type,:date_from,:date_to,:guests,:sum,:pay,:client,:phone,:note,:status,:created,:user_id)`).run(booking);
     notify(`🆕 Yangi bron ${code}\n${item.name} (${item.city})\n${from}${to !== from ? " – " + to : ""}, ${guests} kishi\nSumma: ${som(sum)} · to'lov: ${pay}\nMijoz: ${client}, ${phone}${booking.note ? "\nIzoh: " + booking.note : ""}`);
     return send(res, 201, { code, sum, status: booking.status, name: item.name, city: item.city, type: item.type, from, to, guests });
   }

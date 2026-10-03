@@ -7,6 +7,7 @@ Mehmonxona, konferens-zal va turlarni bron qilish sayti. Node.js 22.13+ kerak, b
 - `server.js` — server: sayt, API, admin panel, Telegram xabarlari
 - `admin.html` — admin panel (`/admin`, login va parol bilan)
 - `public/data.js` — namuna joylar; bo'sh bazaga birinchi ishga tushganda yoziladi
+- `public/manifest.webmanifest`, `public/sw.js`, `public/icons/` — telefonga o'rnatiladigan ilova (PWA)
 - `data/bron.db` — SQLite baza (avtomatik yaratiladi, zaxira nusxasini oling)
 
 ## Kompyuterda ishga tushirish
@@ -48,3 +49,10 @@ bron.uz ni .uz ro'yxatchisi orqali oling va DNS'da `A` yozuvini server IP manzil
 - Click / Payme onlayn to'lovi (MChJ yoki YaTT va shartnoma kerak)
 - Joylar uchun haqiqiy rasmlar yuklash
 - Rus tili
+
+## Mijoz hisoblari
+Server ishlaganda mijozlar telefon raqami va parol bilan ro'yxatdan o'tadi. Parol `scrypt` bilan shifrlanib saqlanadi, kirish HttpOnly cookie orqali 30 kun saqlanadi. API: `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`, `GET /api/my/bookings`.
+GitHub Pages'da server yo'q, shuning uchun u yerda hisob faqat foydalanuvchi qurilmasida saqlanadi.
+
+## Suratlar
+Shahar suratlari Wikimedia Commons'dan olinadi (`public/data.js` dagi `BRON_PHOTOS`). Joyning o'z suratini admin paneldagi "Surat havolasi" maydoniga qo'yish mumkin.

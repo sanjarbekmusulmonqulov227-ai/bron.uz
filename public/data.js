@@ -108,3 +108,51 @@ window.BRON_LISTINGS = [
   { id: "t08", type: "tour", name: "Termiz: Buddaviy yodgorliklar", city: "Termiz", district: "7 soat", rating: 9.0, reviews: 76, price: 380000, capacity: 20, art: "stupa", hue: 42, free: true,
     amenities: ["guide", "transport", "tickets"], desc: "Fayoztepa, Qoratepa, Zurmala stupasi va Al-Hakim at-Termiziy majmuasi." }
 ];
+
+// Haqiqiy shahar suratlari: Wikimedia Commons (erkin litsenziyalar, mualliflari fayl sahifasida).
+// Joy kartochkasida o'sha joy joylashgan shaharning surati ko'rsatiladi, mehmonxonaning o'zi emas.
+window.BRON_PHOTOS = {
+  "Toshkent": [
+    { file: "Tashkent_skyline_2019.jpg", title: "Toshkent osmono'par binolari" },
+    { file: "TashkentCity.jpg", title: "Tashkent City" },
+    { file: "Minor_Mosque_Tashkent.jpg", title: "Minor masjidi" },
+    { file: "Tashkent_TV_Tower_173.jpg", title: "Toshkent teleminorasi" }
+  ],
+  "Samarqand": [
+    { file: "Registan_Samarkand_Uzbekistan.JPG", title: "Registon" },
+    { file: "Registan_square_Samarkand,_Uzbekistan,_at_night.jpg", title: "Registon kechasi" },
+    { file: "Samarkand_Shah-i_Zinda_general_view.JPG", title: "Shohi Zinda" },
+    { file: "Gur_Emir_Mausoleum,_Samarkand_(4934602294).jpg", title: "Go'ri Amir" },
+    { file: "Bibi-Khanym_Mosque_in_Samarkand,_Uzbekistan_(6134515470).jpg", title: "Bibixonim masjidi" },
+    { file: "Ulugh_Beg_Madrasa_of_Registan_in_Samarkand_Uzbekistan.jpg", title: "Ulug'bek madrasasi" }
+  ],
+  "Buxoro": [
+    { file: "Po-i-Kalyan_in_Bukhara.jpg", title: "Poi Kalon" },
+    { file: "Kalon_Minaret,_Bukhara_(4933987001).jpg", title: "Minorai Kalon" },
+    { file: "Lyabi-Hovuz_and_Nadir_Divanbegi_Khanqah.jpg", title: "Labi Hovuz" },
+    { file: "Ark_Bukhara.jpg", title: "Ark qal'asi" },
+    { file: "Bukhara_old_city_Uzbekistan_banner.jpg", title: "Buxoro eski shahri" }
+  ],
+  "Xiva": [
+    { file: "Kalta_Minor,_Khiva,_Uzbekistan.jpg", title: "Kalta Minor" },
+    { file: "Itchan_Kala_Khiva_2012.jpg", title: "Ichan Qal'a" },
+    { file: "Xiva_kalta_minor.jpg", title: "Kalta Minor" }
+  ],
+  "Shahrisabz": [
+    { file: "Aq-Saray_Shahrisabz.JPG", title: "Oqsaroy" },
+    { file: "Ak_Serai_Palace,_Shakhrisabz_(490809).jpg", title: "Oqsaroy peshtoqi" }
+  ],
+  "Farg'ona": [
+    { file: "Khudayar_Khan_Palace,_Kokand_01.JPG", title: "Xudoyorxon o'rdasi, Qo'qon" },
+    { file: "Khudayar_Khan_Palace,_Kokand_(495581).jpg", title: "Xudoyorxon o'rdasi" },
+    { file: "Street_Scene_with_Flowers_and_Passing_Woman_-_Fergana_-_Uzbekistan_(7535771060).jpg", title: "Farg'ona ko'chasi" }
+  ],
+  "Chimyon": [
+    { file: "Uzbekistan_Chimgan_Mountains.jpg", title: "Chimyon tog'lari" },
+    { file: "Greater_Chimgan_Mountain.JPG", title: "Katta Chimyon" },
+    { file: "Chorvoq_Staumauer.JPG", title: "Chorvoq to'g'oni" }
+  ],
+  "Termiz": [
+    { file: "Termiz,_Fayoz-Tepe_(6240998331).jpg", title: "Fayoztepa" }
+  ]
+};

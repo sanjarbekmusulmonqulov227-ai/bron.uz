@@ -78,7 +78,8 @@
       <label>Sharhlar soni<input id="lReviews" type="number" min="0" value="0"></label>
       <label>Belgilar (vergul bilan)<input id="lTags" placeholder="Wi-Fi, Nonushta"></label>
       <label>Rasm rangi (0–359)<input id="lHue" type="number" min="0" max="359" value="200"></label>
-      <label>Rasmdagi belgi<input id="lGlyph" maxlength="4" placeholder="★4"></label>
+      <label>Surat havolasi (https://...)<input id="lPhoto" type="url" placeholder="https://..."></label>
+      <label>Tavsif<input id="lDesc" maxlength="600"></label>
       <div class="actions"><button class="btn" type="submit" id="lSave">Qo'shish</button><button class="btn line" type="button" id="lCancel" hidden>Bekor</button></div>
     </form>
     <datalist id="cities"><option>Toshkent</option><option>Samarqand</option><option>Buxoro</option><option>Xiva</option></datalist>
@@ -151,11 +152,12 @@
     $("#lReviews").value = x ? x.reviews : 0;
     $("#lTags").value = x ? x.tags.join(", ") : "";
     $("#lHue").value = x ? x.hue : 200;
-    $("#lGlyph").value = x ? x.glyph : "";
+    $("#lPhoto").value = x && x.photo ? x.photo : "";
+    $("#lDesc").value = x && x.desc ? x.desc : "";
     $("#lSave").textContent = x ? "Saqlash" : "Qo'shish";
     $("#lCancel").hidden = !x;
   }
-  const formData = () => ({ type: $("#lType").value, name: $("#lName").value, city: $("#lCity").value, price: $("#lPrice").value, capacity: $("#lCap").value, rating: $("#lRating").value, reviews: $("#lReviews").value, tags: $("#lTags").value, hue: $("#lHue").value, glyph: $("#lGlyph").value });
+  const formData = () => ({ type: $("#lType").value, name: $("#lName").value, city: $("#lCity").value, price: $("#lPrice").value, capacity: $("#lCap").value, rating: $("#lRating").value, reviews: $("#lReviews").value, tags: $("#lTags").value, hue: $("#lHue").value, photo: $("#lPhoto").value.trim(), desc: $("#lDesc").value.trim() });
 
   document.addEventListener("change", async (e) => {
     const s = e.target.closest("select[data-kind]");
