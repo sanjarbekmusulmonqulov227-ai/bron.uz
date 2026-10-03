@@ -10,7 +10,7 @@
   const TYPES = {
     hotel: { title: "Mehmonxonalar", kind: "Mehmonxona", unit: "1 kecha", from: "Kelish", to: "Ketish", guests: "Mehmonlar", noun: "kecha" },
     venue: { title: "Konferens-zallar", kind: "Zal", unit: "1 kun", from: "Boshlanish", to: "Tugash", guests: "Qatnashchilar", noun: "kun" },
-    tour:  { title: "Turlar va ekskursiyalar", kind: "Tur", unit: "1 kishi", from: "Sana", to: "Qaytish", guests: "Kishilar", noun: "kishi" }
+    tour:  { title: "Tur paketlari va ekskursiyalar", kind: "Tur", unit: "1 kishi", from: "Sana", to: "Qaytish", guests: "Kishilar", noun: "kishi" }
   };
 
   const ROOMS = [
@@ -38,19 +38,21 @@
     guide: ["Gid", "M5 21V4M5 4h11l-2 4 2 4H5"],
     tickets: ["Chiptalar kiradi", "M3 8a2 2 0 0 0 0 4v4h18v-4a2 2 0 0 1 0-4V4H3zM14 4v16"],
     meal: ["Ovqat kiradi", "M7 3v18M4 3v5a3 3 0 0 0 6 0V3M17 21V3c-2 1-3 4-3 7h3"],
+    hotel: ["Mehmonxona", "M3 19V8M3 14h18v5M21 19v-5a3 3 0 0 0-3-3h-7v3M7 11.5a1.5 1.5 0 1 0 0-.01"],
+    train: ["Poyezd chiptasi", "M7 3h10a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3zM4 10h16M8 21l2-4M16 21l-2-4M8 13.5h.01M16 13.5h.01"],
     transport: ["Transport", "M5 17V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v11M5 17h14M5 11h14M8 17v3M16 17v3"]
   };
   const AMEN_FILTER = {
     hotel: ["wifi", "breakfast", "pool", "spa", "parking", "transfer", "family"],
     venue: ["translation", "screen", "coffee", "parking", "wifi"],
-    tour: ["guide", "transport", "meal", "tickets"]
+    tour: ["hotel", "train", "guide", "transport", "meal", "tickets"]
   };
 
   const STORE_KEY = "bronuz.bookings";
   const FAV_KEY = "bronuz.favs";
   const $ = (s) => document.querySelector(s);
   const $$ = (s) => Array.from(document.querySelectorAll(s));
-  const state = { type: "hotel", city: "", from: "", to: "", guests: 2, sort: "rec", maxPct: 100, stars: new Set(), amen: new Set(), free: false, deals: false, favOnly: false, current: null, room: "standart" };
+  const state = { type: "hotel", city: "", from: "", to: "", guests: 2, sort: "rec", maxPct: 100, stars: new Set(), amen: new Set(), free: false, deals: false, favOnly: false, current: null, room: "standart", limit: 9, vFormat: "", vLimit: 6, pk: "multi" };
   let API = false;
 
   // ---------- helpers ----------
@@ -139,10 +141,13 @@
   const hashOf = (s) => { let h = 0; for (const c of String(s)) h = (h * 33 + c.charCodeAt(0)) >>> 0; return h; };
   // A listing shows photos of its city, starting at a different one per listing; admins may set their own photo URL.
   function photosFor(x) {
-    const own = x.photo ? [{ url: x.photo, title: x.name }] : [];
+    const own = (x.photo ? [{ url: x.photo, title: x.name }] : []).concat(x.photos || []);
     const list = PHOTOS[x.city] || [];
     const k = list.length ? hashOf(x.id) % list.length : 0;
-    return own.concat(list.slice(k), list.slice(0, k));
+    // A multi-city package shows one landmark from every city on its route, starting with the most famous one.
+    const stops = (x.days > 1 ? x.route || [] : []).filter((c) => PHOTOS[c]).map((c) => PHOTOS[c][hashOf(x.id + c) % PHOTOS[c].length]);
+    if (stops.length > 1 && x.route[0] === "Toshkent") stops.push(stops.shift());
+    return own.concat(stops.length ? stops : [], list.slice(k), list.slice(0, k)).filter((p, i, a) => a.indexOf(p) === i);
   }
   const srcOf = (p, w) => p.url || photoUrl(p.file, w);
   const imgTag = (p, w) => p ? `<img class="ph" data-ph loading="lazy" decoding="async" alt="" src="${esc(srcOf(p, w))}">` : "";
@@ -155,6 +160,8 @@
     const im = new Image();
     im.onload = () => { const el = $("#heroPhoto"); el.style.backgroundImage = `url("${im.src}")`; el.classList.add("ready"); $("#phonePhoto").style.backgroundImage = `url("${im.src}")`; };
     im.src = photoUrl(p.file, 1600);
+    const day = (PHOTOS["Samarqand"] || [])[0];
+    $("#heroArch").innerHTML = art("dome", 205, "heroarch") + (day ? imgTag(day, 900) : "");
   }
 
   function heroArt() {
@@ -220,6 +227,7 @@
     state.to = $("#fTo").value;
     state.guests = Math.max(1, parseInt($("#fGuests").value, 10) || 1);
     state.sort = $("#fSort").value;
+    state.limit = 9;
   }
 
   function validateSearch() {
@@ -284,12 +292,98 @@
     $("#resTitle").textContent = state.city ? state.city : "Barcha shaharlar";
     $("#resCount").textContent = `${list.length} ta variant`;
     $$(".city").forEach((c) => c.classList.toggle("is-on", c.dataset.city === state.city));
-    $("#grid").innerHTML = list.length ? list.map(card).join("")
+    const shown = list.slice(0, state.limit);
+    $("#moreBtn").hidden = list.length <= state.limit;
+    $("#moreBtn").textContent = `Yana ko'rsatish (${list.length - shown.length})`;
+    $("#grid").innerHTML = list.length ? shown.map(card).join("")
       : `<div class="empty"><b>Bu shartlar bo'yicha joy topilmadi</b><span>Filtrlarni yumshating yoki boshqa shaharni tanlang.</span><button class="btn btn-line" type="button" data-reset>Filtrlarni tozalash</button></div>`;
   }
 
+  // ---------- conference halls ----------
+  const FORMATS = { "": "Hammasi", conf: "Konferensiya", meet: "Seminar va muzokara", gala: "Banket va gala", open: "Ochiq maydon", expo: "Ko'rgazma" };
+  const LAYOUTS = {
+    teatr: ["Teatr", "M4 5h16M5 9h2M11 9h2M17 9h2M5 13h2M11 13h2M17 13h2M5 17h2M11 17h2M17 17h2"],
+    sinf: ["Sinf", "M4 5h16M4 10h6M14 10h6M4 15h6M14 15h6M6 10v2M8 10v2M16 10v2M18 10v2"],
+    banket: ["Banket", "M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"],
+    furshet: ["Furshet", "M8 3h8l-1 7a3 3 0 0 1-6 0zM12 13v7M8 21h8"]
+  };
+  const lic = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>`;
+  function layoutList(x, cls) {
+    const L = x.layouts || { teatr: x.capacity };
+    return `<ul class="${cls}">${Object.keys(LAYOUTS).filter((k) => L[k]).map((k) => `<li>${lic(LAYOUTS[k][1])}<b>${L[k]}</b><span>${LAYOUTS[k][0]}</span></li>`).join("")}${x.area ? `<li>${lic("M4 4h16v16H4zM4 9h5V4M15 20v-5h5")}<b>${x.area}</b><span>m²</span></li>` : ""}</ul>`;
+  }
+  function vcard(x) {
+    const p = photosFor(x)[0];
+    const off = x.old ? Math.round((1 - x.price / x.old) * 100) : 0;
+    return `
+    <article class="vcard">
+      <div class="v-photo-wrap">
+        <button class="v-photo" type="button" data-open="${esc(x.id)}" aria-label="${esc(x.name)}: batafsil">${art(x.art, x.hue, "v" + x.id)}${imgTag(p, 800)}<span class="kind">${esc(x.kind || "Zal")}</span>${off ? `<span class="badge">−${off}%</span>` : ""}</button>
+        <button class="fav" type="button" data-fav="${esc(x.id)}" aria-pressed="${favs.has(x.id)}" aria-label="Sevimlilarga qo'shish">${heart}</button>
+      </div>
+      <div class="v-body">
+        <div class="item-top">
+          <div><p class="v-city">${esc(x.city)} · ${esc(x.district || "")}</p><h3><button type="button" data-open="${esc(x.id)}">${esc(x.name)}</button></h3></div>
+          <div class="rating"><b>${Number(x.rating).toFixed(1)}</b><small>${x.reviews} sharh</small></div>
+        </div>
+        ${layoutList(x, "v-lay")}
+        <div class="amen">${(x.amenities || []).slice(0, 4).map((k) => AMEN[k] ? `<span>${icon(k)}${AMEN[k][0]}</span>` : "").join("")}</div>
+        <div class="v-foot">
+          <p class="price">${x.old ? `<s>${som(x.old)}</s>` : ""}<b>${som(x.price)}</b><small>1 kun</small></p>
+          <div class="v-acts"><button class="btn btn-line" type="button" data-open="${esc(x.id)}">Batafsil</button><button class="btn btn-gold" type="button" data-book="${esc(x.id)}">Bron qilish</button></div>
+        </div>
+      </div>
+    </article>`;
+  }
+  function renderVenues() {
+    const all = LISTINGS.filter((x) => x.type === "venue");
+    $("#vFormats").innerHTML = Object.keys(FORMATS).filter((k) => !k || all.some((x) => x.format === k)).map((k) => `<button type="button" class="chip" data-vf="${k}" aria-pressed="${state.vFormat === k}">${FORMATS[k]}</button>`).join("");
+    const list = all.filter((x) => !state.vFormat || x.format === state.vFormat).sort((a, b) => b.rating * Math.log(b.reviews + 2) - a.rating * Math.log(a.reviews + 2));
+    $("#vMore").hidden = list.length <= state.vLimit;
+    $("#vMore").textContent = `Barcha zallarni ko'rsatish (${list.length})`;
+    $("#vgrid").innerHTML = list.slice(0, state.vLimit).map(vcard).join("") || `<p class="mine-empty">Bu formatda zal hozircha yo'q.</p>`;
+  }
+
+  // ---------- tour packages ----------
+  const durOf = (x) => x.days > 1 ? `${x.days} kun · ${x.nights ?? x.days - 1} kecha` : (x.district || "1 kun").replace(/^1 kun · /, "");
+  const routeHtml = (x) => (x.route || []).map((c) => `<span>${esc(c)}</span>`).join(`<i aria-hidden="true"></i>`);
+  function pcard(x) {
+    const p = photosFor(x)[0];
+    const off = x.old ? Math.round((1 - x.price / x.old) * 100) : 0;
+    return `
+    <article class="pcard">
+      <div class="v-photo-wrap">
+        <button class="p-photo" type="button" data-open="${esc(x.id)}" aria-label="${esc(x.name)}: dastur">${art(x.art, x.hue, "p" + x.id)}${imgTag(p, 700)}<span class="dur">${esc(durOf(x))}</span>${off ? `<span class="badge">−${off}%</span>` : ""}</button>
+        <button class="fav" type="button" data-fav="${esc(x.id)}" aria-pressed="${favs.has(x.id)}" aria-label="Sevimlilarga qo'shish">${heart}</button>
+      </div>
+      <div class="p-body">
+        <p class="p-route">${routeHtml(x)}</p>
+        <h3><button type="button" data-open="${esc(x.id)}">${esc(x.name)}</button></h3>
+        <p class="meta"><span class="p-rate">★ ${Number(x.rating).toFixed(1)}</span> · ${x.reviews} sharh · guruh ${x.capacity} kishigacha</p>
+        <div class="p-inc">${(x.amenities || []).map((k) => AMEN[k] ? `<span title="${AMEN[k][0]}">${icon(k)}${AMEN[k][0]}</span>` : "").join("")}</div>
+        <div class="v-foot">
+          <p class="price">${x.old ? `<s>${som(x.old)}</s>` : ""}<b>${som(x.price)}</b><small>1 kishi uchun</small></p>
+          <div class="v-acts"><button class="btn btn-line" type="button" data-open="${esc(x.id)}">Dastur</button><button class="btn btn-gold" type="button" data-book="${esc(x.id)}">Bron qilish</button></div>
+        </div>
+      </div>
+    </article>`;
+  }
+  function renderPackages() {
+    const multi = (x) => (x.days || 1) > 1;
+    const list = LISTINGS.filter((x) => x.type === "tour" && (state.pk === "multi" ? multi(x) : !multi(x))).sort((a, b) => b.rating - a.rating);
+    $$("#pKinds .seg-b").forEach((b) => { const on = b.dataset.pk === state.pk; b.classList.toggle("is-on", on); b.setAttribute("aria-selected", String(on)); });
+    $("#pgrid").innerHTML = list.map(pcard).join("") || `<p class="mine-empty">Hozircha dastur yo'q.</p>`;
+  }
+  function renderCats() {
+    const n = (t) => LISTINGS.filter((x) => x.type === t).length;
+    $("#catHotel").textContent = `${n("hotel")} ta joy`;
+    $("#catVenue").textContent = `${n("venue")} ta zal`;
+    $("#catTour").textContent = `${n("tour")} ta dastur`;
+  }
+
   function renderCities() {
-    $("#fCity").insertAdjacentHTML("beforeend", CITIES.map((c) => `<option>${esc(c.name)}</option>`).join(""));
+    const cur = $("#fCity").value;
+    $("#fCity").innerHTML = `<option value="">Barcha shaharlar</option>` + CITIES.map((c) => `<option${c.name === cur ? " selected" : ""}>${esc(c.name)}</option>`).join("");
     $("#cities").innerHTML = CITIES.map((c) => {
       const n = LISTINGS.filter((x) => x.city === c.name).length;
       return `<button class="city" type="button" data-city="${esc(c.name)}"><span class="arch">${art(c.art, c.hue, "city" + c.name)}${imgTag((PHOTOS[c.name] || [])[0], 640)}<span class="c-txt"><span class="c-count">${n} ta joy</span><b>${esc(c.name)}</b><small>${esc(c.note)}</small></span></span></button>`;
@@ -327,11 +421,16 @@
     const ps = photosFor(x);
     $("#dArt").className = "gallery";
     $("#dArt").innerHTML = art(x.art, x.hue, x.id + "big") + (ps.length ? `<div class="g-track" id="gTrack">${ps.map((p) => `<div class="g-slide"><img data-ph class="ph" alt="${esc(p.title)}" src="${esc(srcOf(p, 1200))}"><span class="g-cap">${esc(p.title)}${p.file ? `<a href="${filePage(p.file)}" target="_blank" rel="noopener">© Wikimedia Commons</a>` : ""}</span></div>`).join("")}</div>${ps.length > 1 ? `<button class="g-nav g-prev" type="button" data-g="-1" aria-label="Oldingi surat">‹</button><button class="g-nav g-next" type="button" data-g="1" aria-label="Keyingi surat">›</button>` : ""}` : "");
-    $("#dKind").textContent = `${t.kind} · ${x.city}`;
+    $("#dKind").textContent = `${x.kind || (x.type === "tour" && x.days > 1 ? "Tur paketi" : t.kind)} · ${x.city}`;
     $("#dTitle").textContent = x.name;
-    $("#dMeta").textContent = `${x.stars ? starStr(x.stars) + " · " : ""}${x.district || x.city} · ${Number(x.rating).toFixed(1)} ${ratingWord(x.rating)} (${x.reviews} sharh)`;
+    $("#dMeta").textContent = `${x.stars ? starStr(x.stars) + " · " : ""}${x.type === "tour" ? durOf(x) : x.district || x.city} · ${Number(x.rating).toFixed(1)} ${ratingWord(x.rating)} (${x.reviews} sharh)`;
     $("#dDesc").textContent = x.desc || "";
     $("#dAmen").innerHTML = (x.amenities || []).map((k) => AMEN[k] ? `<span>${icon(k)}${AMEN[k][0]}</span>` : "").join("") + (x.free ? `<span>${icon("tickets")}Bepul bekor qilish</span>` : "");
+    $("#dExtra").innerHTML = x.type === "venue"
+      ? `<h4 class="d-sub">Joylashtirish usullari</h4>${layoutList(x, "d-lay")}`
+      : x.type === "tour" && (x.itinerary || []).length
+        ? `${x.route ? `<p class="p-route big">${routeHtml(x)}</p>` : ""}<h4 class="d-sub">${x.days > 1 ? `Dastur: ${esc(durOf(x))}` : "Ekskursiya dasturi"}</h4><ol class="timeline">${x.itinerary.map(([t, d]) => `<li><b>${esc(t)}</b><span>${esc(d)}</span></li>`).join("")}</ol>`
+        : "";
     $("#dRooms").innerHTML = x.type === "hotel" ? `<div class="rooms" role="radiogroup" aria-label="Xona turi">${ROOMS.map((r, i) => `<label class="room"><input type="radio" name="room" value="${r.id}"${i === 0 ? " checked" : ""}><span><b>${r.name}</b> · ${x.capacity + r.extra} kishigacha</span><b>${som(unitPrice(x, r.id))}</b><small>${r.note}</small></label>`).join("")}</div>` : "";
     updateDetailPrice();
     openDlg($("#detailDlg"));
@@ -390,7 +489,7 @@
     const name = $("#bName").value.trim();
     const phone = $("#bPhone").value.trim();
     const from = $("#bFrom").value;
-    const to = item.type === "tour" ? from : $("#bTo").value;
+    const to = item.type === "tour" ? iso(addDays(day(from || todayIso()), (item.days || 1) - 1)) : $("#bTo").value;
     const guests = parseInt($("#bGuests").value, 10) || 0;
     const room = item.type === "hotel" ? state.room : undefined;
     ["#bName", "#bPhone"].forEach((s) => $(s).removeAttribute("aria-invalid"));
@@ -441,7 +540,7 @@
       return;
     }
     $("#myList").innerHTML = list.map((b) => {
-      const dates = b.type === "tour" || b.from === b.to ? fmtDate(b.from) : `${fmtDate(b.from)} – ${fmtDate(b.to)}`;
+      const dates = !b.to || b.from === b.to ? fmtDate(b.from) : `${fmtDate(b.from)} – ${fmtDate(b.to)}`;
       return `
       <div class="booking">
         <span class="code">${esc(b.code)}</span>
@@ -495,6 +594,9 @@
     initApp();
     renderCities();
     renderDeals();
+    renderVenues();
+    renderPackages();
+    renderCats();
     heroCount();
     $("#favCount").textContent = favs.size;
 
@@ -517,6 +619,10 @@
     $("#fDeals").addEventListener("change", (e) => { state.deals = e.target.checked; render(); });
     $("#fFav").addEventListener("change", (e) => { state.favOnly = e.target.checked; render(); });
     $("#fReset").addEventListener("click", resetFilters);
+    $("#moreBtn").addEventListener("click", () => { state.limit += 9; render(); });
+    $("#vFormats").addEventListener("click", (e) => { const b = e.target.closest("[data-vf]"); if (!b) return; state.vFormat = b.dataset.vf; state.vLimit = 6; renderVenues(); });
+    $("#vMore").addEventListener("click", () => { state.vLimit = 99; renderVenues(); });
+    $("#pKinds").addEventListener("click", (e) => { const b = e.target.closest("[data-pk]"); if (!b) return; state.pk = b.dataset.pk; renderPackages(); });
     $("#filterToggle").addEventListener("click", (e) => { const f = $("#filters"); const open = !f.classList.contains("open"); f.classList.toggle("open", open); e.currentTarget.setAttribute("aria-expanded", String(open)); });
     $("#favBtn").addEventListener("click", () => {
       const types = LISTINGS.filter((x) => favs.has(x.id)).map((x) => x.type);
@@ -724,7 +830,7 @@
       API = true;
       restoreUser();
       $("#sampleNote").hidden = true;
-      render(); renderDeals(); renderCities(); heroCount();
+      render(); renderDeals(); renderCities(); heroCount(); renderVenues(); renderPackages(); renderCats();
     } catch (e) { /* static hosting: keep sample data */ }
   }
 

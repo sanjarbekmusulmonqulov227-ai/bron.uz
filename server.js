@@ -57,7 +57,7 @@ if (!db.prepare("PRAGMA table_info(bookings)").all().some((c) => c.name === "use
 if (!db.prepare("PRAGMA table_info(listings)").all().some((c) => c.name === "details")) db.exec("ALTER TABLE listings ADD COLUMN details TEXT DEFAULT '{}'");
 
 // Extra listing fields kept as JSON: district, stars, old price, free cancellation, amenities, description, art style.
-const DETAIL_KEYS = ["district", "stars", "old", "free", "amenities", "desc", "art", "photo"];
+const DETAIL_KEYS = ["district", "stars", "old", "free", "amenities", "desc", "art", "photo", "photos", "format", "kind", "area", "layouts", "days", "nights", "route", "itinerary"];
 const pickDetails = (x) => Object.fromEntries(DETAIL_KEYS.filter((k) => x[k] !== undefined).map((k) => [k, x[k]]));
 
 if (db.prepare("SELECT COUNT(*) AS n FROM listings").get().n === 0) {
@@ -243,7 +243,17 @@ function validListing(b, id) {
       old: parseInt(b.old, 10) > 0 ? parseInt(b.old, 10) : undefined, free: b.free === undefined ? true : !!b.free,
       amenities: Array.isArray(b.amenities) ? b.amenities.map((t) => str(t, 20)).slice(0, 12) : undefined,
       desc: str(b.desc, 600), art: str(b.art, 20) || undefined,
-      photo: /^https:\/\/\S+$/.test(str(b.photo, 500)) ? str(b.photo, 500) : undefined
+      photo: /^https:\/\/\S+$/.test(str(b.photo, 500)) ? str(b.photo, 500) : undefined,
+      // Venue and tour-package extras (kept as-is from the sample data, cleaned up here).
+      photos: Array.isArray(b.photos) ? b.photos.filter((x) => x && typeof x.file === "string").slice(0, 6).map((x) => ({ file: str(x.file, 200), title: str(x.title, 100) })) : undefined,
+      format: ["conf", "meet", "gala", "open", "expo"].includes(b.format) ? b.format : undefined,
+      kind: str(b.kind, 40) || undefined,
+      area: parseInt(b.area, 10) > 0 ? parseInt(b.area, 10) : undefined,
+      layouts: b.layouts && typeof b.layouts === "object" ? Object.fromEntries(["teatr", "sinf", "banket", "furshet"].map((k) => [k, Math.max(0, parseInt(b.layouts[k], 10) || 0)])) : undefined,
+      days: parseInt(b.days, 10) > 0 ? Math.min(30, parseInt(b.days, 10)) : undefined,
+      nights: parseInt(b.nights, 10) >= 0 && b.nights !== undefined ? Math.min(30, parseInt(b.nights, 10)) : undefined,
+      route: Array.isArray(b.route) ? b.route.map((x) => str(x, 40)).filter(Boolean).slice(0, 8) : undefined,
+      itinerary: Array.isArray(b.itinerary) ? b.itinerary.filter(Array.isArray).slice(0, 15).map(([t, d]) => [str(t, 60), str(d, 400)]) : undefined
     },
     tags: (Array.isArray(b.tags) ? b.tags : String(b.tags || "").split(",")).map((t) => str(t, 40)).filter(Boolean).slice(0, 8),
     hue: (parseInt(b.hue, 10) || 200) % 360, glyph: str(b.glyph, 4), active: b.active === undefined ? true : !!b.active
@@ -329,7 +339,8 @@ async function handle(req, res) {
     if (!row) return fail(res, 404, "Bu joy topilmadi yoki vaqtincha yopiq.");
     const item = rowToListing(row);
     const client = str(b.client, 80), phone = normPhone(b.phone), from = b.from;
-    const to = item.type === "tour" ? from : b.to;
+    // A multi-day package ends on its last programme day.
+    const to = item.type === "tour" ? (isDate(from) ? new Date(Date.parse(from) + ((item.days || 1) - 1) * 86400000).toISOString().slice(0, 10) : from) : b.to;
     const guests = parseInt(b.guests, 10) || 0;
     const pay = PAY.includes(b.pay) ? b.pay : "joyida";
     if (client.length < 3) return fail(res, 400, "Ism familiyangizni kiriting.");

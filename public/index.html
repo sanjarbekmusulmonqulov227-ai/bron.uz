@@ -25,8 +25,8 @@
     <a class="logo" href="#top" aria-label="bron.uz bosh sahifa"><span class="logo-mark" aria-hidden="true"></span>bron<span>.uz</span></a>
     <nav class="nav" aria-label="Asosiy menyu">
       <a href="#natijalar" data-nav="hotel">Mehmonxonalar</a>
-      <a href="#natijalar" data-nav="venue">Zallar</a>
-      <a href="#natijalar" data-nav="tour">Turlar</a>
+      <a href="#zallar">Zallar</a>
+      <a href="#paketlar">Tur paketlari</a>
       <a href="#shaharlar">Shaharlar</a>
       <a href="#mice">Korporativ</a>
     </nav>
@@ -44,15 +44,25 @@
     <div class="hero-photo" id="heroPhoto" aria-hidden="true"></div>
     <div class="hero-art" id="heroArt" aria-hidden="true"></div>
     <div class="wrap hero-in">
-      <p class="eyebrow light">8 shahar · 38 joy · narxlar so'mda</p>
-      <h1>O'zbekiston bo'ylab <em>mehmonxona, zal va tur</em> bir joyda</h1>
-      <p class="lead">Samarqanddagi boutique mehmonxonadan Toshkentdagi 600 o'rinli kongress-zalgacha. Bron qiling, to'lovni joyida yoki Click, Payme orqali qiling.</p>
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow light">8 shahar · 38 joy · narxlar so'mda</p>
+          <h1>O'zbekiston bo'ylab <em>mehmonxona, zal va tur</em> bir joyda</h1>
+          <p class="lead">Samarqanddagi boutique mehmonxonadan Toshkentdagi 600 o'rinli kongress-zalgacha. Bron qiling, to'lovni joyida yoki Click, Payme orqali qiling.</p>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="h-arch"><div class="h-arch-in" id="heroArch"></div></div>
+          <div class="h-float h-f1"><b>9.8 ★</b><span>Buyuk Ipak yo'li paketi</span></div>
+          <div class="h-float h-f2"><b>600</b><span>o'rinli kongress-zal</span></div>
+          <div class="h-seal"><span>Ipak<br>yo'li</span></div>
+        </div>
+      </div>
 
       <form class="search" id="searchForm" autocomplete="off">
         <div class="tabs" role="tablist" aria-label="Bron turi">
           <button type="button" role="tab" class="tab is-on" data-type="hotel" aria-selected="true">Mehmonxona</button>
           <button type="button" role="tab" class="tab" data-type="venue" aria-selected="false">Konferens-zal</button>
-          <button type="button" role="tab" class="tab" data-type="tour" aria-selected="false">Tur va ekskursiya</button>
+          <button type="button" role="tab" class="tab" data-type="tour" aria-selected="false">Tur paketi</button>
         </div>
         <div class="fields">
           <label class="field">
@@ -85,6 +95,13 @@
         <li><b>Bepul</b> bekor qilish ko'p joylarda</li>
       </ul>
     </div>
+  </section>
+
+  <section class="wrap cats" aria-label="Bo'limlar">
+    <a class="cat" href="#natijalar" data-nav="hotel"><span class="cat-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20V9l9-5 9 5v11M3 20h18M8 20v-6h8v6M9 10h.01M15 10h.01"/></svg></span><span class="cat-tx"><b>Mehmonxonalar</b><small id="catHotel">24 ta joy</small></span></a>
+    <a class="cat" href="#zallar"><span class="cat-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18v11H3zM8 20h8M12 15v5M7 9h4M7 12h7"/></svg></span><span class="cat-tx"><b>Konferens-zallar</b><small id="catVenue">14 ta zal</small></span></a>
+    <a class="cat" href="#paketlar"><span class="cat-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21zM12 12.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg></span><span class="cat-tx"><b>Tur paketlari</b><small id="catTour">16 ta dastur</small></span></a>
+    <a class="cat" href="#mice"><span class="cat-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7a3 3 0 1 0 0-.01M16 7a3 3 0 1 0 0-.01M2 20v-2a5 5 0 0 1 10 0v2M12 20v-2a5 5 0 0 1 10 0v2"/></svg></span><span class="cat-tx"><b>Korporativ tadbirlar</b><small>Guruh so'rovi</small></span></a>
   </section>
 
   <section class="wrap section" id="shaharlar">
@@ -151,9 +168,44 @@
         </div>
         <button class="btn btn-line wide" type="button" id="fReset">Filtrlarni tozalash</button>
       </aside>
-      <div class="grid" id="grid"></div>
+      <div>
+        <div class="grid" id="grid"></div>
+        <div class="more-wrap"><button class="btn btn-line" type="button" id="moreBtn" hidden>Yana ko'rsatish</button></div>
+      </div>
     </div>
     <p class="note" id="sampleNote">Namuna ma'lumotlar: joy nomlari, narxlar va reytinglar sayt dizaynini ko'rsatish uchun o'ylab topilgan.</p>
+  </section>
+
+  <section class="venues-sec" id="zallar">
+    <div class="wrap section">
+      <div class="sec-head">
+        <div>
+          <p class="eyebrow">MICE · Tadbir maydonlari</p>
+          <h2>Konferens-zallar va tadbir maydonlari</h2>
+          <p class="muted">Kongressdan direktorlar kengashigacha: har bir zal uchun o'rinlar soni, maydon va jihozlar.</p>
+        </div>
+        <div class="chips" id="vFormats" role="group" aria-label="Tadbir formati"></div>
+      </div>
+      <div class="vgrid" id="vgrid"></div>
+      <div class="more-wrap"><button class="btn btn-line" type="button" id="vMore" hidden>Barcha zallar</button></div>
+    </div>
+  </section>
+
+  <section class="pk-sec" id="paketlar">
+    <div class="wrap section">
+      <div class="sec-head">
+        <div>
+          <p class="eyebrow">Sayohat dasturlari</p>
+          <h2>Tur paketlari</h2>
+          <p class="muted">Mehmonxona, poyezd, gid va ovqat bitta narxda. Har kunning dasturi oldindan ma'lum.</p>
+        </div>
+        <div class="seg seg-sm" id="pKinds" role="tablist" aria-label="Paket turi">
+          <button type="button" role="tab" class="seg-b is-on" data-pk="multi" aria-selected="true">Ko'p kunlik</button>
+          <button type="button" role="tab" class="seg-b" data-pk="day" aria-selected="false">Bir kunlik</button>
+        </div>
+      </div>
+      <div class="pgrid" id="pgrid"></div>
+    </div>
   </section>
 
   <div class="orn" aria-hidden="true"></div>
@@ -186,8 +238,8 @@
           <li><b>Exhibitions</b> ko'rgazma va stendlar</li>
         </ul>
         <ul class="facts">
-          <li><b>6</b><span>konferens-zal</span></li>
-          <li><b>10–600</b><span>kishilik tadbirlar</span></li>
+          <li><b>14</b><span>tadbir maydoni</span></li>
+          <li><b>16–800</b><span>kishilik tadbirlar</span></li>
           <li><b>8</b><span>shahar</span></li>
         </ul>
       </div>
@@ -266,8 +318,8 @@
     <div>
       <p class="f-title">Bo'limlar</p>
       <a href="#natijalar" data-nav="hotel">Mehmonxonalar</a>
-      <a href="#natijalar" data-nav="venue">Konferens-zallar</a>
-      <a href="#natijalar" data-nav="tour">Turlar</a>
+      <a href="#zallar">Konferens-zallar</a>
+      <a href="#paketlar">Tur paketlari</a>
       <a href="#mice">Korporativ</a>
     </div>
     <div>
@@ -294,6 +346,7 @@
       <p class="muted" id="dMeta"></p>
       <p id="dDesc"></p>
       <div class="d-amen" id="dAmen"></div>
+      <div id="dExtra"></div>
       <div id="dRooms"></div>
       <div class="d-foot">
         <p class="price" id="dPrice"></p>
