@@ -6,7 +6,7 @@ Mehmonxona, konferens-zal va turlarni bron qilish sayti. Node.js 22.13+ kerak, b
 - `public/` — sayt (index.html, styles.css, app.js)
 - `server.js` — server: sayt, API, admin panel, Telegram xabarlari
 - `admin.html` — admin panel (`/admin`, login va parol bilan)
-- `seed.json` — birinchi ishga tushganda bazaga yoziladigan namuna joylar
+- `public/data.js` — namuna joylar; bo'sh bazaga birinchi ishga tushganda yoziladi
 - `data/bron.db` — SQLite baza (avtomatik yaratiladi, zaxira nusxasini oling)
 
 ## Kompyuterda ishga tushirish

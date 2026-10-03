@@ -5,9 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>bron.uz</title>
   <meta name="description" content="bron.uz: O'zbekiston bo'ylab mehmonxona, konferens-zal va turlarni onlayn bron qilish.">
+  <meta name="theme-color" content="#14306f">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Golos+Text:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -19,18 +20,23 @@
       <a href="#natijalar" data-nav="hotel">Mehmonxonalar</a>
       <a href="#natijalar" data-nav="venue">Zallar</a>
       <a href="#natijalar" data-nav="tour">Turlar</a>
+      <a href="#shaharlar">Shaharlar</a>
       <a href="#mice">Korporativ</a>
     </nav>
-    <a class="my-btn" href="#bronlarim">Bronlarim <b id="myCount">0</b></a>
+    <div class="top-actions">
+      <button class="icon-btn" type="button" id="favBtn" aria-label="Sevimlilar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2.1 0 3.6 1.1 5.2 3 1.6-1.9 3.1-3 5.2-3 3.8 0 5.9 3.9 4.4 7.3C19.5 16.4 12 21 12 21z"/></svg><b id="favCount">0</b></button>
+      <a class="my-btn" href="#bronlarim" aria-label="Bronlarim"><span class="lbl">Bronlarim</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM4 9h16M9 5v4"/></svg><b id="myCount">0</b></a>
+    </div>
   </div>
 </header>
 
 <main id="top">
   <section class="hero">
-    <div class="wrap">
-      <p class="eyebrow">Toshkent · Samarqand · Buxoro · Xiva</p>
-      <h1>Mehmonxona, zal va turni bir joyda bron qiling</h1>
-      <p class="lead">Dam olish, ish safari yoki 300 kishilik konferensiya uchun. Narx so'mda, to'lov joyida yoki onlayn.</p>
+    <div class="hero-art" id="heroArt" aria-hidden="true"></div>
+    <div class="wrap hero-in">
+      <p class="eyebrow light">8 shahar · 38 joy · narxlar so'mda</p>
+      <h1>O'zbekiston bo'ylab <em>mehmonxona, zal va tur</em> bir joyda</h1>
+      <p class="lead">Samarqanddagi boutique mehmonxonadan Toshkentdagi 600 o'rinli kongress-zalgacha. Bron qiling, to'lovni joyida yoki Click, Payme orqali qiling.</p>
 
       <form class="search" id="searchForm" autocomplete="off">
         <div class="tabs" role="tablist" aria-label="Bron turi">
@@ -41,19 +47,13 @@
         <div class="fields">
           <label class="field">
             <span>Shahar</span>
-            <select id="fCity">
-              <option value="">Barcha shaharlar</option>
-              <option>Toshkent</option>
-              <option>Samarqand</option>
-              <option>Buxoro</option>
-              <option>Xiva</option>
-            </select>
+            <select id="fCity"><option value="">Barcha shaharlar</option></select>
           </label>
           <label class="field">
             <span id="fFromLabel">Kelish</span>
             <input type="date" id="fFrom" required>
           </label>
-          <label class="field">
+          <label class="field" id="fToWrap">
             <span id="fToLabel">Ketish</span>
             <input type="date" id="fTo" required>
           </label>
@@ -61,43 +61,123 @@
             <span id="fGuestsLabel">Mehmonlar</span>
             <input type="number" id="fGuests" min="1" max="1000" value="2" inputmode="numeric">
           </label>
-          <button class="btn btn-gold search-btn" type="submit">Qidirish</button>
+          <button class="btn btn-gold search-btn" type="submit">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+            Qidirish
+          </button>
         </div>
         <p class="form-msg" id="searchMsg" role="status"></p>
       </form>
+
+      <ul class="trust">
+        <li><b>0 so'm</b> bron uchun komissiya</li>
+        <li><b>24/7</b> o'zbek va rus tilida yordam</li>
+        <li><b>Bepul</b> bekor qilish ko'p joylarda</li>
+      </ul>
     </div>
   </section>
 
-  <section class="wrap results" id="natijalar" aria-live="polite">
-    <div class="results-head">
+  <section class="wrap section" id="shaharlar">
+    <div class="sec-head">
       <div>
-        <h2 id="resTitle">Mehmonxonalar</h2>
+        <p class="eyebrow">Yo'nalishlar</p>
+        <h2>Qayerga boramiz?</h2>
+      </div>
+      <p class="muted">Shaharni bosing, faqat o'sha yerdagi joylar ko'rsatiladi.</p>
+    </div>
+    <div class="cities" id="cities"></div>
+  </section>
+
+  <section class="wrap section" id="takliflar">
+    <div class="sec-head">
+      <div>
+        <p class="eyebrow">Shu hafta</p>
+        <h2>Chegirmali takliflar</h2>
+      </div>
+    </div>
+    <div class="deals" id="deals"></div>
+  </section>
+
+  <section class="wrap section results" id="natijalar">
+    <div class="sec-head">
+      <div>
+        <p class="eyebrow" id="resEyebrow">Mehmonxonalar</p>
+        <h2 id="resTitle">Barcha shaharlar</h2>
         <p class="muted" id="resCount"></p>
       </div>
-      <label class="sort">
-        <span>Saralash</span>
-        <select id="fSort">
-          <option value="rec">Tavsiya etilgan</option>
-          <option value="cheap">Avval arzonlari</option>
-          <option value="exp">Avval qimmatlari</option>
-          <option value="rate">Reyting bo'yicha</option>
-        </select>
-      </label>
+      <div class="res-tools">
+        <button class="btn btn-line filter-toggle" type="button" id="filterToggle" aria-expanded="false" aria-controls="filters">Filtrlar</button>
+        <label class="sort">
+          <span>Saralash</span>
+          <select id="fSort">
+            <option value="rec">Tavsiya etilgan</option>
+            <option value="cheap">Avval arzonlari</option>
+            <option value="exp">Avval qimmatlari</option>
+            <option value="rate">Reyting bo'yicha</option>
+          </select>
+        </label>
+      </div>
     </div>
-    <div class="grid" id="grid"></div>
-    <p class="note">Namuna ma'lumotlar: joy nomlari va narxlar sayt dizaynini ko'rsatish uchun yozilgan.</p>
+
+    <div class="res-layout">
+      <aside class="filters" id="filters" aria-label="Filtrlar">
+        <div class="f-group">
+          <div class="f-row"><h3>Narx</h3><output id="priceOut"></output></div>
+          <input type="range" id="fPrice" min="0" max="100" step="1" aria-label="Eng yuqori narx">
+          <p class="muted small" id="priceUnit"></p>
+        </div>
+        <div class="f-group" id="starsGroup">
+          <h3>Yulduzlar</h3>
+          <div class="chips" id="fStars"></div>
+        </div>
+        <div class="f-group">
+          <h3>Qulayliklar</h3>
+          <div class="checks" id="fAmen"></div>
+        </div>
+        <div class="f-group">
+          <label class="check"><input type="checkbox" id="fFree"> <span>Bepul bekor qilish</span></label>
+          <label class="check"><input type="checkbox" id="fDeals"> <span>Faqat chegirmalar</span></label>
+          <label class="check"><input type="checkbox" id="fFav"> <span>Faqat sevimlilar</span></label>
+        </div>
+        <button class="btn btn-line wide" type="button" id="fReset">Filtrlarni tozalash</button>
+      </aside>
+      <div class="grid" id="grid"></div>
+    </div>
+    <p class="note" id="sampleNote">Namuna ma'lumotlar: joy nomlari, narxlar va reytinglar sayt dizaynini ko'rsatish uchun o'ylab topilgan.</p>
+  </section>
+
+  <section class="steps-band">
+    <div class="wrap section">
+      <div class="sec-head">
+        <div>
+          <p class="eyebrow">Qanday ishlaydi</p>
+          <h2>Uch qadamda bron</h2>
+        </div>
+      </div>
+      <ol class="steps">
+        <li><b>Joy tanlang</b><span>Shahar, sana va mehmonlar sonini kiriting. Narx va qulayliklarni solishtiring.</span></li>
+        <li><b>Bron qiling</b><span>Ism va telefon raqamini yozing. Bron raqami darhol beriladi.</span></li>
+        <li><b>Tasdiqni oling</b><span>Mehmonxona yoki tashkilotchi 30 daqiqa ichida qo'ng'iroq qilib tasdiqlaydi.</span></li>
+      </ol>
+    </div>
   </section>
 
   <section class="mice" id="mice">
     <div class="wrap mice-in">
       <div class="mice-copy">
-        <p class="eyebrow">MICE · Korporativ mijozlar uchun</p>
+        <p class="eyebrow gold">MICE · Korporativ mijozlar uchun</p>
         <h2>Konferensiya, forum yoki jamoaviy safar rejalashtiryapsizmi?</h2>
-        <p>Zal, mehmonxona bloki, transfer va ekskursiyalarni bitta so'rovda yig'amiz. Menejer 1 ish kuni ichida taklif yuboradi.</p>
+        <p>Zal, mehmonxona bloki, transfer, tarjimon va ekskursiyalarni bitta so'rovda yig'amiz. Menejer 1 ish kuni ichida taklif yuboradi.</p>
+        <ul class="mice-list">
+          <li><b>Meetings</b> uchrashuv va seminarlar, 10–60 kishi</li>
+          <li><b>Incentives</b> xodimlar uchun mukofot safarlari</li>
+          <li><b>Conferences</b> 600 kishigacha anjumanlar</li>
+          <li><b>Exhibitions</b> ko'rgazma va stendlar</li>
+        </ul>
         <ul class="facts">
-          <li><b>40+</b><span>konferens-zal</span></li>
+          <li><b>6</b><span>konferens-zal</span></li>
           <li><b>10–600</b><span>kishilik tadbirlar</span></li>
-          <li><b>4</b><span>shahar</span></li>
+          <li><b>8</b><span>shahar</span></li>
         </ul>
       </div>
       <form class="card mice-form" id="miceForm" novalidate>
@@ -121,28 +201,67 @@
     </div>
   </section>
 
-  <section class="wrap mine" id="bronlarim">
-    <h2>Mening bronlarim</h2>
+  <section class="wrap section faq" id="savollar">
+    <div class="sec-head"><div><p class="eyebrow">Savollar</p><h2>Ko'p beriladigan savollar</h2></div></div>
+    <div class="faq-list">
+      <details><summary>Bron uchun oldindan to'lash kerakmi?</summary><p>Ko'p joylarda yo'q. "Joyida to'lov" ni tanlasangiz, pulni kelganingizda naqd yoki karta orqali to'laysiz. Click, Payme yoki Uzum Bank orqali oldindan to'lash ham mumkin.</p></details>
+      <details><summary>Bronni qanday bekor qilaman?</summary><p>Pastdagi "Mening bronlarim" bo'limida "Bekor qilish" tugmasini bosing. "Bepul bekor qilish" belgisi bor joylarda kelishdan 24 soat oldingacha jarima yo'q.</p></details>
+      <details><summary>Chet ellik mehmonlar uchun ro'yxatdan o'tish kerakmi?</summary><p>Ha, mehmonxona sizni 24 soat ichida E-mehmon tizimida ro'yxatdan o'tkazadi. Buning uchun pasportingizni olib keling.</p></details>
+      <details><summary>Kompaniya nomidan hisob-faktura olsa bo'ladimi?</summary><p>Ha. Guruh so'rovini yuboring, menejer shartnoma va hisob-fakturani kompaniyangiz rekvizitlari bilan tayyorlaydi.</p></details>
+    </div>
+  </section>
+
+  <section class="wrap section mine" id="bronlarim">
+    <div class="sec-head"><div><p class="eyebrow">Shaxsiy</p><h2>Mening bronlarim</h2></div></div>
     <div id="myList"></div>
   </section>
 </main>
 
 <footer class="footer">
   <div class="wrap footer-in">
-    <div>
+    <div class="f-brand">
       <a class="logo" href="#top"><span class="logo-mark" aria-hidden="true"></span>bron<span>.uz</span></a>
-      <p class="muted">O'zbekiston bo'ylab onlayn bron xizmati.</p>
+      <p>O'zbekiston bo'ylab mehmonxona, zal va turlarni onlayn bron qilish xizmati.</p>
     </div>
     <div>
-      <p><b>Aloqa</b></p>
-      <p class="muted">+998 71 200 00 00<br>info@bron.uz</p>
+      <p class="f-title">Bo'limlar</p>
+      <a href="#natijalar" data-nav="hotel">Mehmonxonalar</a>
+      <a href="#natijalar" data-nav="venue">Konferens-zallar</a>
+      <a href="#natijalar" data-nav="tour">Turlar</a>
+      <a href="#mice">Korporativ</a>
     </div>
     <div>
-      <p><b>Ish vaqti</b></p>
-      <p class="muted">Har kuni, 09:00–21:00</p>
+      <p class="f-title">Aloqa</p>
+      <p>+998 71 200 00 00</p>
+      <p>info@bron.uz</p>
+      <p>Har kuni, 09:00–21:00</p>
+    </div>
+    <div>
+      <p class="f-title">To'lov usullari</p>
+      <div class="pays"><span>Click</span><span>Payme</span><span>Uzum</span><span>Naqd</span></div>
     </div>
   </div>
+  <div class="wrap f-bottom"><span>© 2026 bron.uz</span><span>Toshkent, O'zbekiston</span></div>
 </footer>
+
+<dialog id="detailDlg" class="dlg dlg-wide" aria-labelledby="dTitle">
+  <div class="detail">
+    <div class="d-art" id="dArt"></div>
+    <button type="button" class="x x-float" data-close aria-label="Yopish">×</button>
+    <div class="d-body">
+      <p class="eyebrow" id="dKind"></p>
+      <h3 id="dTitle"></h3>
+      <p class="muted" id="dMeta"></p>
+      <p id="dDesc"></p>
+      <div class="d-amen" id="dAmen"></div>
+      <div id="dRooms"></div>
+      <div class="d-foot">
+        <p class="price" id="dPrice"></p>
+        <button class="btn btn-gold" type="button" id="dBook">Bron qilish</button>
+      </div>
+    </div>
+  </div>
+</dialog>
 
 <dialog id="bookDlg" class="dlg" aria-labelledby="dlgTitle">
   <form id="bookForm" class="dlg-in" novalidate>
@@ -151,11 +270,12 @@
         <p class="eyebrow" id="dlgCity"></p>
         <h3 id="dlgTitle"></h3>
       </div>
-      <button type="button" class="x" id="dlgClose" aria-label="Yopish">×</button>
+      <button type="button" class="x" data-close aria-label="Yopish">×</button>
     </div>
+    <label class="field" id="bRoomWrap"><span>Xona turi</span><select id="bRoom"></select></label>
     <div class="row2">
       <label class="field"><span id="bFromLabel">Kelish</span><input type="date" id="bFrom" required></label>
-      <label class="field"><span id="bToLabel">Ketish</span><input type="date" id="bTo" required></label>
+      <label class="field" id="bToWrap"><span id="bToLabel">Ketish</span><input type="date" id="bTo" required></label>
     </div>
     <div class="row2">
       <label class="field"><span>Ism familiya</span><input id="bName" required placeholder="Aziza Karimova" autocomplete="name"></label>
@@ -184,6 +304,7 @@
 
 <div class="toast" id="toast" role="status" hidden></div>
 <!--BODY-END-->
+<script src="data.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

@@ -180,7 +180,7 @@
     e.preventDefault();
     const id = $("#lId").value;
     try {
-      if (id) { const cur = listings.find((x) => x.id === id); await call("PUT", `/api/admin/listings/${id}`, { ...formData(), active: cur ? cur.active : true }); say("Saqlandi.", true); }
+      if (id) { const cur = listings.find((x) => x.id === id); await call("PUT", `/api/admin/listings/${id}`, { ...(cur || {}), ...formData(), active: cur ? cur.active : true }); say("Saqlandi.", true); }
       else { await call("POST", "/api/admin/listings", formData()); say("Yangi joy qo'shildi.", true); }
       fillForm(null); loadListings();
     } catch (err) { say(err.message); }

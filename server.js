@@ -27,7 +27,7 @@ db.exec(`
     id TEXT PRIMARY KEY, type TEXT NOT NULL CHECK (type IN ('hotel','venue','tour')),
     name TEXT NOT NULL, city TEXT NOT NULL, rating REAL DEFAULT 0, reviews INTEGER DEFAULT 0,
     price INTEGER NOT NULL, capacity INTEGER NOT NULL, tags TEXT DEFAULT '[]',
-    hue INTEGER DEFAULT 200, glyph TEXT DEFAULT '', active INTEGER DEFAULT 1
+    hue INTEGER DEFAULT 200, glyph TEXT DEFAULT '', active INTEGER DEFAULT 1, details TEXT DEFAULT '{}'
   );
   CREATE TABLE IF NOT EXISTS bookings (
     code TEXT PRIMARY KEY, listing_id TEXT NOT NULL, listing_name TEXT, city TEXT, type TEXT,
@@ -41,14 +41,28 @@ db.exec(`
   );
 `);
 
+// Older databases lack the details column.
+if (!db.prepare("PRAGMA table_info(listings)").all().some((c) => c.name === "details")) db.exec("ALTER TABLE listings ADD COLUMN details TEXT DEFAULT '{}'");
+
+// Extra listing fields kept as JSON: district, stars, old price, free cancellation, amenities, description, art style.
+const DETAIL_KEYS = ["district", "stars", "old", "free", "amenities", "desc", "art"];
+const pickDetails = (x) => Object.fromEntries(DETAIL_KEYS.filter((k) => x[k] !== undefined).map((k) => [k, x[k]]));
+
 if (db.prepare("SELECT COUNT(*) AS n FROM listings").get().n === 0) {
-  const seed = JSON.parse(fs.readFileSync(path.join(__dirname, "seed.json"), "utf8"));
-  const ins = db.prepare("INSERT INTO listings (id,type,name,city,rating,reviews,price,capacity,tags,hue,glyph) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
-  for (const x of seed) ins.run(x.id, x.type, x.name, x.city, x.rating, x.reviews, x.price, x.capacity, JSON.stringify(x.tags), x.hue, x.glyph);
+  // The site's own sample data (public/data.js) seeds an empty database.
+  const sandbox = { window: {} };
+  require("node:vm").runInNewContext(fs.readFileSync(path.join(PUBLIC_DIR, "data.js"), "utf8"), sandbox);
+  const seed = sandbox.window.BRON_LISTINGS || [];
+  const ins = db.prepare("INSERT INTO listings (id,type,name,city,rating,reviews,price,capacity,tags,hue,glyph,details) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
+  for (const x of seed) ins.run(x.id, x.type, x.name, x.city, x.rating, x.reviews, x.price, x.capacity, JSON.stringify(x.amenities || []), x.hue, "", JSON.stringify(pickDetails(x)));
   console.log(`Bazaga ${seed.length} ta namuna joy yozildi.`);
 }
 
-const rowToListing = (r) => ({ ...r, tags: JSON.parse(r.tags || "[]"), active: !!r.active });
+const rowToListing = (r) => {
+  const { details, ...rest } = r;
+  const d = JSON.parse(details || "{}");
+  return { ...rest, ...d, tags: JSON.parse(r.tags || "[]"), amenities: d.amenities || JSON.parse(r.tags || "[]"), active: !!r.active };
+};
 
 // ---------- rules shared with the front-end ----------
 const TYPES = ["hotel", "venue", "tour"];
@@ -63,10 +77,14 @@ const validPhone = (p) => /^\+998\d{9}$/.test(normPhone(p));
 const som = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " so'm";
 const str = (v, max) => String(v ?? "").trim().slice(0, max);
 
-function quote(item, from, to, guests) {
-  if (item.type === "tour") return item.price * guests;
+// Same room multipliers as public/app.js.
+const ROOMS = { standart: { mult: 1, extra: 0 }, deluxe: { mult: 1.35, extra: 0 }, lyuks: { mult: 1.8, extra: 2 } };
+const roomOf = (item, room) => (item.type === "hotel" && ROOMS[room]) || ROOMS.standart;
+function quote(item, from, to, guests, room) {
+  const p = Math.round(item.price * roomOf(item, room).mult / 1000) * 1000;
+  if (item.type === "tour") return p * guests;
   const n = Math.max(1, days(from, to) + (item.type === "venue" ? 1 : 0));
-  return item.price * n;
+  return p * n;
 }
 
 // ---------- telegram ----------
@@ -152,6 +170,12 @@ function validListing(b, id) {
     id, type: b.type, name: str(b.name, 120), city: str(b.city, 40),
     rating: Math.min(10, Math.max(0, Number(b.rating) || 0)), reviews: Math.max(0, parseInt(b.reviews, 10) || 0),
     price: parseInt(b.price, 10), capacity: parseInt(b.capacity, 10),
+    details: {
+      district: str(b.district, 80), stars: Math.min(5, Math.max(0, parseInt(b.stars, 10) || 0)) || undefined,
+      old: parseInt(b.old, 10) > 0 ? parseInt(b.old, 10) : undefined, free: b.free === undefined ? true : !!b.free,
+      amenities: Array.isArray(b.amenities) ? b.amenities.map((t) => str(t, 20)).slice(0, 12) : undefined,
+      desc: str(b.desc, 600), art: str(b.art, 20) || undefined
+    },
     tags: (Array.isArray(b.tags) ? b.tags : String(b.tags || "").split(",")).map((t) => str(t, 40)).filter(Boolean).slice(0, 8),
     hue: (parseInt(b.hue, 10) || 200) % 360, glyph: str(b.glyph, 4), active: b.active === undefined ? true : !!b.active
   };
@@ -192,9 +216,12 @@ async function handle(req, res) {
     if (item.type === "hotel" && !(to > from)) return fail(res, 400, "Ketish sanasi kelish sanasidan keyin bo'lishi kerak.");
     if (item.type === "venue" && to < from) return fail(res, 400, "Tugash sanasi boshlanish sanasidan oldin bo'lmasin.");
     if (days(from, to) > 60) return fail(res, 400, "Bir bron 60 kundan oshmasin.");
-    if (guests < 1 || guests > item.capacity) return fail(res, 400, `Bu joy ${item.capacity} kishigacha qabul qiladi.`);
+    if (guests < 1) return fail(res, 400, "Mehmonlar sonini kiriting.");
+    if (item.type !== "hotel" && guests > item.capacity) return fail(res, 400, `Bu joy ${item.capacity} kishigacha qabul qiladi.`);
 
-    const sum = quote(item, from, to, guests);
+    const room = item.type === "hotel" && ROOMS[b.room] ? b.room : "standart";
+    if (guests > item.capacity + roomOf(item, room).extra) return fail(res, 400, `Bu xona ${item.capacity + roomOf(item, room).extra} kishigacha.`);
+    const sum = quote(item, from, to, guests, room);
     const code = "BRN-" + crypto.randomBytes(4).toString("hex").toUpperCase().slice(0, 6);
     const booking = { code, listing_id: item.id, listing_name: item.name, city: item.city, type: item.type, date_from: from, date_to: to, guests, sum, pay, client, phone, note: str(b.note, 500), status: "yangi", created: new Date().toISOString() };
     db.prepare(`INSERT INTO bookings (code,listing_id,listing_name,city,type,date_from,date_to,guests,sum,pay,client,phone,note,status,created)
@@ -254,16 +281,16 @@ async function handle(req, res) {
     if (p === "/api/admin/listings" && M === "POST") {
       const x = validListing(await readJson(req), "L" + crypto.randomBytes(3).toString("hex"));
       if (typeof x === "string") return fail(res, 400, x);
-      db.prepare("INSERT INTO listings (id,type,name,city,rating,reviews,price,capacity,tags,hue,glyph,active) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)")
-        .run(x.id, x.type, x.name, x.city, x.rating, x.reviews, x.price, x.capacity, JSON.stringify(x.tags), x.hue, x.glyph, x.active ? 1 : 0);
+      db.prepare("INSERT INTO listings (id,type,name,city,rating,reviews,price,capacity,tags,hue,glyph,active,details) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)")
+        .run(x.id, x.type, x.name, x.city, x.rating, x.reviews, x.price, x.capacity, JSON.stringify(x.tags), x.hue, x.glyph, x.active ? 1 : 0, JSON.stringify(x.details));
       return send(res, 201, x);
     }
     m = /^\/api\/admin\/listings\/([\w-]{1,40})$/.exec(p);
     if (m && M === "PUT") {
       const x = validListing(await readJson(req), m[1]);
       if (typeof x === "string") return fail(res, 400, x);
-      const r = db.prepare("UPDATE listings SET type=?,name=?,city=?,rating=?,reviews=?,price=?,capacity=?,tags=?,hue=?,glyph=?,active=? WHERE id=?")
-        .run(x.type, x.name, x.city, x.rating, x.reviews, x.price, x.capacity, JSON.stringify(x.tags), x.hue, x.glyph, x.active ? 1 : 0, x.id);
+      const r = db.prepare("UPDATE listings SET type=?,name=?,city=?,rating=?,reviews=?,price=?,capacity=?,tags=?,hue=?,glyph=?,active=?,details=? WHERE id=?")
+        .run(x.type, x.name, x.city, x.rating, x.reviews, x.price, x.capacity, JSON.stringify(x.tags), x.hue, x.glyph, x.active ? 1 : 0, JSON.stringify(x.details), x.id);
       return r.changes ? send(res, 200, x) : fail(res, 404, "Joy topilmadi.");
     }
     if (m && M === "DELETE") {
