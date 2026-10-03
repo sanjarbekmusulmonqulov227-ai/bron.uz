@@ -1,0 +1,9 @@
+{
+  "name": "bron-uz",
+  "version": "1.0.0",
+  "private": true,
+  "description": "bron.uz: mehmonxona, zal va turlarni bron qilish sayti",
+  "main": "server.js",
+  "scripts": { "start": "node --no-warnings server.js" },
+  "engines": { "node": ">=22.13" }
+}

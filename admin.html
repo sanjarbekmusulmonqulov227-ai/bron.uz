@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>bron.uz admin</title>
+<style>
+  :root { --bg:#f4f6f8; --surface:#fff; --ink:#0f1e2a; --muted:#586b79; --line:#dbe2e8; --accent:#0e8a85; --gold:#e09b17; --err:#b8322a; --ok:#19804a; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0c141b; --surface:#142029; --ink:#e7eef3; --muted:#94a6b3; --line:#243441; --accent:#43c9c0; --gold:#f2b33a; --err:#ff7d72; --ok:#4fc285; color-scheme: dark; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { display: flex; align-items: center; gap: 16px; padding: 14px 20px; border-bottom: 1px solid var(--line); background: var(--surface); flex-wrap: wrap; }
+  header b { font-size: 1.1rem; } header b span { color: var(--accent); }
+  nav { display: flex; gap: 4px; flex-wrap: wrap; }
+  nav button { font: inherit; background: none; border: 0; padding: 8px 12px; border-radius: 8px; color: var(--muted); cursor: pointer; font-weight: 600; }
+  nav button.on { background: var(--bg); color: var(--ink); }
+  main { padding: 20px; max-width: 1200px; margin: 0 auto; }
+  .stats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
+  .stat b { display: block; font-size: 1.3rem; font-variant-numeric: tabular-nums; }
+  .stat span { color: var(--muted); font-size: .85rem; }
+  .tbl { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+  table { border-collapse: collapse; width: 100%; min-width: 760px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .muted { color: var(--muted); font-size: .85rem; }
+  select, input { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; }
+  .pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: .8rem; font-weight: 600; background: var(--bg); }
+  .pill.yangi { background: var(--gold); color: #241500; }
+  .btn { font: inherit; font-weight: 600; border: 0; border-radius: 8px; padding: 8px 14px; cursor: pointer; background: var(--accent); color: var(--surface); }
+  .btn.line { background: none; color: var(--ink); border: 1px solid var(--line); }
+  form.edit { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; margin-bottom: 16px; }
+  form.edit label { display: grid; gap: 3px; font-size: .8rem; color: var(--muted); font-weight: 600; }
+  form.edit .actions { display: flex; gap: 8px; align-items: end; }
+  .msg { min-height: 1.3em; margin: 8px 0; } .msg.err { color: var(--err); } .msg.ok { color: var(--ok); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <b>bron<span>.uz</span> admin</b>
+  <nav>
+    <button class="on" data-tab="bookings">Bronlar</button>
+    <button data-tab="requests">Guruh so'rovlari</button>
+    <button data-tab="listings">Joylar</button>
+  </nav>
+  <a href="/" class="muted" style="margin-left:auto">Saytga o'tish</a>
+</header>
+<main>
+  <p class="msg" id="msg" role="status"></p>
+
+  <section id="tab-bookings">
+    <div class="stats" id="stats"></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Raqam</th><th>Joy</th><th>Sana</th><th>Kishi</th><th>Summa</th><th>Mijoz</th><th>To'lov</th><th>Holat</th></tr></thead>
+      <tbody id="bookingsBody"></tbody>
+    </table></div>
+  </section>
+
+  <section id="tab-requests" hidden>
+    <div class="tbl"><table>
+      <thead><tr><th>Sana</th><th>Kompaniya</th><th>Tadbir</th><th>Kishi</th><th>Telefon</th><th>Holat</th></tr></thead>
+      <tbody id="requestsBody"></tbody>
+    </table></div>
+  </section>
+
+  <section id="tab-listings" hidden>
+    <form class="edit" id="listingForm">
+      <input type="hidden" id="lId">
+      <label>Turi<select id="lType"><option value="hotel">Mehmonxona</option><option value="venue">Zal</option><option value="tour">Tur</option></select></label>
+      <label>Nomi<input id="lName" required></label>
+      <label>Shahar<input id="lCity" required list="cities"></label>
+      <label>Narx (so'm)<input id="lPrice" type="number" min="1" required></label>
+      <label>Sig'im (kishi)<input id="lCap" type="number" min="1" required></label>
+      <label>Reyting (0–10)<input id="lRating" type="number" step="0.1" min="0" max="10" value="9"></label>
+      <label>Sharhlar soni<input id="lReviews" type="number" min="0" value="0"></label>
+      <label>Belgilar (vergul bilan)<input id="lTags" placeholder="Wi-Fi, Nonushta"></label>
+      <label>Rasm rangi (0–359)<input id="lHue" type="number" min="0" max="359" value="200"></label>
+      <label>Rasmdagi belgi<input id="lGlyph" maxlength="4" placeholder="★4"></label>
+      <div class="actions"><button class="btn" type="submit" id="lSave">Qo'shish</button><button class="btn line" type="button" id="lCancel" hidden>Bekor</button></div>
+    </form>
+    <datalist id="cities"><option>Toshkent</option><option>Samarqand</option><option>Buxoro</option><option>Xiva</option></datalist>
+    <div class="tbl"><table>
+      <thead><tr><th>Nomi</th><th>Turi</th><th>Shahar</th><th>Narx</th><th>Sig'im</th><th>Holat</th><th></th></tr></thead>
+      <tbody id="listingsBody"></tbody>
+    </table></div>
+  </section>
+</main>
+<script>
+(function () {
+  "use strict";
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const som = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " so'm";
+  const d = (s) => s ? s.slice(0, 10).split("-").reverse().join(".") : "";
+  const STATUSES = ["yangi", "tasdiqlandi", "bekor qilindi", "yakunlandi"];
+  const TYPE = { hotel: "Mehmonxona", venue: "Zal", tour: "Tur" };
+  let listings = [];
+
+  function say(t, ok) { const m = $("#msg"); m.textContent = t; m.className = "msg " + (ok ? "ok" : "err"); if (ok) setTimeout(() => { m.textContent = ""; }, 2500); }
+  async function call(method, url, body) {
+    const r = await fetch(url, { method, headers: body ? { "content-type": "application/json" } : {}, body: body ? JSON.stringify(body) : undefined });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || `Xatolik (${r.status})`);
+    return data;
+  }
+  const statusSelect = (kind, id, cur) => `<select data-kind="${kind}" data-id="${esc(id)}">${STATUSES.map((s) => `<option${s === cur ? " selected" : ""}>${s}</option>`).join("")}</select>`;
+
+  async function loadBookings() {
+    const rows = await call("GET", "/api/admin/bookings");
+    const active = rows.filter((r) => r.status !== "bekor qilindi");
+    const fresh = rows.filter((r) => r.status === "yangi").length;
+    const total = active.reduce((a, r) => a + r.sum, 0);
+    $("#stats").innerHTML = `<div class="stat"><b>${fresh}</b><span>yangi bron</span></div><div class="stat"><b>${active.length}</b><span>faol bronlar</span></div><div class="stat"><b>${som(total)}</b><span>faol bronlar summasi</span></div>`;
+    $("#bookingsBody").innerHTML = rows.length ? rows.map((r) => `<tr>
+      <td><b>${esc(r.code)}</b><div class="muted">${d(r.created)}</div></td>
+      <td>${esc(r.listing_name)}<div class="muted">${esc(r.city)}</div></td>
+      <td class="num">${d(r.date_from)}${r.date_to !== r.date_from ? "<br>" + d(r.date_to) : ""}</td>
+      <td class="num">${r.guests}</td>
+      <td class="num">${som(r.sum)}</td>
+      <td>${esc(r.client)}<div class="muted">${esc(r.phone)}</div>${r.note ? `<div class="muted">${esc(r.note)}</div>` : ""}</td>
+      <td>${esc(r.pay)}</td>
+      <td>${statusSelect("bookings", r.code, r.status)}</td></tr>`).join("") : `<tr><td colspan="8" class="muted">Hali bron yo'q. Saytdan bron qilinganda shu yerda paydo bo'ladi.</td></tr>`;
+  }
+
+  async function loadRequests() {
+    const rows = await call("GET", "/api/admin/requests");
+    $("#requestsBody").innerHTML = rows.length ? rows.map((r) => `<tr>
+      <td class="num">${d(r.created)}</td><td>${esc(r.company)}</td><td>${esc(r.kind)}</td><td class="num">${r.people}</td><td>${esc(r.phone)}</td>
+      <td>${statusSelect("requests", r.id, r.status)}</td></tr>`).join("") : `<tr><td colspan="6" class="muted">Guruh so'rovlari hali yo'q.</td></tr>`;
+  }
+
+  async function loadListings() {
+    listings = await call("GET", "/api/admin/listings");
+    $("#listingsBody").innerHTML = listings.map((x) => `<tr>
+      <td>${esc(x.name)}</td><td>${TYPE[x.type]}</td><td>${esc(x.city)}</td><td class="num">${som(x.price)}</td><td class="num">${x.capacity}</td>
+      <td>${x.active ? '<span class="pill">saytda</span>' : '<span class="pill muted">yashirin</span>'}</td>
+      <td style="white-space:nowrap"><button class="btn line" data-edit="${esc(x.id)}">Tahrirlash</button> ${x.active ? `<button class="btn line" data-hide="${esc(x.id)}">Yashirish</button>` : `<button class="btn line" data-show="${esc(x.id)}">Qaytarish</button>`}</td></tr>`).join("");
+  }
+
+  function fillForm(x) {
+    $("#lId").value = x ? x.id : "";
+    $("#lType").value = x ? x.type : "hotel";
+    $("#lName").value = x ? x.name : "";
+    $("#lCity").value = x ? x.city : "";
+    $("#lPrice").value = x ? x.price : "";
+    $("#lCap").value = x ? x.capacity : "";
+    $("#lRating").value = x ? x.rating : 9;
+    $("#lReviews").value = x ? x.reviews : 0;
+    $("#lTags").value = x ? x.tags.join(", ") : "";
+    $("#lHue").value = x ? x.hue : 200;
+    $("#lGlyph").value = x ? x.glyph : "";
+    $("#lSave").textContent = x ? "Saqlash" : "Qo'shish";
+    $("#lCancel").hidden = !x;
+  }
+  const formData = () => ({ type: $("#lType").value, name: $("#lName").value, city: $("#lCity").value, price: $("#lPrice").value, capacity: $("#lCap").value, rating: $("#lRating").value, reviews: $("#lReviews").value, tags: $("#lTags").value, hue: $("#lHue").value, glyph: $("#lGlyph").value });
+
+  document.addEventListener("change", async (e) => {
+    const s = e.target.closest("select[data-kind]");
+    if (!s) return;
+    try { await call("PATCH", `/api/admin/${s.dataset.kind}/${encodeURIComponent(s.dataset.id)}`, { status: s.value }); say("Holat saqlandi.", true); if (s.dataset.kind === "bookings") loadBookings(); }
+    catch (err) { say(err.message); }
+  });
+  document.addEventListener("click", async (e) => {
+    const t = e.target;
+    try {
+      if (t.dataset.tab) {
+        document.querySelectorAll("nav button").forEach((b) => b.classList.toggle("on", b === t));
+        ["bookings", "requests", "listings"].forEach((k) => { $("#tab-" + k).hidden = k !== t.dataset.tab; });
+        ({ bookings: loadBookings, requests: loadRequests, listings: loadListings })[t.dataset.tab]();
+      } else if (t.dataset.edit) { fillForm(listings.find((x) => x.id === t.dataset.edit)); window.scrollTo(0, 0); }
+      else if (t.dataset.hide) { await call("DELETE", `/api/admin/listings/${t.dataset.hide}`); say("Joy saytdan yashirildi.", true); loadListings(); }
+      else if (t.dataset.show) { const x = listings.find((y) => y.id === t.dataset.show); await call("PUT", `/api/admin/listings/${x.id}`, { ...x, active: true }); say("Joy saytga qaytarildi.", true); loadListings(); }
+      else if (t.id === "lCancel") fillForm(null);
+    } catch (err) { say(err.message); }
+  });
+  $("#listingForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = $("#lId").value;
+    try {
+      if (id) { const cur = listings.find((x) => x.id === id); await call("PUT", `/api/admin/listings/${id}`, { ...formData(), active: cur ? cur.active : true }); say("Saqlandi.", true); }
+      else { await call("POST", "/api/admin/listings", formData()); say("Yangi joy qo'shildi.", true); }
+      fillForm(null); loadListings();
+    } catch (err) { say(err.message); }
+  });
+
+  loadBookings().catch((err) => say(err.message));
+  setInterval(() => { if (!$("#tab-bookings").hidden) loadBookings().catch(() => {}); }, 30000);
+})();
+</script>
+</body>
+</html>
