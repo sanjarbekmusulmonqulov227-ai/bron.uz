@@ -288,7 +288,7 @@
     $("#fCity").insertAdjacentHTML("beforeend", CITIES.map((c) => `<option>${esc(c.name)}</option>`).join(""));
     $("#cities").innerHTML = CITIES.map((c) => {
       const n = LISTINGS.filter((x) => x.city === c.name).length;
-      return `<button class="city" type="button" data-city="${esc(c.name)}">${art(c.art, c.hue, "city" + c.name)}${imgTag((PHOTOS[c.name] || [])[0], 640)}<span class="c-count">${n} ta joy</span><span class="c-txt"><b>${esc(c.name)}</b><small>${esc(c.note)}</small></span></button>`;
+      return `<button class="city" type="button" data-city="${esc(c.name)}"><span class="arch">${art(c.art, c.hue, "city" + c.name)}${imgTag((PHOTOS[c.name] || [])[0], 640)}<span class="c-txt"><span class="c-count">${n} ta joy</span><b>${esc(c.name)}</b><small>${esc(c.note)}</small></span></span></button>`;
     }).join("");
   }
 

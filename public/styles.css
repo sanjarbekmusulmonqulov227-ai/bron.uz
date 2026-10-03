@@ -2,26 +2,28 @@
    city tiles; deal strip; filter sidebar + card grid; steps; MICE band; FAQ; bookings; footer.
    Palette from Samarkand tilework: lapis, turquoise, saffron on a cool off-white. */
 :root {
-  --bg: #f3f5f8;
-  --surface: #ffffff;
-  --surface-2: #eef2f6;
-  --ink: #0f1e2a;
-  --muted: #5a6c7a;
-  --line: #dbe2e9;
-  --lapis: #1c3d8c;
-  --turq: #0e8a85;
-  --gold: #e39c16;
+  --bg: #f6efe0;
+  --surface: #fffdf8;
+  --surface-2: #f4ecda;
+  --ink: #1d1a2b;
+  --muted: #6c6354;
+  --line: #e5d9bf;
+  --lapis: #1d3f94;
+  --turq: #0e8784;
+  --gold: #e0a21c;
   --gold-ink: #241500;
-  --band: #132c68;
-  --band-2: #0c1f4d;
-  --band-ink: #eef3ff;
-  --sale: #c2412d;
+  --anor: #b3263a;
+  --band: #15306f;
+  --band-2: #0d1f4c;
+  --band-ink: #f4f0e6;
+  --sale: #b3263a;
   --ok: #19804a;
-  --err: #b8322a;
-  --shadow: 0 18px 40px -22px rgba(15, 30, 60, .35);
-  --shadow-sm: 0 6px 16px -10px rgba(15, 30, 60, .3);
+  --err: #b3263a;
+  --orn: rgba(176, 128, 40, .09);
+  --shadow: 0 18px 40px -22px rgba(60, 40, 10, .38);
+  --shadow-sm: 0 6px 16px -10px rgba(60, 40, 10, .32);
 
-  --f-display: "Unbounded", "Golos Text", system-ui, sans-serif;
+  --f-display: "Yeseva One", Georgia, "Times New Roman", serif;
   --f-body: "Golos Text", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
   --r: 16px;
@@ -29,17 +31,17 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0b131a; --surface: #131f29; --surface-2: #182733; --ink: #e7eef3; --muted: #95a7b4; --line: #243543;
-    --lapis: #8eabff; --turq: #43c9c0; --gold: #f2b33a; --gold-ink: #1d1100;
-    --band: #0f2557; --band-2: #0a1838; --band-ink: #e6edff; --sale: #ff8a73; --ok: #4fc285; --err: #ff7d72;
+    --bg: #0c1226; --surface: #141c36; --surface-2: #1b2544; --ink: #efe9dc; --muted: #a8a294; --line: #2a3557;
+    --lapis: #9db4ff; --turq: #45c7bf; --gold: #f2b636; --gold-ink: #1d1100; --anor: #ff7f8c;
+    --band: #102461; --band-2: #09153a; --band-ink: #f4f0e6; --sale: #ff7f8c; --ok: #4fc285; --err: #ff7f8c; --orn: rgba(242, 182, 54, .06);
     --shadow: 0 18px 40px -22px rgba(0, 0, 0, .7); --shadow-sm: 0 6px 16px -10px rgba(0, 0, 0, .7);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0b131a; --surface: #131f29; --surface-2: #182733; --ink: #e7eef3; --muted: #95a7b4; --line: #243543;
-  --lapis: #8eabff; --turq: #43c9c0; --gold: #f2b33a; --gold-ink: #1d1100;
-  --band: #0f2557; --band-2: #0a1838; --band-ink: #e6edff; --sale: #ff8a73; --ok: #4fc285; --err: #ff7d72;
+  --bg: #0c1226; --surface: #141c36; --surface-2: #1b2544; --ink: #efe9dc; --muted: #a8a294; --line: #2a3557;
+  --lapis: #9db4ff; --turq: #45c7bf; --gold: #f2b636; --gold-ink: #1d1100; --anor: #ff7f8c;
+  --band: #102461; --band-2: #09153a; --band-ink: #f4f0e6; --sale: #ff7f8c; --ok: #4fc285; --err: #ff7f8c; --orn: rgba(242, 182, 54, .06);
   --shadow: 0 18px 40px -22px rgba(0, 0, 0, .7); --shadow-sm: 0 6px 16px -10px rgba(0, 0, 0, .7);
   color-scheme: dark;
 }
@@ -47,10 +49,11 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 76px; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; animation: none !important; } }
-body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--f-body); }
-h1, h2, h3 { font-family: var(--f-display); font-weight: 700; line-height: 1.15; text-wrap: balance; margin: 0; }
-h1 { font-size: clamp(2rem, 5vw, 3.6rem); font-weight: 800; letter-spacing: -.015em; }
-h2 { font-size: clamp(1.4rem, 2.8vw, 2.1rem); letter-spacing: -.01em; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--f-body); font-synthesis: none; }
+h1, h2 { font-family: var(--f-display); font-weight: 400; }
+h1, h2, h3 { font-weight: 700; line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.1rem, 5.4vw, 4rem); font-weight: 400; letter-spacing: 0; }
+h2 { font-size: clamp(1.55rem, 3vw, 2.3rem); font-weight: 400; letter-spacing: 0; }
 h3 { font-size: 1.05rem; }
 p { margin: 0; }
 a { color: inherit; }
@@ -376,3 +379,87 @@ input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--turq); p
   .top-actions .install-btn:not([hidden]) { display: inline-flex; }
   .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
 }
+
+/* ---------- National look: girih tiles, ravoq arches, suzani rosette, ikat stripes ---------- */
+:root {
+  --star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0l3.5 3.5h5v5L24 12l-3.5 3.5v5h-5L12 24l-3.5-3.5h-5v-5L0 12l3.5-3.5v-5h5z'/%3E%3C/svg%3E");
+  --ikat: linear-gradient(90deg, var(--anor) 0 9%, var(--gold) 15% 24%, var(--lapis) 30% 42%, var(--turq) 48% 57%, var(--gold) 63% 70%, var(--anor) 76% 88%, var(--lapis) 94%);
+}
+body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; background: var(--orn);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23000' stroke-width='1.3'%3E%3Cpath d='M38 34h20v20H38zM48 27l14 14v0-0l-14 14-14-14z' transform='translate(0 3)'/%3E%3Cpath d='M48 20l9 9h12v12l9 9-9 9v12H57l-9 9-9-9H27V59l-9-9 9-9V29h12z'/%3E%3Cpath d='M0 0l18 18M96 0L78 18M0 96l18-18M96 96L78 78M48 0v20M48 96V80M0 50h18M96 50H78'/%3E%3C/g%3E%3C/svg%3E") 0 0/96px 96px;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23000' stroke-width='1.3'%3E%3Cpath d='M38 34h20v20H38zM48 27l14 14v0-0l-14 14-14-14z' transform='translate(0 3)'/%3E%3Cpath d='M48 20l9 9h12v12l9 9-9 9v12H57l-9 9-9-9H27V59l-9-9 9-9V29h12z'/%3E%3Cpath d='M0 0l18 18M96 0L78 18M0 96l18-18M96 96L78 78M48 0v20M48 96V80M0 50h18M96 50H78'/%3E%3C/g%3E%3C/svg%3E") 0 0/96px 96px; }
+
+/* Girih tile band between sections */
+.orn { height: 34px; border-block: 3px solid var(--gold); background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%2315306f'/%3E%3Cpath d='M0 0h6L0 6zM40 0h-6l6 6zM0 40h6l-6-6zM40 40h-6l6-6z' fill='%230e8784'/%3E%3Cpath d='M10 10h20v20H10z' fill='%23e0a21c'/%3E%3Cpath d='M20 6l14 14-14 14L6 20z' fill='%23e0a21c'/%3E%3Ccircle cx='20' cy='20' r='5.5' fill='%230e8784'/%3E%3Ccircle cx='20' cy='20' r='2.2' fill='%23f6efe0'/%3E%3C/svg%3E") center/34px 34px repeat-x; }
+.orn + .steps-band { margin-top: 0; border-top: 0; }
+.results + .orn { margin-top: 56px; }
+
+/* Hero: richer girih lattice and a crest of pointed arches at the bottom edge */
+.hero::before { opacity: .16;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23f2c45a' stroke-width='1.1'%3E%3Cpath d='M60 18l12 12h17v17l12 13-12 13v17H72L60 102 48 90H31V73L19 60l12-13V30h17z'/%3E%3Cpath d='M60 36l9 15 15 9-15 9-9 15-9-15-15-9 15-9z'/%3E%3Ccircle cx='60' cy='60' r='7'/%3E%3Cpath d='M0 0l19 19M120 0l-19 19M0 120l19-19M120 120l-19-19M60 0v18M60 120v-18M0 60h19M120 60h-19'/%3E%3C/g%3E%3C/svg%3E") 0 0/120px 120px; }
+.hero::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 16px; background: var(--bg); pointer-events: none;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='16' viewBox='0 0 40 16'%3E%3Cpath d='M0 16V9C0 4 14 3 20 0c6 3 20 4 20 9v7z'/%3E%3C/svg%3E") 0 100%/40px 16px repeat-x;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='16' viewBox='0 0 40 16'%3E%3Cpath d='M0 16V9C0 4 14 3 20 0c6 3 20 4 20 9v7z'/%3E%3C/svg%3E") 0 100%/40px 16px repeat-x; }
+.hero-in { padding-bottom: 52px; }
+.hero h1 { max-width: 16ch; line-height: 1.1; }
+.search { position: relative; overflow: hidden; padding-top: 14px; }
+.search::before, .dlg::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 6px; background: var(--ikat); background-size: 120px 6px; }
+.dlg { position: fixed; }
+.dlg::before { z-index: 3; }
+
+/* Eyebrows carry an eight-point star, section titles a gold lozenge rule */
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; }
+.eyebrow::before { content: ""; width: 11px; height: 11px; flex: none; background: currentColor; -webkit-mask: var(--star) center/contain no-repeat; mask: var(--star) center/contain no-repeat; }
+.sec-head h2::after { content: ""; display: block; width: 92px; height: 10px; margin-top: 10px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='92' height='10' viewBox='0 0 92 10'%3E%3Cpath d='M0 5h36M56 5h36' stroke='%23e0a21c' stroke-width='2'/%3E%3Cpath d='M46 0l5 5-5 5-5-5z' fill='%23e0a21c'/%3E%3Ccircle cx='32' cy='5' r='2' fill='%230e8784'/%3E%3Ccircle cx='60' cy='5' r='2' fill='%230e8784'/%3E%3C/svg%3E") no-repeat; }
+.logo { font-family: var(--f-display); font-weight: 400; font-size: 1.5rem; letter-spacing: 0; }
+.logo span:last-child { color: var(--gold); }
+
+/* City tiles as ravoq (pointed arch) portals */
+.cities { gap: 18px; }
+.city { aspect-ratio: 3 / 4; background: none; box-shadow: none; overflow: visible; border-radius: 0; }
+.city:focus-visible { outline: none; }
+.city .arch { position: absolute; inset: 0; display: block; overflow: hidden; background: var(--band); filter: drop-shadow(0 10px 18px rgba(40, 25, 5, .28));
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 130' preserveAspectRatio='none'%3E%3Cpath d='M0 130V46C0 20 36 12 50 0c14 12 50 20 50 46v84z'/%3E%3C/svg%3E") center/100% 100% no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 130' preserveAspectRatio='none'%3E%3Cpath d='M0 130V46C0 20 36 12 50 0c14 12 50 20 50 46v84z'/%3E%3C/svg%3E") center/100% 100% no-repeat; }
+.city .arch::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,12,30,.2), transparent 40%, rgba(5,12,30,.15) 55%, rgba(5,12,30,.82)); pointer-events: none; }
+.city::after { content: ""; position: absolute; inset: 8px; z-index: 2; pointer-events: none; background: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 130' preserveAspectRatio='none'%3E%3Cpath d='M0 130V46C0 20 36 12 50 0c14 12 50 20 50 46v84z' fill='none' stroke='%23f2c45a' stroke-width='1.4' vector-effect='non-scaling-stroke' opacity='.85'/%3E%3C/svg%3E"); background-size: 100% 100%; }
+.city.is-on::after, .city:focus-visible::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 130' preserveAspectRatio='none'%3E%3Cpath d='M0 130V46C0 20 36 12 50 0c14 12 50 20 50 46v84z' fill='none' stroke='%23ffd35c' stroke-width='4' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E"); }
+.city.is-on { outline: none; }
+.city svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.city .c-txt { z-index: 1; padding: 16px 16px 18px; background: none; text-align: center; justify-items: center; gap: 4px; }
+.city b { font-family: var(--f-display); font-weight: 400; font-size: 1.35rem; }
+.city .c-count { position: static; order: 3; margin-top: 4px; background: var(--gold); color: var(--gold-ink); }
+.city:hover { transform: translateY(-4px); }
+@media (max-width: 900px) { .city { aspect-ratio: 4 / 5; } .city b { font-size: 1.15rem; } .city small { display: none; } }
+
+/* Steps numbered inside eight-point stars */
+.steps li::before { width: 46px; height: 46px; border-radius: 0; background: var(--gold); color: var(--band); font-weight: 400; -webkit-mask: none; }
+.steps li::before { clip-path: polygon(50% 0, 64.6% 14.6%, 85.4% 14.6%, 85.4% 35.4%, 100% 50%, 85.4% 64.6%, 85.4% 85.4%, 64.6% 85.4%, 50% 100%, 35.4% 85.4%, 14.6% 85.4%, 14.6% 64.6%, 0 50%, 14.6% 35.4%, 14.6% 14.6%, 35.4% 14.6%); font-size: 1.1rem; }
+
+/* MICE band with a suzani rosette */
+.mice { position: relative; overflow: hidden; }
+.mice::before { content: ""; position: absolute; width: 560px; height: 560px; right: -160px; top: -140px; opacity: .1; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%23fff' stroke-width='1.3'%3E%3Ccircle cx='100' cy='100' r='20'/%3E%3Ccircle cx='100' cy='100' r='12'/%3E%3Ccircle cx='100' cy='100' r='64'/%3E%3Ccircle cx='100' cy='100' r='96'/%3E%3Cg id='p'%3E%3Cpath d='M100 24c13 18 13 34 0 40-13-6-13-22 0-40z'/%3E%3Ccircle cx='100' cy='14' r='5'/%3E%3C/g%3E%3Cuse href='%23p' transform='rotate(45 100 100)'/%3E%3Cuse href='%23p' transform='rotate(90 100 100)'/%3E%3Cuse href='%23p' transform='rotate(135 100 100)'/%3E%3Cuse href='%23p' transform='rotate(180 100 100)'/%3E%3Cuse href='%23p' transform='rotate(225 100 100)'/%3E%3Cuse href='%23p' transform='rotate(270 100 100)'/%3E%3Cuse href='%23p' transform='rotate(315 100 100)'/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat; }
+.mice-in { position: relative; }
+.mice { margin-top: 0; }
+.facts b, .mice-list b { font-weight: 400; }
+
+/* Cards: warm surfaces, gold rating seal */
+.item { border-color: var(--line); }
+.item:hover { border-color: color-mix(in srgb, var(--gold) 55%, var(--line)); }
+.rating b { background: var(--lapis); color: #fff; }
+:root[data-theme="dark"] .rating b { color: var(--band-2); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .rating b { color: var(--band-2); } }
+.price b { color: var(--ink); }
+.btn-gold { box-shadow: inset 0 -2px 0 rgba(0,0,0,.15); }
+.d-body h3, .dlg-head h3 { font-family: var(--f-display); font-weight: 400; font-size: 1.5rem; }
+.app-card { background: linear-gradient(135deg, color-mix(in srgb, var(--gold) 14%, var(--surface)), var(--surface)); }
+.footer { border-top: 0; }
+.footer .logo span:last-child { color: var(--gold); }
+.logo { gap: 0; }
+.logo .logo-mark { margin-right: 8px; }
+.city .arch::after { background: linear-gradient(180deg, rgba(5,12,30,.2), transparent 35%, rgba(5,12,30,.5) 62%, rgba(5,12,30,.92)); }
+.logo-mark { background: linear-gradient(135deg, var(--gold), var(--turq)); }
+@media (max-width: 480px) { .tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; } .tab { white-space: nowrap; padding-inline: 10px; } }
