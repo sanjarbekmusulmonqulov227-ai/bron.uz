@@ -81,8 +81,10 @@ const TYPES = ["hotel", "venue", "tour"];
 const PAY = ["joyida", "click", "payme", "uzum"];
 const STATUSES = ["yangi", "tasdiqlandi", "bekor qilindi", "yakunlandi"];
 const CITIES = ["Toshkent", "Samarqand", "Buxoro", "Xiva"];
-const isDate = (s) => typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(Date.parse(s));
-const today = () => new Date().toISOString().slice(0, 10);
+// Real calendar dates only ("2026-11-31" is rejected rather than rolled over to December).
+const isDate = (s) => typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(Date.parse(s)) && new Date(s + "T00:00:00Z").toISOString().slice(0, 10) === s;
+// "Today" in Tashkent (UTC+5, no daylight saving), so late-night bookings can't pick yesterday.
+const today = () => new Date(Date.now() + 5 * 3600000).toISOString().slice(0, 10);
 const days = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
 const normPhone = (p) => String(p || "").replace(/[\s()-]/g, "");
 const validPhone = (p) => /^\+998\d{9}$/.test(normPhone(p));
@@ -118,7 +120,7 @@ async function notify(text) {
 // Browser-side protections sent with every response.
 const CSP = [
   "default-src 'self'", "script-src 'self'", "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "font-src https://fonts.gstatic.com", "img-src 'self' data: https://commons.wikimedia.org https://upload.wikimedia.org",
+  "font-src https://fonts.gstatic.com", "img-src 'self' data: https:",
   "connect-src 'self' https://commons.wikimedia.org https://upload.wikimedia.org https://fonts.googleapis.com https://fonts.gstatic.com",
   "manifest-src 'self'", "worker-src 'self'", "frame-ancestors 'none'", "base-uri 'self'", "form-action 'self'", "object-src 'none'"
 ].join("; ");
@@ -155,8 +157,11 @@ function readJson(req) {
       chunks.push(c);
     });
     req.on("end", () => {
-      try { resolve(chunks.length ? JSON.parse(Buffer.concat(chunks).toString("utf8")) : {}); }
-      catch { reject(Object.assign(new Error("JSON noto'g'ri."), { status: 400 })); }
+      let v;
+      try { v = chunks.length ? JSON.parse(Buffer.concat(chunks).toString("utf8")) : {}; }
+      catch { reject(Object.assign(new Error("JSON noto'g'ri."), { status: 400 })); return; }
+      if (!v || typeof v !== "object" || Array.isArray(v)) { reject(Object.assign(new Error("JSON obyekt bo'lishi kerak."), { status: 400 })); return; }
+      resolve(v);
     });
     req.on("error", reject);
   });
@@ -303,7 +308,7 @@ async function handle(req, res) {
   }
   if (p === "/api/auth/me" && M === "GET") {
     const u = currentUser(req);
-    return u ? send(res, 200, u) : fail(res, 401, "Kirilmagan.");
+    return send(res, 200, u || null);
   }
   if (p === "/api/my/bookings" && M === "GET") {
     const u = currentUser(req);
@@ -354,7 +359,11 @@ async function handle(req, res) {
     if (limited(req)) return fail(res, 429, "Juda ko'p so'rov. Bir daqiqadan keyin urinib ko'ring.");
     const b = await readJson(req);
     const row = db.prepare("SELECT * FROM bookings WHERE code = ?").get(m[1]);
-    if (!row || row.phone !== normPhone(b.phone)) return fail(res, 404, "Bron topilmadi.");
+    const u = currentUser(req);
+    const mine = row && ((u && row.user_id === u.id) || row.phone === normPhone(b.phone));
+    if (!mine) return fail(res, 404, "Bron topilmadi.");
+    if (row.status === "bekor qilindi") return send(res, 200, { ok: true, status: row.status });
+    if (row.status === "yakunlandi") return fail(res, 409, "Yakunlangan bronni bekor qilib bo'lmaydi.");
     db.prepare("UPDATE bookings SET status = 'bekor qilindi' WHERE code = ?").run(m[1]);
     notify(`❌ Mijoz bronni bekor qildi: ${m[1]} (${row.listing_name}, ${row.date_from})`);
     return send(res, 200, { ok: true });
@@ -396,7 +405,8 @@ async function handle(req, res) {
     if (m && M === "PATCH") {
       const b = await readJson(req);
       if (!STATUSES.includes(b.status)) return fail(res, 400, "Holat noto'g'ri.");
-      db.prepare("UPDATE group_requests SET status = ? WHERE id = ?").run(b.status, Number(m[1]));
+      const r = db.prepare("UPDATE group_requests SET status = ? WHERE id = ?").run(b.status, Number(m[1]));
+      if (!r.changes) return fail(res, 404, "So'rov topilmadi.");
       return send(res, 200, { ok: true });
     }
 
@@ -428,7 +438,7 @@ async function handle(req, res) {
 
   // Static files
   if (M !== "GET" && M !== "HEAD") return fail(res, 405, "Ruxsat etilmagan.");
-  const file = path.normalize(path.join(PUBLIC_DIR, p === "/" ? "index.html" : decodeURIComponent(p)));
+  const file = path.normalize(path.join(PUBLIC_DIR, p === "/" ? "index.html" : safeDecode(p)));
   if (!file.startsWith(PUBLIC_DIR + path.sep)) return send(res, 403, "Ruxsat yo'q.");
   return serveFile(res, file);
 }

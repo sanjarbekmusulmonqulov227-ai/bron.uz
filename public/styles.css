@@ -463,3 +463,12 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
 .city .arch::after { background: linear-gradient(180deg, rgba(5,12,30,.2), transparent 35%, rgba(5,12,30,.5) 62%, rgba(5,12,30,.92)); }
 .logo-mark { background: linear-gradient(135deg, var(--gold), var(--turq)); }
 @media (max-width: 480px) { .tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; } .tab { white-space: nowrap; padding-inline: 10px; } }
+
+[hidden] { display: none !important; }
+.st { font-size: .76rem; font-weight: 700; border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
+.st-new { background: color-mix(in srgb, var(--gold) 22%, var(--surface)); color: var(--ink); }
+.st-ok { background: color-mix(in srgb, var(--ok) 18%, var(--surface)); color: var(--ok); }
+.st-off, .st-done { background: var(--surface-2); color: var(--muted); }
+.d-amen { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+@media (max-width: 600px) { .gallery { aspect-ratio: 16 / 10; } }
+.pass input { font-size: 1rem; }

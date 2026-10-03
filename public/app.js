@@ -56,7 +56,11 @@
   // ---------- helpers ----------
   const som = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " so'm";
   const short = (n) => n >= 1e6 ? (Math.round(n / 1e5) / 10).toString().replace(".", ",") + " mln" : Math.round(n / 1000) + " ming";
-  const iso = (d) => d.toISOString().slice(0, 10);
+  const pad = (n) => String(n).padStart(2, "0");
+  // Dates are handled in the visitor's local calendar (Tashkent), not UTC.
+  const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const day = (s) => new Date(s + "T00:00");
+  const todayIso = () => iso(new Date());
   const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
   const daysBetween = (a, b) => Math.round((new Date(b) - new Date(a)) / 86400000);
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -224,7 +228,7 @@
     const t = TYPES[state.type];
     const fail = (s) => { msg.textContent = s; msg.classList.add("err"); return false; };
     if (!state.from) return fail("Sanani tanlang.");
-    if (state.from < iso(new Date())) return fail("O'tgan sanani tanlab bo'lmaydi. Bugungi yoki keyingi kunni tanlang.");
+    if (state.from < todayIso()) return fail("O'tgan sanani tanlab bo'lmaydi. Bugungi yoki keyingi kunni tanlang.");
     if (state.type !== "tour" && state.to < state.from) return fail(`"${t.to}" sanasi "${t.from}" sanasidan keyin bo'lishi kerak.`);
     if (state.type === "hotel" && state.to === state.from) return fail("Mehmonxona uchun kamida 1 kecha tanlang.");
     return true;
@@ -232,7 +236,7 @@
 
   function results() {
     const cap = priceCap();
-    const need = state.type === "hotel" ? Math.min(state.guests, 6) : state.guests;
+    const need = state.guests;
     let list = LISTINGS.filter((x) => x.type === state.type
       && (!state.city || x.city === state.city)
       && x.capacity + (x.type === "hotel" ? 2 : 0) >= need
@@ -341,7 +345,7 @@
     const item = LISTINGS.find((x) => x.id === id);
     if (!item) return;
     state.current = item;
-    state.room = roomId || "standart";
+    state.room = roomId || (item.type === "hotel" ? (ROOMS.find((r) => item.capacity + r.extra >= state.guests) || ROOMS[ROOMS.length - 1]).id : "standart");
     const t = TYPES[item.type];
     $("#dlgTitle").textContent = item.name;
     $("#dlgCity").textContent = `${t.kind} · ${item.city}`;
@@ -356,6 +360,7 @@
     $("#bGuests").value = Math.min(state.guests, capOf(item));
     $("#bGuests").max = capOf(item);
     $("#bookMsg").textContent = ""; $("#bookMsg").className = "form-msg";
+    if (state.guests > capOf(item)) $("#bookMsg").textContent = `Bu tanlov ${capOf(item)} kishigacha. ${state.guests} kishilik guruh uchun bir nechta xona bron qiling yoki pastdagi guruh so'rovini yuboring.`;
     updateTotal();
     openDlg($("#bookDlg"));
     if (user) { if (!$("#bName").value) $("#bName").value = user.name; if (!$("#bPhone").value) $("#bPhone").value = user.phone; }
@@ -370,6 +375,8 @@
     $("#bGuests").max = capOf(item);
     const from = $("#bFrom").value, to = $("#bTo").value;
     const guests = Math.max(1, parseInt($("#bGuests").value, 10) || 1);
+    const badDates = !from || (item.type === "hotel" && !(to > from)) || (item.type === "venue" && to && to < from);
+    if (badDates) { $("#totalCalc").textContent = "Sanalarni tekshiring"; $("#totalSum").textContent = "—"; return; }
     const q = quote(item, from, to || from, guests, state.room);
     $("#totalCalc").textContent = q.label;
     $("#totalSum").textContent = som(q.sum);
@@ -390,7 +397,7 @@
 
     if (name.length < 3) { $("#bName").setAttribute("aria-invalid", "true"); msg.textContent = "Ism familiyangizni kiriting."; return; }
     if (!validPhone(phone)) { $("#bPhone").setAttribute("aria-invalid", "true"); msg.textContent = "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing."; return; }
-    if (!from || from < iso(new Date())) { msg.textContent = "Bugungi yoki keyingi sanani tanlang."; return; }
+    if (!from || from < todayIso()) { msg.textContent = "Bugungi yoki keyingi sanani tanlang."; return; }
     if (item.type === "hotel" && !(to > from)) { msg.textContent = "Ketish sanasi kelish sanasidan keyin bo'lishi kerak."; return; }
     if (item.type === "venue" && to < from) { msg.textContent = "Tugash sanasi boshlanish sanasidan oldin bo'lmasin."; return; }
     if (guests < 1 || guests > capOf(item)) { msg.textContent = `Bu tanlov ${capOf(item)} kishigacha qabul qiladi.`; return; }
@@ -402,7 +409,7 @@
       btn.disabled = true;
       try {
         const r = await api("/api/bookings", { listingId: item.id, from, to, guests, client: name, phone, pay, note, room });
-        booking = { code: r.code, id: item.id, name: r.name, city: r.city, type: r.type, from: r.from, to: r.to, guests: r.guests, sum: r.sum, phone: normPhone(phone) };
+        booking = { code: r.code, id: item.id, name: r.name, city: r.city, type: r.type, from: r.from, to: r.to, guests: r.guests, sum: r.sum, status: r.status, phone: normPhone(phone) };
       } catch (err) { msg.textContent = err.message; return; }
       finally { btn.disabled = false; }
     } else {
@@ -419,13 +426,16 @@
   }
 
   // ---------- my bookings ----------
+  const STATUS_LABEL = { "yangi": "Kutilmoqda", "tasdiqlandi": "Tasdiqlandi", "bekor qilindi": "Bekor qilingan", "yakunlandi": "Yakunlangan" };
+  const STATUS_CLASS = { "yangi": "new", "tasdiqlandi": "ok", "bekor qilindi": "off", "yakunlandi": "done" };
+  const isActive = (b) => !b.status || b.status === "yangi" || b.status === "tasdiqlandi";
   function myBookings() {
     if (API && user) return serverBookings;
-    return memoryBookings.filter((b) => user ? b.owner === user.phone : !b.owner);
+    return memoryBookings.filter((b) => !b.owner || (user && b.owner === user.phone));
   }
   function renderMine() {
     const list = myBookings();
-    $("#myCount").textContent = list.length;
+    $("#myCount").textContent = list.filter(isActive).length;
     if (!list.length) {
       $("#myList").innerHTML = `<p class="mine-empty">Hali bron yo'q. Yuqoridan joy tanlab "Bron qilish" tugmasini bosing, bron shu yerda paydo bo'ladi.</p>`;
       return;
@@ -437,7 +447,8 @@
         <span class="code">${esc(b.code)}</span>
         <div class="grow"><b>${esc(b.name)}</b><span class="muted">${esc(b.city)} · ${dates} · ${b.guests} kishi</span></div>
         <span class="sum">${som(b.sum)}</span>
-        <button class="btn btn-line" type="button" data-cancel="${esc(b.code)}">Bekor qilish</button>
+        <span class="st st-${STATUS_CLASS[b.status || "yangi"] || "new"}">${esc(STATUS_LABEL[b.status || "yangi"] || b.status)}</span>
+        ${isActive(b) ? `<button class="btn btn-line" type="button" data-cancel="${esc(b.code)}">Bekor qilish</button>` : ""}
       </div>`;
     }).join("");
   }
@@ -467,11 +478,16 @@
   }
 
   // ---------- wiring ----------
+  function heroCount() {
+    const cities = new Set(LISTINGS.map((x) => x.city)).size;
+    $(".hero .eyebrow").textContent = `${cities} shahar · ${LISTINGS.length} joy · narxlar so'mda`;
+  }
+
   function init() {
     const start = addDays(new Date(), 7);
     $("#fFrom").value = iso(start);
     $("#fTo").value = iso(addDays(start, 2));
-    $("#fFrom").min = $("#fTo").min = $("#bFrom").min = $("#bTo").min = iso(new Date());
+    $("#fFrom").min = $("#fTo").min = $("#bFrom").min = $("#bTo").min = todayIso();
 
     heroArt();
     heroPhoto();
@@ -479,7 +495,7 @@
     initApp();
     renderCities();
     renderDeals();
-    $(".hero .eyebrow").textContent = `${CITIES.length} shahar · ${LISTINGS.length} joy · narxlar so'mda`;
+    heroCount();
     $("#favCount").textContent = favs.size;
 
     $$(".tab").forEach((b) => b.addEventListener("click", () => setType(b.dataset.type)));
@@ -491,7 +507,7 @@
     });
     $("#fSort").addEventListener("change", () => { readSearch(); render(); });
     $("#fCity").addEventListener("change", () => { readSearch(); render(); });
-    $("#fFrom").addEventListener("change", () => { if ($("#fTo").value <= $("#fFrom").value) $("#fTo").value = iso(addDays(new Date($("#fFrom").value), 1)); readSearch(); });
+    $("#fFrom").addEventListener("change", () => { if ($("#fTo").value <= $("#fFrom").value) $("#fTo").value = iso(addDays(day($("#fFrom").value), 1)); readSearch(); });
     $("#fGuests").addEventListener("change", () => { readSearch(); render(); });
 
     $("#fPrice").addEventListener("input", (e) => { state.maxPct = +e.target.value; updatePriceOut(); render(); });
@@ -502,7 +518,11 @@
     $("#fFav").addEventListener("change", (e) => { state.favOnly = e.target.checked; render(); });
     $("#fReset").addEventListener("click", resetFilters);
     $("#filterToggle").addEventListener("click", (e) => { const f = $("#filters"); const open = !f.classList.contains("open"); f.classList.toggle("open", open); e.currentTarget.setAttribute("aria-expanded", String(open)); });
-    $("#favBtn").addEventListener("click", () => { state.favOnly = true; $("#fFav").checked = true; render(); $("#natijalar").scrollIntoView({ block: "start" }); });
+    $("#favBtn").addEventListener("click", () => {
+      const types = LISTINGS.filter((x) => favs.has(x.id)).map((x) => x.type);
+      if (!types.length) { toast("Sevimlilar hali yo'q. Kartochkadagi yurakchani bosing."); return; }
+      if (!types.includes(state.type)) setType(types[0]);
+      state.favOnly = true; $("#fFav").checked = true; render(); $("#natijalar").scrollIntoView({ block: "start" }); });
 
     document.addEventListener("click", (e) => {
       const t = e.target;
@@ -523,12 +543,16 @@
     $("#myList").addEventListener("click", async (e) => {
       const b = e.target.closest("[data-cancel]");
       if (!b) return;
-      const bk = memoryBookings.find((x) => x.code === b.dataset.cancel);
-      if (API && bk) {
-        try { await api(`/api/bookings/${encodeURIComponent(bk.code)}/cancel`, { phone: bk.phone }); }
-        catch (err) { toast(err.message); return; }
+      const code = b.dataset.cancel;
+      const bk = myBookings().find((x) => x.code === code);
+      if (!bk) return;
+      if (API) {
+        b.disabled = true;
+        try { await api(`/api/bookings/${encodeURIComponent(code)}/cancel`, { phone: bk.phone }); }
+        catch (err) { b.disabled = false; toast(err.message); return; }
+        serverBookings = serverBookings.map((x) => x.code === code ? { ...x, status: "bekor qilindi" } : x);
       }
-      saveBookings(memoryBookings.filter((x) => x.code !== b.dataset.cancel));
+      saveBookings(memoryBookings.filter((x) => x.code !== code));
       renderMine();
       toast("Bron bekor qilindi.");
     });
@@ -602,7 +626,7 @@
   }
   async function restoreUser() {
     if (API) {
-      try { const r = await fetch("/api/auth/me", { credentials: "same-origin" }); if (r.ok) return setUser(await r.json()); } catch (e) { /* offline */ }
+      try { const r = await fetch("/api/auth/me", { credentials: "same-origin" }); if (r.ok) { const u = await r.json(); return setUser(u && u.id ? u : null); } } catch (e) { /* offline */ }
       return setUser(null);
     }
     const phone = store(SESSION_KEY, null);
@@ -632,7 +656,7 @@
     $("#pAvatar").textContent = initials(user.name);
     $("#pName").textContent = user.name;
     $("#pPhone").textContent = user.phone;
-    $("#pBookings").textContent = myBookings().length;
+    $("#pBookings").textContent = myBookings().filter(isActive).length;
     $("#pFavs").textContent = favs.size;
     $("#profileNote").textContent = API ? "" : "Hisob shu qurilmada saqlangan.";
     openDlg($("#profileDlg"));
@@ -700,7 +724,7 @@
       API = true;
       restoreUser();
       $("#sampleNote").hidden = true;
-      render(); renderDeals();
+      render(); renderDeals(); renderCities(); heroCount();
     } catch (e) { /* static hosting: keep sample data */ }
   }
 

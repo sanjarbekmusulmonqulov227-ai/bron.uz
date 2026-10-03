@@ -7,6 +7,9 @@
   const STATUSES = ["yangi", "tasdiqlandi", "bekor qilindi", "yakunlandi"];
   const TYPE = { hotel: "Mehmonxona", venue: "Zal", tour: "Tur" };
   let listings = [];
+  // Amenity names the site understands (same keys as public/app.js AMEN).
+  const AMEN = { wifi: "Wi-Fi", breakfast: "Nonushta", pool: "Basseyn", spa: "Spa", gym: "Fitnes", parking: "Avtoturargoh", restaurant: "Restoran", transfer: "Transfer", ac: "Konditsioner", family: "Oilalar uchun", translation: "Sinxron tarjima", screen: "LED ekran", coffee: "Kofe-breyk", stage: "Sahna", guide: "Gid", tickets: "Chiptalar kiradi", meal: "Ovqat kiradi", transport: "Transport" };
+  const amenKey = (t) => { const v = t.trim().toLowerCase(); return Object.keys(AMEN).find((k) => k === v || AMEN[k].toLowerCase() === v); };
 
   function say(t, ok) { const m = $("#msg"); m.textContent = t; m.className = "msg " + (ok ? "ok" : "err"); if (ok) setTimeout(() => { m.textContent = ""; }, 2500); }
   async function call(method, url, body) {
@@ -58,14 +61,14 @@
     $("#lCap").value = x ? x.capacity : "";
     $("#lRating").value = x ? x.rating : 9;
     $("#lReviews").value = x ? x.reviews : 0;
-    $("#lTags").value = x ? x.tags.join(", ") : "";
+    $("#lTags").value = x ? (x.amenities || x.tags || []).map((k) => AMEN[k] || k).join(", ") : "";
     $("#lHue").value = x ? x.hue : 200;
     $("#lPhoto").value = x && x.photo ? x.photo : "";
     $("#lDesc").value = x && x.desc ? x.desc : "";
     $("#lSave").textContent = x ? "Saqlash" : "Qo'shish";
     $("#lCancel").hidden = !x;
   }
-  const formData = () => ({ type: $("#lType").value, name: $("#lName").value, city: $("#lCity").value, price: $("#lPrice").value, capacity: $("#lCap").value, rating: $("#lRating").value, reviews: $("#lReviews").value, tags: $("#lTags").value, hue: $("#lHue").value, photo: $("#lPhoto").value.trim(), desc: $("#lDesc").value.trim() });
+  const formData = () => ({ type: $("#lType").value, name: $("#lName").value, city: $("#lCity").value, price: $("#lPrice").value, capacity: $("#lCap").value, rating: $("#lRating").value, reviews: $("#lReviews").value, tags: $("#lTags").value, amenities: $("#lTags").value.split(",").map(amenKey).filter(Boolean), hue: $("#lHue").value, photo: $("#lPhoto").value.trim(), desc: $("#lDesc").value.trim() });
 
   document.addEventListener("change", async (e) => {
     const s = e.target.closest("select[data-kind]");
