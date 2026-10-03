@@ -25,7 +25,7 @@ const db = new DatabaseSync(path.join(DATA_DIR, "bron.db"));
 db.exec(`
   PRAGMA journal_mode = WAL;
   CREATE TABLE IF NOT EXISTS listings (
-    id TEXT PRIMARY KEY, type TEXT NOT NULL CHECK (type IN ('hotel','venue','tour')),
+    id TEXT PRIMARY KEY, type TEXT NOT NULL,
     name TEXT NOT NULL, city TEXT NOT NULL, rating REAL DEFAULT 0, reviews INTEGER DEFAULT 0,
     price INTEGER NOT NULL, capacity INTEGER NOT NULL, tags TEXT DEFAULT '[]',
     hue INTEGER DEFAULT 200, glyph TEXT DEFAULT '', active INTEGER DEFAULT 1, details TEXT DEFAULT '{}'
@@ -53,18 +53,39 @@ db.exec(`
 `);
 if (!db.prepare("PRAGMA table_info(bookings)").all().some((c) => c.name === "user_id")) db.exec("ALTER TABLE bookings ADD COLUMN user_id INTEGER");
 
+// Older databases limited listing types to hotel/venue/tour; rebuild without that CHECK so hostels fit.
+if (/CHECK \(type IN/.test(db.prepare("SELECT sql FROM sqlite_master WHERE name = 'listings'").get()?.sql || "")) {
+  db.exec(`BEGIN;
+    CREATE TABLE listings_new (id TEXT PRIMARY KEY, type TEXT NOT NULL, name TEXT NOT NULL, city TEXT NOT NULL, rating REAL DEFAULT 0, reviews INTEGER DEFAULT 0,
+      price INTEGER NOT NULL, capacity INTEGER NOT NULL, tags TEXT DEFAULT '[]', hue INTEGER DEFAULT 200, glyph TEXT DEFAULT '', active INTEGER DEFAULT 1, details TEXT DEFAULT '{}');
+    INSERT INTO listings_new SELECT id, type, name, city, rating, reviews, price, capacity, tags, hue, glyph, active, COALESCE(details, '{}') FROM listings;
+    DROP TABLE listings; ALTER TABLE listings_new RENAME TO listings; COMMIT;`);
+}
+// Partners (hotel, hostel and venue owners) manage their own listings, prices, free dates and bookings.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS listing_owners (listing_id TEXT PRIMARY KEY, user_id INTEGER NOT NULL);
+  CREATE TABLE IF NOT EXISTS blocks (listing_id TEXT NOT NULL, date TEXT NOT NULL, PRIMARY KEY (listing_id, date));
+  CREATE TABLE IF NOT EXISTS partner_requests (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, property TEXT NOT NULL, type TEXT, city TEXT, units INTEGER,
+    contact TEXT, phone TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'yangi', created TEXT NOT NULL
+  );
+`);
+
 // Older databases lack the details column.
 if (!db.prepare("PRAGMA table_info(listings)").all().some((c) => c.name === "details")) db.exec("ALTER TABLE listings ADD COLUMN details TEXT DEFAULT '{}'");
 
 // Extra listing fields kept as JSON: district, stars, old price, free cancellation, amenities, description, art style.
-const DETAIL_KEYS = ["district", "stars", "old", "free", "amenities", "desc", "art", "photo", "photos", "format", "kind", "area", "layouts", "days", "nights", "route", "itinerary"];
+const DETAIL_KEYS = ["district", "stars", "old", "free", "amenities", "desc", "art", "photo", "photos", "format", "kind", "area", "layouts", "days", "nights", "route", "itinerary", "beds", "units", "lat", "lng"];
 const pickDetails = (x) => Object.fromEntries(DETAIL_KEYS.filter((k) => x[k] !== undefined).map((k) => [k, x[k]]));
 
+// The site's own sample data (public/data.js): seeds an empty database and holds the transport timetable.
+const SAMPLE = { window: {} };
+require("node:vm").runInNewContext(fs.readFileSync(path.join(PUBLIC_DIR, "data.js"), "utf8"), SAMPLE);
+const TRANSPORT = SAMPLE.window.BRON_TRANSPORT || { avia: [], poyezd: [], avto: [] };
+const TRIPS = new Map([...TRANSPORT.avia, ...TRANSPORT.poyezd, ...TRANSPORT.avto].map((t) => [t.id, t]));
+
 if (db.prepare("SELECT COUNT(*) AS n FROM listings").get().n === 0) {
-  // The site's own sample data (public/data.js) seeds an empty database.
-  const sandbox = { window: {} };
-  require("node:vm").runInNewContext(fs.readFileSync(path.join(PUBLIC_DIR, "data.js"), "utf8"), sandbox);
-  const seed = sandbox.window.BRON_LISTINGS || [];
+  const seed = SAMPLE.window.BRON_LISTINGS || [];
   const ins = db.prepare("INSERT INTO listings (id,type,name,city,rating,reviews,price,capacity,tags,hue,glyph,details) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
   for (const x of seed) ins.run(x.id, x.type, x.name, x.city, x.rating, x.reviews, x.price, x.capacity, JSON.stringify(x.amenities || []), x.hue, "", JSON.stringify(pickDetails(x)));
   console.log(`Bazaga ${seed.length} ta namuna joy yozildi.`);
@@ -77,7 +98,7 @@ const rowToListing = (r) => {
 };
 
 // ---------- rules shared with the front-end ----------
-const TYPES = ["hotel", "venue", "tour"];
+const TYPES = ["hotel", "hostel", "venue", "tour"];
 const PAY = ["joyida", "click", "payme", "uzum"];
 const STATUSES = ["yangi", "tasdiqlandi", "bekor qilindi", "yakunlandi"];
 const CITIES = ["Toshkent", "Samarqand", "Buxoro", "Xiva"];
@@ -98,7 +119,42 @@ function quote(item, from, to, guests, room) {
   const p = Math.round(item.price * roomOf(item, room).mult / 1000) * 1000;
   if (item.type === "tour") return p * guests;
   const n = Math.max(1, days(from, to) + (item.type === "venue" ? 1 : 0));
-  return p * n;
+  return item.type === "hostel" ? p * n * guests : p * n;
+}
+
+// ---------- availability ----------
+// How much a listing can sell per day: hotel rooms, hostel beds, one venue, tour group seats.
+const capacityOf = (item) => item.type === "hotel" ? item.units || 10 : item.type === "hostel" ? item.beds || item.capacity : item.type === "venue" ? 1 : item.capacity;
+// Hotels and hostels sell nights (from..to-1), venues sell days (from..to), tours sell their start date.
+function dayList(item, from, to) {
+  const out = [];
+  const last = item.type === "venue" ? to : item.type === "tour" ? from : addIso(to, -1);
+  for (let d = from; d <= last && out.length < 62; d = addIso(d, 1)) out.push(d);
+  return out;
+}
+const addIso = (d, n) => new Date(Date.parse(d) + n * 86400000).toISOString().slice(0, 10);
+function usedOn(item, d, ignoreCode) {
+  const rows = db.prepare("SELECT code, type, date_from, date_to, guests FROM bookings WHERE listing_id = ? AND status != 'bekor qilindi' AND date_from <= ? AND date_to >= ?").all(item.id, d, d);
+  return rows.filter((r) => r.code !== ignoreCode && (item.type === "venue" || item.type === "tour" ? true : d < r.date_to))
+    .reduce((n, r) => n + (item.type === "hostel" || item.type === "tour" ? r.guests : 1), 0);
+}
+function availability(item, from, to, guests, ignoreCode) {
+  const need = item.type === "hostel" || item.type === "tour" ? guests : 1;
+  const cap = capacityOf(item);
+  let free = cap;
+  for (const d of dayList(item, from, to)) {
+    if (db.prepare("SELECT 1 FROM blocks WHERE listing_id = ? AND date = ?").get(item.id, d)) return { ok: false, free: 0, reason: `${d.split("-").reverse().join(".")} kuni joy yopiq.` };
+    free = Math.min(free, cap - usedOn(item, d, ignoreCode));
+  }
+  free = Math.max(0, free);
+  return { ok: free >= need, free, reason: free >= need ? "" : free ? `Bu sanalarda faqat ${free} ta bo'sh joy qoldi.` : "Bu sanalarda bo'sh joy qolmadi." };
+}
+
+// ---------- transport (sample timetable from data.js) ----------
+function tripQuote(t, cls, guests) {
+  if (t.mode === "avto") return { sum: t.price, label: `${t.name}: ${t.from}${t.transfer ? " transfer" : " → " + t.to}`, cap: t.seats };
+  if (t.mode === "poyezd") { const c = t.classes[cls] ? cls : Object.keys(t.classes)[0]; return { sum: t.classes[c] * guests, label: `${t.name} ${t.no}: ${t.from} → ${t.to}, ${c}`, cap: 10, cls: c }; }
+  return { sum: t.price * guests, label: `${t.no}: ${t.from} → ${t.to}`, cap: 9 };
 }
 
 // ---------- telegram ----------
@@ -253,6 +309,10 @@ function validListing(b, id) {
       days: parseInt(b.days, 10) > 0 ? Math.min(30, parseInt(b.days, 10)) : undefined,
       nights: parseInt(b.nights, 10) >= 0 && b.nights !== undefined ? Math.min(30, parseInt(b.nights, 10)) : undefined,
       route: Array.isArray(b.route) ? b.route.map((x) => str(x, 40)).filter(Boolean).slice(0, 8) : undefined,
+      beds: parseInt(b.beds, 10) > 0 ? Math.min(500, parseInt(b.beds, 10)) : undefined,
+      units: parseInt(b.units, 10) > 0 ? Math.min(500, parseInt(b.units, 10)) : undefined,
+      lat: Number.isFinite(+b.lat) && b.lat !== undefined && b.lat !== "" ? +b.lat : undefined,
+      lng: Number.isFinite(+b.lng) && b.lng !== undefined && b.lng !== "" ? +b.lng : undefined,
       itinerary: Array.isArray(b.itinerary) ? b.itinerary.filter(Array.isArray).slice(0, 15).map(([t, d]) => [str(t, 60), str(d, 400)]) : undefined
     },
     tags: (Array.isArray(b.tags) ? b.tags : String(b.tags || "").split(",")).map((t) => str(t, 40)).filter(Boolean).slice(0, 8),
@@ -264,6 +324,77 @@ function validListing(b, id) {
   if (!(x.price > 0)) return "Narx musbat son bo'lishi kerak.";
   if (!(x.capacity > 0)) return "Sig'im musbat son bo'lishi kerak.";
   return x;
+}
+
+// ---------- partner cabinet ----------
+// Secret for iCal links, created once per installation.
+const SECRET_FILE = path.join(DATA_DIR, "secret.key");
+if (!fs.existsSync(SECRET_FILE)) fs.writeFileSync(SECRET_FILE, crypto.randomBytes(32).toString("hex"), { mode: 0o600 });
+const SECRET = fs.readFileSync(SECRET_FILE, "utf8").trim();
+const icalKey = (id) => crypto.createHmac("sha256", SECRET).update("ical:" + id).digest("hex").slice(0, 32);
+const ownedIds = (uid) => db.prepare("SELECT listing_id FROM listing_owners WHERE user_id = ?").all(uid).map((r) => r.listing_id);
+
+async function partnerRoutes(req, res, p, M, url) {
+  const u = currentUser(req);
+  if (!u) return fail(res, 401, "Avval hisobingizga kiring.");
+  const ids = ownedIds(u.id);
+  const own = (id) => ids.includes(id) ? db.prepare("SELECT * FROM listings WHERE id = ?").get(id) : null;
+  if (p === "/api/partner/me" && M === "GET") {
+    const listings = ids.map((id) => db.prepare("SELECT * FROM listings WHERE id = ?").get(id)).filter(Boolean).map(rowToListing)
+      .map((x) => ({ ...x, capacityPerDay: capacityOf(x), ical: `/api/ical/${x.id}.ics?key=${icalKey(x.id)}` }));
+    return send(res, 200, { user: u, listings });
+  }
+  if (p === "/api/partner/bookings" && M === "GET") {
+    if (!ids.length) return send(res, 200, []);
+    const rows = db.prepare(`SELECT code, listing_id, listing_name, type, date_from, date_to, guests, sum, pay, client, phone, note, status, created FROM bookings
+      WHERE listing_id IN (${ids.map(() => "?").join(",")}) ORDER BY date_from DESC LIMIT 300`).all(...ids);
+    return send(res, 200, rows);
+  }
+  let m = /^\/api\/partner\/bookings\/(BRN-[A-Z0-9]{6})$/.exec(p);
+  if (m && M === "PATCH") {
+    const b = await readJson(req);
+    const row = db.prepare("SELECT * FROM bookings WHERE code = ?").get(m[1]);
+    if (!row || !ids.includes(row.listing_id)) return fail(res, 404, "Bron topilmadi.");
+    if (!["tasdiqlandi", "bekor qilindi", "yakunlandi"].includes(b.status)) return fail(res, 400, "Holat noto'g'ri.");
+    db.prepare("UPDATE bookings SET status = ? WHERE code = ?").run(b.status, m[1]);
+    notify(`🏨 Hamkor ${u.name}: ${m[1]} → ${b.status}`);
+    return send(res, 200, { ok: true });
+  }
+  m = /^\/api\/partner\/listings\/([\w-]{1,40})$/.exec(p);
+  if (m && M === "PUT") {
+    const row = own(m[1]);
+    if (!row) return fail(res, 404, "Joy topilmadi.");
+    const b = await readJson(req);
+    const d = JSON.parse(row.details || "{}");
+    const price = parseInt(b.price, 10);
+    if (!(price > 0)) return fail(res, 400, "Narx musbat son bo'lishi kerak.");
+    const units = parseInt(b.units, 10);
+    if (units > 0) { if (row.type === "hostel") d.beds = Math.min(500, units); else if (row.type === "hotel") d.units = Math.min(500, units); }
+    db.prepare("UPDATE listings SET price = ?, active = ?, details = ? WHERE id = ?").run(price, b.active === false ? 0 : 1, JSON.stringify(d), row.id);
+    return send(res, 200, { ok: true });
+  }
+  m = /^\/api\/partner\/listings\/([\w-]{1,40})\/calendar$/.exec(p);
+  if (m && M === "GET") {
+    const row = own(m[1]);
+    if (!row) return fail(res, 404, "Joy topilmadi.");
+    const item = rowToListing(row);
+    const month = /^\d{4}-\d{2}$/.test(url.searchParams.get("month") || "") ? url.searchParams.get("month") : today().slice(0, 7);
+    const out = [];
+    for (let d = month + "-01"; d.startsWith(month); d = addIso(d, 1)) {
+      out.push({ date: d, used: usedOn(item, d), cap: capacityOf(item), blocked: !!db.prepare("SELECT 1 FROM blocks WHERE listing_id = ? AND date = ?").get(item.id, d) });
+    }
+    return send(res, 200, { month, days: out });
+  }
+  m = /^\/api\/partner\/listings\/([\w-]{1,40})\/blocks$/.exec(p);
+  if (m && M === "POST") {
+    if (!own(m[1])) return fail(res, 404, "Joy topilmadi.");
+    const b = await readJson(req);
+    if (!isDate(b.date)) return fail(res, 400, "Sanani tekshiring.");
+    if (b.blocked) db.prepare("INSERT OR IGNORE INTO blocks (listing_id, date) VALUES (?, ?)").run(m[1], b.date);
+    else db.prepare("DELETE FROM blocks WHERE listing_id = ? AND date = ?").run(m[1], b.date);
+    return send(res, 200, { ok: true });
+  }
+  return fail(res, 404, "Topilmadi.");
 }
 
 // ---------- routes ----------
@@ -332,6 +463,65 @@ async function handle(req, res) {
     return send(res, 200, rows);
   }
 
+  let m;
+  if (p === "/api/availability" && M === "GET") {
+    const row = db.prepare("SELECT * FROM listings WHERE id = ? AND active = 1").get(str(url.searchParams.get("id"), 40));
+    if (!row) return fail(res, 404, "Bu joy topilmadi.");
+    const item = rowToListing(row);
+    const from = url.searchParams.get("from"), to = item.type === "tour" ? from : url.searchParams.get("to") || from;
+    if (!isDate(from) || !isDate(to) || to < from || days(from, to) > 60) return fail(res, 400, "Sanani tekshiring.");
+    return send(res, 200, availability(item, from, to, Math.max(1, parseInt(url.searchParams.get("guests"), 10) || 1)));
+  }
+
+  if (p === "/api/transport-bookings" && M === "POST") {
+    if (limited(req)) return fail(res, 429, "Juda ko'p so'rov. Bir daqiqadan keyin urinib ko'ring.");
+    const b = await readJson(req);
+    const t = TRIPS.get(str(b.tripId, 60));
+    if (!t) return fail(res, 404, "Reys topilmadi.");
+    const client = str(b.client, 80), phone = normPhone(b.phone), date = b.date, guests = parseInt(b.guests, 10) || 0;
+    if (client.length < 3) return fail(res, 400, "Ism familiyangizni kiriting.");
+    if (!validPhone(phone)) return fail(res, 400, "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing.");
+    if (!isDate(date) || date < today()) return fail(res, 400, "Bugungi yoki keyingi sanani tanlang.");
+    const q = tripQuote(t, b.cls, guests);
+    if (guests < 1 || guests > q.cap) return fail(res, 400, `Bir bronda ${q.cap} yo'lovchigacha.`);
+    const pay = PAY.includes(b.pay) ? b.pay : "joyida";
+    const code = "BRN-" + crypto.randomBytes(4).toString("hex").toUpperCase().slice(0, 6);
+    const row = { code, listing_id: t.id, listing_name: q.label, city: t.from, type: "transport", date_from: date, date_to: date, guests, sum: q.sum, pay, client, phone,
+      note: str([t.dep && `jo'nash ${t.dep}`, b.note].filter(Boolean).join(" · "), 500), status: "yangi", created: new Date().toISOString(), user_id: currentUser(req)?.id ?? null };
+    db.prepare(`INSERT INTO bookings (code,listing_id,listing_name,city,type,date_from,date_to,guests,sum,pay,client,phone,note,status,created,user_id)
+                VALUES (:code,:listing_id,:listing_name,:city,:type,:date_from,:date_to,:guests,:sum,:pay,:client,:phone,:note,:status,:created,:user_id)`).run(row);
+    notify(`🚆 Transport broni ${code}\n${q.label}\n${date}${t.dep ? " " + t.dep : ""}, ${guests} kishi\nSumma: ${som(q.sum)}\nMijoz: ${client}, ${phone}`);
+    return send(res, 201, { code, sum: q.sum, status: "yangi", name: q.label, city: t.from, type: "transport", from: date, to: date, guests });
+  }
+
+  if (p === "/api/partner-requests" && M === "POST") {
+    if (limited(req)) return fail(res, 429, "Juda ko'p so'rov. Bir daqiqadan keyin urinib ko'ring.");
+    const b = await readJson(req);
+    const r = { property: str(b.property, 120), type: ["hotel", "hostel", "venue", "tour"].includes(b.type) ? b.type : "hotel", city: str(b.city, 40), units: Math.max(0, parseInt(b.units, 10) || 0), contact: str(b.contact, 80), phone: normPhone(b.phone) };
+    if (r.property.length < 2) return fail(res, 400, "Joy nomini kiriting.");
+    if (!validPhone(r.phone)) return fail(res, 400, "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing.");
+    db.prepare("INSERT INTO partner_requests (property,type,city,units,contact,phone,created) VALUES (?,?,?,?,?,?,?)").run(r.property, r.type, r.city, r.units, r.contact, r.phone, new Date().toISOString());
+    notify(`🤝 Yangi hamkor arizasi: ${r.property} (${r.type}, ${r.city}), ${r.units} ta joy\n${r.contact} ${r.phone}`);
+    return send(res, 201, { ok: true });
+  }
+
+  // iCal feed of booked and closed days, for channel managers and Booking.com / Airbnb calendar sync.
+  m = /^\/api\/ical\/([\w-]{1,40})\.ics$/.exec(p);
+  if (m && M === "GET") {
+    const row = db.prepare("SELECT * FROM listings WHERE id = ?").get(m[1]);
+    if (!row || url.searchParams.get("key") !== icalKey(m[1])) return fail(res, 404, "Topilmadi.");
+    const ev = db.prepare("SELECT code, date_from, date_to, type FROM bookings WHERE listing_id = ? AND status != 'bekor qilindi' AND date_to >= ?").all(m[1], addIso(today(), -30));
+    const bl = db.prepare("SELECT date FROM blocks WHERE listing_id = ? AND date >= ?").all(m[1], today());
+    const d8 = (d) => d.replaceAll("-", "");
+    const vevent = (uid, a, b, summary) => `BEGIN:VEVENT\r\nUID:${uid}@bron.uz\r\nDTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").slice(0, 15)}Z\r\nDTSTART;VALUE=DATE:${d8(a)}\r\nDTEND;VALUE=DATE:${d8(b)}\r\nSUMMARY:${summary}\r\nEND:VEVENT\r\n`;
+    const body = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//bron.uz//UZ\r\n" +
+      ev.map((e) => vevent(e.code, e.date_from, row.type === "hotel" || row.type === "hostel" ? e.date_to : addIso(e.date_to, 1), `Band ${e.code}`)).join("") +
+      bl.map((x) => vevent(`blk-${m[1]}-${x.date}`, x.date, addIso(x.date, 1), "Yopiq")).join("") + "END:VCALENDAR\r\n";
+    return send(res, 200, body, { "content-type": "text/calendar; charset=utf-8" });
+  }
+
+  if (p.startsWith("/api/partner/")) return partnerRoutes(req, res, p, M, url);
+
   if (p === "/api/bookings" && M === "POST") {
     if (limited(req)) return fail(res, 429, "Juda ko'p so'rov. Bir daqiqadan keyin urinib ko'ring.");
     const b = await readJson(req);
@@ -355,6 +545,8 @@ async function handle(req, res) {
 
     const room = item.type === "hotel" && ROOMS[b.room] ? b.room : "standart";
     if (guests > item.capacity + roomOf(item, room).extra) return fail(res, 400, `Bu xona ${item.capacity + roomOf(item, room).extra} kishigacha.`);
+    const av = availability(item, from, to, guests);
+    if (!av.ok) return fail(res, 409, av.reason);
     const sum = quote(item, from, to, guests, room);
     const code = "BRN-" + crypto.randomBytes(4).toString("hex").toUpperCase().slice(0, 6);
     const booking = { code, listing_id: item.id, listing_name: item.name, city: item.city, type: item.type, date_from: from, date_to: to, guests, sum, pay, client, phone, note: str(b.note, 500), status: "yangi", created: new Date().toISOString(), user_id: currentUser(req)?.id ?? null };
@@ -365,7 +557,7 @@ async function handle(req, res) {
   }
 
   // Customer cancels their own booking; phone must match.
-  let m = /^\/api\/bookings\/(BRN-[A-Z0-9]{6})\/cancel$/.exec(p);
+  m = /^\/api\/bookings\/(BRN-[A-Z0-9]{6})\/cancel$/.exec(p);
   if (m && M === "POST") {
     if (limited(req)) return fail(res, 429, "Juda ko'p so'rov. Bir daqiqadan keyin urinib ko'ring.");
     const b = await readJson(req);
@@ -421,7 +613,29 @@ async function handle(req, res) {
       return send(res, 200, { ok: true });
     }
 
-    if (p === "/api/admin/listings" && M === "GET") return send(res, 200, db.prepare("SELECT * FROM listings ORDER BY type, city, name").all().map(rowToListing));
+    if (p === "/api/admin/listings" && M === "GET") {
+      const owners = Object.fromEntries(db.prepare("SELECT o.listing_id, u.phone FROM listing_owners o JOIN users u ON u.id = o.user_id").all().map((r) => [r.listing_id, r.phone]));
+      return send(res, 200, db.prepare("SELECT * FROM listings ORDER BY type, city, name").all().map(rowToListing).map((x) => ({ ...x, owner: owners[x.id] || "" })));
+    }
+    if (p === "/api/admin/partner-requests" && M === "GET") return send(res, 200, db.prepare("SELECT * FROM partner_requests ORDER BY created DESC LIMIT 500").all());
+    m = /^\/api\/admin\/partner-requests\/(\d+)$/.exec(p);
+    if (m && M === "PATCH") {
+      const b = await readJson(req);
+      if (!STATUSES.includes(b.status)) return fail(res, 400, "Holat noto'g'ri.");
+      const r = db.prepare("UPDATE partner_requests SET status = ? WHERE id = ?").run(b.status, Number(m[1]));
+      if (!r.changes) return fail(res, 404, "Ariza topilmadi.");
+      return send(res, 200, { ok: true });
+    }
+    m = /^\/api\/admin\/listings\/([\w-]{1,40})\/owner$/.exec(p);
+    if (m && M === "POST") {
+      const b = await readJson(req);
+      if (!db.prepare("SELECT 1 FROM listings WHERE id = ?").get(m[1])) return fail(res, 404, "Joy topilmadi.");
+      if (!normPhone(b.phone)) { db.prepare("DELETE FROM listing_owners WHERE listing_id = ?").run(m[1]); return send(res, 200, { ok: true, owner: "" }); }
+      const u = db.prepare("SELECT id, phone FROM users WHERE phone = ?").get(normPhone(b.phone));
+      if (!u) return fail(res, 404, "Bu raqam bilan ro'yxatdan o'tgan foydalanuvchi yo'q. Hamkor avval saytda ro'yxatdan o'tsin.");
+      db.prepare("INSERT INTO listing_owners (listing_id, user_id) VALUES (?, ?) ON CONFLICT(listing_id) DO UPDATE SET user_id = excluded.user_id").run(m[1], u.id);
+      return send(res, 200, { ok: true, owner: u.phone });
+    }
     if (p === "/api/admin/listings" && M === "POST") {
       const x = validListing(await readJson(req), "L" + crypto.randomBytes(3).toString("hex"));
       if (typeof x === "string") return fail(res, 400, x);

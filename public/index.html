@@ -27,8 +27,9 @@
       <a href="#natijalar" data-nav="hotel">Mehmonxonalar</a>
       <a href="#zallar">Zallar</a>
       <a href="#paketlar">Tur paketlari</a>
-      <a href="#shaharlar">Shaharlar</a>
-      <a href="#mice">Korporativ</a>
+      <a href="#natijalar" data-nav="hostel">Hostellar</a>
+      <a href="#transport">Transport</a>
+      <a href="#xarita">Xarita</a>
     </nav>
     <div class="top-actions">
       <button class="icon-btn" type="button" id="favBtn" aria-label="Sevimlilar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2.1 0 3.6 1.1 5.2 3 1.6-1.9 3.1-3 5.2-3 3.8 0 5.9 3.9 4.4 7.3C19.5 16.4 12 21 12 21z"/></svg><b id="favCount">0</b></button>
@@ -61,6 +62,7 @@
       <form class="search" id="searchForm" autocomplete="off">
         <div class="tabs" role="tablist" aria-label="Bron turi">
           <button type="button" role="tab" class="tab is-on" data-type="hotel" aria-selected="true">Mehmonxona</button>
+          <button type="button" role="tab" class="tab" data-type="hostel" aria-selected="false">Hostel</button>
           <button type="button" role="tab" class="tab" data-type="venue" aria-selected="false">Konferens-zal</button>
           <button type="button" role="tab" class="tab" data-type="tour" aria-selected="false">Tur paketi</button>
         </div>
@@ -101,6 +103,8 @@
     <a class="cat" href="#natijalar" data-nav="hotel"><span class="cat-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20V9l9-5 9 5v11M3 20h18M8 20v-6h8v6M9 10h.01M15 10h.01"/></svg></span><span class="cat-tx"><b>Mehmonxonalar</b><small id="catHotel">24 ta joy</small></span></a>
     <a class="cat" href="#zallar"><span class="cat-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18v11H3zM8 20h8M12 15v5M7 9h4M7 12h7"/></svg></span><span class="cat-tx"><b>Konferens-zallar</b><small id="catVenue">14 ta zal</small></span></a>
     <a class="cat" href="#paketlar"><span class="cat-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21zM12 12.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg></span><span class="cat-tx"><b>Tur paketlari</b><small id="catTour">16 ta dastur</small></span></a>
+    <a class="cat" href="#transport"><span class="cat-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 16l20-8-6 10-4-3-3 4v-5zM9 14l7-5"/></svg></span><span class="cat-tx"><b>Avia, poyezd, avto</b><small id="catTrans">Chiptalar va transfer</small></span></a>
+    <a class="cat" href="#xarita"><span class="cat-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg></span><span class="cat-tx"><b>Xaritada</b><small>Barcha joylar</small></span></a>
     <a class="cat" href="#mice"><span class="cat-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7a3 3 0 1 0 0-.01M16 7a3 3 0 1 0 0-.01M2 20v-2a5 5 0 0 1 10 0v2M12 20v-2a5 5 0 0 1 10 0v2"/></svg></span><span class="cat-tx"><b>Korporativ tadbirlar</b><small>Guruh so'rovi</small></span></a>
   </section>
 
@@ -208,6 +212,50 @@
     </div>
   </section>
 
+  <section class="tr-sec" id="transport">
+    <div class="wrap section">
+      <div class="sec-head">
+        <div>
+          <p class="eyebrow">Yo'l</p>
+          <h2>Avia, poyezd va avtomobil</h2>
+          <p class="muted">Shaharlar orasidagi reyslar, Afrosiyob va tungi poyezdlar, haydovchili mashina va aeroport transferi.</p>
+        </div>
+      </div>
+      <div class="tr-box">
+        <div class="tr-modes" id="trModes" role="tablist" aria-label="Transport turi">
+          <button type="button" role="tab" class="tr-mode is-on" data-mode="avia" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 16l20-8-6 10-4-3-3 4v-5zM9 14l7-5"/></svg>Aviachipta</button>
+          <button type="button" role="tab" class="tr-mode" data-mode="poyezd" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3zM4 10h16M8 21l2-4M16 21l-2-4M8 13.5h.01M16 13.5h.01"/></svg>Poyezd</button>
+          <button type="button" role="tab" class="tr-mode" data-mode="avto" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 16V11l2-5h14l2 5v5M3 16h18M7 16v3M17 16v3M6 12h.01M18 12h.01"/></svg>Avto va transfer</button>
+        </div>
+        <form class="tr-form" id="trForm" autocomplete="off">
+          <label class="field"><span>Qayerdan</span><select id="trFrom"></select></label>
+          <button class="tr-swap" type="button" id="trSwap" aria-label="Yo'nalishni almashtirish">⇄</button>
+          <label class="field"><span>Qayerga</span><select id="trTo"></select></label>
+          <label class="field"><span>Sana</span><input type="date" id="trDate"></label>
+          <label class="field"><span>Yo'lovchilar</span><input type="number" id="trPax" min="1" max="45" value="1" inputmode="numeric"></label>
+          <button class="btn btn-gold" type="submit">Qidirish</button>
+        </form>
+      </div>
+      <div class="tr-list" id="trList"></div>
+      <p class="note">Jadval va narxlar namuna. Haqiqiy chipta aviakompaniya va temir yo'l tizimiga ulangach beriladi; hozir bron so'rov sifatida qabul qilinadi.</p>
+    </div>
+  </section>
+
+  <section class="wrap section" id="xarita">
+    <div class="sec-head">
+      <div>
+        <p class="eyebrow">Xarita</p>
+        <h2>Xaritada qidiring</h2>
+        <p class="muted">Har bir belgi narxni ko'rsatadi. Bosing, joy haqida qisqa ma'lumot va bron tugmasi chiqadi.</p>
+      </div>
+      <div class="chips" id="mapTypes" role="group" aria-label="Xaritadagi joylar"></div>
+    </div>
+    <div class="map-wrap">
+      <div class="map" id="map" role="region" aria-label="Joylar xaritasi"><p class="map-load">Xarita yuklanmoqda...</p></div>
+      <aside class="map-side" id="mapSide" aria-label="Xaritadagi ro'yxat"></aside>
+    </div>
+  </section>
+
   <div class="orn" aria-hidden="true"></div>
   <section class="steps-band">
     <div class="wrap section">
@@ -260,6 +308,40 @@
         <label class="field"><span>Telefon</span><input id="mPhone" type="tel" placeholder="+998 90 123 45 67" required></label>
         <button class="btn btn-ink" type="submit">So'rov yuborish</button>
         <p class="form-msg" id="miceMsg" role="status"></p>
+      </form>
+    </div>
+  </section>
+
+  <section class="wrap section" id="hamkor">
+    <div class="partner-card">
+      <div class="partner-copy">
+        <p class="eyebrow">Hamkorlar uchun</p>
+        <h2>Mehmonxona, hostel yoki zalingiz bormi?</h2>
+        <p class="muted">bron.uz ga ulaning: mijozlar to'g'ridan-to'g'ri sizdan bron qiladi, siz esa narx va bo'sh joylarni o'zingiz boshqarasiz.</p>
+        <ul class="partner-list">
+          <li><b>To'g'ridan-to'g'ri bron.</b> Bron darhol hamkor kabinetiga va Telegramga tushadi, siz tasdiqlaysiz.</li>
+          <li><b>Bo'sh joylar kalendari.</b> Xonalar sonini kiriting, band kunlarni yoping, sayt ortiqcha bron qabul qilmaydi.</li>
+          <li><b>Booking.com, Airbnb bilan sinxron.</b> Har bir joy uchun iCal havola: kalendaringiz boshqa saytlarga ham ulanadi.</li>
+          <li><b>O'z narxingiz.</b> Narxni istalgan vaqtda kabinetdan o'zgartirasiz.</li>
+        </ul>
+        <a class="btn btn-ink" href="partner.html">Hamkor kabinetiga kirish</a>
+      </div>
+      <form class="card partner-form" id="partnerForm" novalidate>
+        <h3>Hamkorlik arizasi</h3>
+        <label class="field"><span>Joy nomi</span><input id="pfName" placeholder="Masalan, Bahor Hotel"></label>
+        <div class="row2">
+          <label class="field"><span>Turi</span>
+            <select id="pfType"><option value="hotel">Mehmonxona</option><option value="hostel">Hostel</option><option value="venue">Konferens-zal</option><option value="tour">Tur operator</option></select>
+          </label>
+          <label class="field"><span>Shahar</span><select id="pfCity"></select></label>
+        </div>
+        <div class="row2">
+          <label class="field"><span>Xona / o'rinlar soni</span><input id="pfUnits" type="number" min="1" value="10" inputmode="numeric"></label>
+          <label class="field"><span>Ismingiz</span><input id="pfContact" autocomplete="name"></label>
+        </div>
+        <label class="field"><span>Telefon</span><input id="pfPhone" type="tel" placeholder="+998 90 123 45 67" autocomplete="tel"></label>
+        <button class="btn btn-gold" type="submit">Ariza yuborish</button>
+        <p class="form-msg" id="pfMsg" role="status"></p>
       </form>
     </div>
   </section>
@@ -326,6 +408,7 @@
       <p class="f-title">Yordam</p>
       <a href="#savollar">Ko'p beriladigan savollar</a>
       <a href="#mice">Guruh so'rovi yuborish</a>
+      <a href="partner.html">Hamkor kabineti</a>
       <a href="#ilova">Ilovani o'rnatish</a>
     </div>
     <div>
@@ -350,7 +433,7 @@
       <div id="dRooms"></div>
       <div class="d-foot">
         <p class="price" id="dPrice"></p>
-        <button class="btn btn-gold" type="button" id="dBook">Bron qilish</button>
+        <div class="v-acts"><button class="btn btn-line" type="button" id="dMap">Xaritada</button><button class="btn btn-gold" type="button" id="dBook">Bron qilish</button></div>
       </div>
     </div>
   </div>
@@ -365,7 +448,7 @@
       </div>
       <button type="button" class="x" data-close aria-label="Yopish">×</button>
     </div>
-    <label class="field" id="bRoomWrap"><span>Xona turi</span><select id="bRoom"></select></label>
+    <label class="field" id="bRoomWrap"><span id="bRoomLabel">Xona turi</span><select id="bRoom"></select></label>
     <div class="row2">
       <label class="field"><span id="bFromLabel">Kelish</span><input type="date" id="bFrom" required></label>
       <label class="field" id="bToWrap"><span id="bToLabel">Ketish</span><input type="date" id="bTo" required></label>
@@ -390,6 +473,7 @@
       <span id="totalCalc"></span>
       <b id="totalSum"></b>
     </div>
+    <p class="avail" id="bAvail" role="status"></p>
     <p class="form-msg" id="bookMsg" role="status"></p>
     <button class="btn btn-gold wide" type="submit">Bronni tasdiqlash</button>
   </form>

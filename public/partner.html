@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <title>Hamkor kabineti</title>
+  <meta name="theme-color" content="#15306f">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Yeseva+One&family=Golos+Text:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <a class="logo" href="./"><span class="logo-mark" aria-hidden="true"></span>bron<span>.uz</span></a>
+    <span class="pc-title">Hamkor kabineti</span>
+    <div class="top-actions"><button class="btn btn-line" type="button" id="pcOut" hidden>Chiqish</button></div>
+  </div>
+</header>
+<div class="orn" aria-hidden="true"></div>
+<main class="wrap pc">
+  <section id="pcStatic" class="pc-box" hidden>
+    <h1>Hamkor kabineti</h1>
+    <p>Bu sahifa server (VPS) ishga tushganda ishlaydi. Hozirgi GitHub Pages versiyasi faqat namuna: bu yerda bronlar mehmonxonaga yetib bormaydi.</p>
+    <p class="muted">Server ishga tushgach, mehmonxona, hostel yoki zal egasi shu yerda o'z bronlarini ko'radi, tasdiqlaydi, narx va bo'sh xonalarni o'zgartiradi, band kunlarni yopadi va Booking.com / Airbnb bilan iCal orqali kalendarni bog'laydi.</p>
+    <a class="btn btn-gold" href="./#hamkor">Hamkor bo'lish uchun ariza</a>
+  </section>
+
+  <section id="pcLogin" class="pc-box pc-narrow" hidden>
+    <h1>Hamkor sifatida kirish</h1>
+    <p class="muted">Saytdagi hisobingiz raqami va parolini kiriting. Joyingizni administrator shu raqamga biriktiradi.</p>
+    <form id="pcLoginForm" class="pc-form">
+      <label class="field"><span>Telefon</span><input id="pcPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+998 90 123 45 67" required></label>
+      <label class="field"><span>Parol</span><input id="pcPass" type="password" autocomplete="current-password" minlength="8" required></label>
+      <button class="btn btn-ink wide" type="submit">Kirish</button>
+      <p class="form-msg" id="pcLoginMsg" role="status"></p>
+    </form>
+    <p class="muted small">Hisobingiz yo'qmi? <a href="./">Bosh sahifada</a> "Kirish" tugmasi orqali ro'yxatdan o'ting.</p>
+  </section>
+
+  <section id="pcMain" hidden>
+    <div class="pc-head">
+      <div><p class="eyebrow">Xush kelibsiz</p><h1 id="pcName"></h1></div>
+      <div class="seg pc-seg" id="pcTabs">
+        <button class="seg-b is-on" type="button" data-pc="bookings">Bronlar</button>
+        <button class="seg-b" type="button" data-pc="listings">Joylarim</button>
+        <button class="seg-b" type="button" data-pc="calendar">Kalendar</button>
+      </div>
+    </div>
+    <p class="form-msg" id="pcMsg" role="status"></p>
+    <div id="pcEmpty" class="pc-box" hidden>
+      <h2>Sizga hali joy biriktirilmagan</h2>
+      <p>Avval <a href="./#hamkor">hamkorlik arizasini</a> yuboring. Administrator mehmonxona, hostel yoki zalingizni shu telefon raqamiga biriktirgach, bronlar shu yerda ko'rinadi.</p>
+    </div>
+    <div id="pc-bookings" class="pc-tab"></div>
+    <div id="pc-listings" class="pc-tab" hidden></div>
+    <div id="pc-calendar" class="pc-tab" hidden>
+      <div class="pc-cal-bar">
+        <select id="pcCalListing" aria-label="Joy"></select>
+        <button class="btn btn-line" type="button" id="pcPrev" aria-label="Oldingi oy">‹</button>
+        <b id="pcMonth"></b>
+        <button class="btn btn-line" type="button" id="pcNext" aria-label="Keyingi oy">›</button>
+      </div>
+      <p class="muted small">Kunni bossangiz, u sotuvdan yopiladi yoki qayta ochiladi. Raqam: band joylar / jami.</p>
+      <div class="pc-cal" id="pcCal"></div>
+      <div class="pc-legend"><span class="d-free">bo'sh</span><span class="d-part">qisman band</span><span class="d-full">to'la</span><span class="d-block">yopilgan</span></div>
+    </div>
+  </section>
+</main>
+<script src="partner.js"></script>
+</body>
+</html>

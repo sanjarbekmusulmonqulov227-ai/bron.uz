@@ -5,7 +5,7 @@
   const som = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " so'm";
   const d = (s) => s ? s.slice(0, 10).split("-").reverse().join(".") : "";
   const STATUSES = ["yangi", "tasdiqlandi", "bekor qilindi", "yakunlandi"];
-  const TYPE = { hotel: "Mehmonxona", venue: "Zal", tour: "Tur" };
+  const TYPE = { hotel: "Mehmonxona", hostel: "Hostel", venue: "Zal", tour: "Tur", transport: "Transport" };
   let listings = [];
   // Amenity names the site understands (same keys as public/app.js AMEN).
   const AMEN = { wifi: "Wi-Fi", breakfast: "Nonushta", pool: "Basseyn", spa: "Spa", gym: "Fitnes", parking: "Avtoturargoh", restaurant: "Restoran", transfer: "Transfer", ac: "Konditsioner", family: "Oilalar uchun", translation: "Sinxron tarjima", screen: "LED ekran", coffee: "Kofe-breyk", stage: "Sahna", guide: "Gid", tickets: "Chiptalar kiradi", meal: "Ovqat kiradi", transport: "Transport" };
@@ -44,11 +44,20 @@
       <td>${statusSelect("requests", r.id, r.status)}</td></tr>`).join("") : `<tr><td colspan="6" class="muted">Guruh so'rovlari hali yo'q.</td></tr>`;
   }
 
+  async function loadPartners() {
+    const rows = await call("GET", "/api/admin/partner-requests");
+    $("#partnersBody").innerHTML = rows.length ? rows.map((r) => `<tr>
+      <td class="num">${d(r.created)}</td><td><b>${esc(r.property)}</b></td><td>${esc(TYPE[r.type] || r.type)}</td><td>${esc(r.city)}</td><td class="num">${r.units || ""}</td>
+      <td>${esc(r.contact)}<div class="muted">${esc(r.phone)}</div></td>
+      <td>${statusSelect("partner-requests", r.id, r.status)}</td></tr>`).join("") : `<tr><td colspan="7" class="muted">Hamkorlik arizalari hali yo'q.</td></tr>`;
+  }
+
   async function loadListings() {
     listings = await call("GET", "/api/admin/listings");
     $("#listingsBody").innerHTML = listings.map((x) => `<tr>
       <td>${esc(x.name)}</td><td>${TYPE[x.type]}</td><td>${esc(x.city)}</td><td class="num">${som(x.price)}</td><td class="num">${x.capacity}</td>
       <td>${x.active ? '<span class="pill">saytda</span>' : '<span class="pill muted">yashirin</span>'}</td>
+      <td style="white-space:nowrap">${x.type === "tour" ? '<span class="muted">—</span>' : `<input size="14" placeholder="+998..." value="${esc(x.owner)}" data-owner-input="${esc(x.id)}"> <button class="btn line" data-owner="${esc(x.id)}">Biriktirish</button>`}</td>
       <td style="white-space:nowrap"><button class="btn line" data-edit="${esc(x.id)}">Tahrirlash</button> ${x.active ? `<button class="btn line" data-hide="${esc(x.id)}">Yashirish</button>` : `<button class="btn line" data-show="${esc(x.id)}">Qaytarish</button>`}</td></tr>`).join("");
   }
 
@@ -81,11 +90,16 @@
     try {
       if (t.dataset.tab) {
         document.querySelectorAll("nav button").forEach((b) => b.classList.toggle("on", b === t));
-        ["bookings", "requests", "listings"].forEach((k) => { $("#tab-" + k).hidden = k !== t.dataset.tab; });
-        ({ bookings: loadBookings, requests: loadRequests, listings: loadListings })[t.dataset.tab]();
+        ["bookings", "requests", "listings", "partners"].forEach((k) => { $("#tab-" + k).hidden = k !== t.dataset.tab; });
+        ({ bookings: loadBookings, requests: loadRequests, listings: loadListings, partners: loadPartners })[t.dataset.tab]();
       } else if (t.dataset.edit) { fillForm(listings.find((x) => x.id === t.dataset.edit)); window.scrollTo(0, 0); }
       else if (t.dataset.hide) { await call("DELETE", `/api/admin/listings/${t.dataset.hide}`); say("Joy saytdan yashirildi.", true); loadListings(); }
       else if (t.dataset.show) { const x = listings.find((y) => y.id === t.dataset.show); await call("PUT", `/api/admin/listings/${x.id}`, { ...x, active: true }); say("Joy saytga qaytarildi.", true); loadListings(); }
+      else if (t.dataset.owner) {
+        const phone = document.querySelector(`[data-owner-input="${CSS.escape(t.dataset.owner)}"]`).value.trim();
+        const r = await call("POST", `/api/admin/listings/${encodeURIComponent(t.dataset.owner)}/owner`, { phone });
+        say(r.owner ? `Joy ${r.owner} raqamiga biriktirildi.` : "Egasi olib tashlandi.", true); loadListings();
+      }
       else if (t.id === "lCancel") fillForm(null);
     } catch (err) { say(err.message); }
   });

@@ -63,3 +63,13 @@ Shahar suratlari Wikimedia Commons'dan olinadi (`public/data.js` dagi `BRON_PHOT
 ## Xavfsizlik
 
 Xavfsizlik holati va tavsiyalar: [SECURITY.md](SECURITY.md).
+
+## Hamkorlar bilan to'g'ridan-to'g'ri bron
+
+- Mehmonxona, hostel yoki zal egasi saytdagi "Hamkor bo'lish" bo'limidan ariza yuboradi (admin panel → "Hamkor arizalari").
+- Egasi saytda ro'yxatdan o'tadi. Admin "Joylar" bo'limida uning joyiga telefon raqamini yozib "Biriktirish"ni bosadi.
+- Egasi `/partner.html` sahifasida bronlarni tasdiqlaydi yoki bekor qiladi, narx va xona/o'rin sonini o'zgartiradi, band kunlarni yopadi.
+- Har bir joyning iCal havolasi bor: uni Booking.com yoki Airbnb kalendariga qo'shsangiz, bron.uz'dagi bronlar u yerda ham band ko'rinadi.
+- Bo'sh joy kunma-kun hisoblanadi (mehmonxona: xonalar soni, hostel: o'rinlar, zal: kuniga bitta tadbir). Joy qolmasa, bron qabul qilinmaydi.
+- Transport (avia, poyezd, avto) jadvali va narxlari `public/data.js` ichidagi namuna ma'lumot. Haqiqiy chipta sotish uchun Uzbekistan Airways va O'zbekiston temir yo'llari bilan shartnoma va API kerak.
+- Xarita OpenStreetMap va Leaflet (`public/vendor/leaflet`, BSD-2 litsenziya) orqali ishlaydi.

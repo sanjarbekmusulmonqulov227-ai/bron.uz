@@ -45,6 +45,7 @@
     <button class="on" data-tab="bookings">Bronlar</button>
     <button data-tab="requests">Guruh so'rovlari</button>
     <button data-tab="listings">Joylar</button>
+    <button data-tab="partners">Hamkor arizalari</button>
   </nav>
   <a href="/" class="muted" style="margin-left:auto">Saytga o'tish</a>
 </header>
@@ -69,7 +70,7 @@
   <section id="tab-listings" hidden>
     <form class="edit" id="listingForm">
       <input type="hidden" id="lId">
-      <label>Turi<select id="lType"><option value="hotel">Mehmonxona</option><option value="venue">Zal</option><option value="tour">Tur</option></select></label>
+      <label>Turi<select id="lType"><option value="hotel">Mehmonxona</option><option value="hostel">Hostel</option><option value="venue">Zal</option><option value="tour">Tur</option></select></label>
       <label>Nomi<input id="lName" required></label>
       <label>Shahar<input id="lCity" required list="cities"></label>
       <label>Narx (so'm)<input id="lPrice" type="number" min="1" required></label>
@@ -84,8 +85,16 @@
     </form>
     <datalist id="cities"><option>Toshkent</option><option>Samarqand</option><option>Buxoro</option><option>Xiva</option></datalist>
     <div class="tbl"><table>
-      <thead><tr><th>Nomi</th><th>Turi</th><th>Shahar</th><th>Narx</th><th>Sig'im</th><th>Holat</th><th></th></tr></thead>
+      <thead><tr><th>Nomi</th><th>Turi</th><th>Shahar</th><th>Narx</th><th>Sig'im</th><th>Holat</th><th>Egasi (hamkor telefoni)</th><th></th></tr></thead>
       <tbody id="listingsBody"></tbody>
+    </table></div>
+  </section>
+
+  <section id="tab-partners" hidden>
+    <p class="muted">Ariza qabul qilinganda: egasi saytda shu raqam bilan ro'yxatdan o'tadi, so'ng "Joylar" bo'limida uning joyiga raqamini yozib "Biriktirish"ni bosing. Shundan keyin u /partner.html sahifasida bronlarni ko'radi.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Sana</th><th>Joy</th><th>Turi</th><th>Shahar</th><th>Xona/o'rin</th><th>Aloqa</th><th>Holat</th></tr></thead>
+      <tbody id="partnersBody"></tbody>
     </table></div>
   </section>
 </main>

@@ -76,6 +76,24 @@ window.BRON_LISTINGS = [
   { id: "h24", type: "hotel", name: "Surxon Oasis", city: "Termiz", district: "Termiz markazi", stars: 4, rating: 8.5, reviews: 119, price: 480000, capacity: 4, art: "stupa", hue: 38, free: true,
     amenities: ["wifi", "breakfast", "pool", "parking", "ac"], desc: "Fayoztepa va Qoratepa buddaviy yodgorliklariga ekskursiyalar uchun qulay boshlang'ich nuqta." },
 
+  // ---- Hostellar (narx 1 o'rin, 1 kecha uchun) ----
+  { id: "hs01", type: "hostel", kind: "Hostel", name: "Topchan Hostel", city: "Toshkent", district: "Chilonzor, metro yonida", rating: 9.1, reviews: 642, price: 120000, capacity: 8, beds: 36, art: "house", hue: 160, free: true,
+    amenities: ["wifi", "breakfast", "kitchen", "laundry", "ac"], desc: "Ayvonli hovli, 4 va 6 o'rinli xonalar, har bir karavotda chiroq va rozetka. Kechqurun umumiy oshxonada choy va tanishuv." },
+  { id: "hs02", type: "hostel", kind: "Hostel", name: "Backpackers Toshkent Markaz", city: "Toshkent", district: "Amir Temur xiyoboni, 500 m", rating: 8.8, reviews: 1033, price: 140000, capacity: 8, beds: 48, art: "classic", hue: 210, free: true,
+    amenities: ["wifi", "kitchen", "laundry", "ac", "transfer"], desc: "Shahar markazida, metro va aeroport avtobusi yonida. Ayollar uchun alohida xona va shaxsiy shkafchalar." },
+  { id: "hs03", type: "hostel", kind: "Hostel", name: "Bahor Hostel", city: "Samarqand", district: "Registon, 700 m", rating: 9.4, reviews: 877, price: 110000, capacity: 8, beds: 30, art: "dome", hue: 200, free: true,
+    amenities: ["wifi", "breakfast", "kitchen", "ac"], desc: "Tomdan Registon gumbazlari ko'rinadi. Nonushtada issiq non, qaymoq va mahalliy murabbo." },
+  { id: "hs04", type: "hostel", kind: "Hostel", name: "Kukeldash Hostel", city: "Buxoro", district: "Labi Hovuz, 200 m", rating: 9.2, reviews: 715, price: 95000, capacity: 8, beds: 28, art: "minaret", hue: 34, free: true,
+    amenities: ["wifi", "breakfast", "kitchen", "laundry"], desc: "Eski shahar ichida, an'anaviy hovli va salqin yerto'la xonasi. Velosiped ijarasi bor." },
+  { id: "hs05", type: "hostel", kind: "Hostel", name: "Ichan Hostel", city: "Xiva", district: "Ichan Qal'a ichida", rating: 9.0, reviews: 402, price: 90000, capacity: 6, beds: 20, art: "fortress", hue: 18, free: true,
+    amenities: ["wifi", "breakfast", "ac"], desc: "Qal'a devorlari ichidagi oilaviy hostel, tomdan quyosh botishi manzarasi." },
+  { id: "hs06", type: "hostel", kind: "Hostel", name: "Ipak Hostel", city: "Farg'ona", district: "Farg'ona markazi", rating: 8.7, reviews: 158, price: 80000, capacity: 6, beds: 18, art: "garden", hue: 310, free: true,
+    amenities: ["wifi", "kitchen", "laundry", "transfer"], desc: "Marg'ilon va Rishtonga kunlik sayohatlar uchun qulay boshlang'ich nuqta." },
+  { id: "hs07", type: "hostel", kind: "Hostel", name: "Chimyon Tog' Hostel", city: "Chimyon", district: "Chimyon kurorti", rating: 8.9, reviews: 233, price: 130000, capacity: 8, beds: 24, art: "mountain", hue: 205, free: true,
+    amenities: ["wifi", "kitchen", "parking"], desc: "Chang'ichilar va tog' sayyohlari uchun: jihozlar quritgichi, kamin va issiq choy." },
+  { id: "hs08", type: "hostel", kind: "Hostel", name: "Surxon Hostel", city: "Termiz", district: "Termiz markazi", rating: 8.6, reviews: 74, price: 75000, capacity: 6, beds: 16, art: "stupa", hue: 42, free: true,
+    amenities: ["wifi", "breakfast", "ac"], desc: "Arxeologiya yodgorliklariga yaqin, mehmondo'st oilaviy hostel." },
+
   // ---- Konferens-zallar ----
   // layouts: teatr / sinf / banket / furshet (kishi); area: m²; format: conf | meet | gala | open | expo
   { id: "v01", type: "venue", format: "conf", kind: "Kongress-zal", name: "Navoiy Kongress Zali", city: "Toshkent", district: "Amir Temur xiyoboni", rating: 9.0, reviews: 84, price: 18500000, capacity: 600, area: 1100, layouts: { teatr: 600, sinf: 320, banket: 400, furshet: 700 }, art: "hall", hue: 230, free: false,
@@ -214,3 +232,73 @@ window.BRON_PHOTOS = {
     { file: "Termiz,_Fayoz-Tepe_(6240998331).jpg", title: "Fayoztepa" }
   ]
 };
+
+// Shahar markazlari (xarita uchun). Joyda aniq lat/lng bo'lmasa, shu nuqta atrofida ko'rsatiladi.
+window.BRON_GEO = {
+  "Toshkent": [41.3111, 69.2797, 0.045], "Samarqand": [39.6548, 66.9757, 0.018], "Buxoro": [39.7758, 64.4142, 0.012],
+  "Xiva": [41.3785, 60.3594, 0.006], "Shahrisabz": [39.0626, 66.8302, 0.01], "Farg'ona": [40.3842, 71.7843, 0.02],
+  "Chimyon": [41.5536, 70.0270, 0.02], "Termiz": [37.2242, 67.2783, 0.02], "Urganch": [41.5506, 60.6317, 0.01],
+  "Qo'qon": [40.5286, 70.9425, 0.01], "Marg'ilon": [40.4712, 71.7246, 0.01], "Rishton": [40.3569, 71.2847, 0.01],
+  "Chorvoq": [41.6315, 70.0420, 0.01], "Ayozqal'a": [42.0000, 61.0700, 0.01], "Fayoztepa": [37.2617, 67.1878, 0.004], "Boysun": [38.2058, 67.1986, 0.01]
+};
+
+// ---- Transport: namuna jadval (haqiqiy chipta tizimlariga ulanmagan) ----
+window.BRON_TRANSPORT = (function () {
+  const AIRPORT = { "Toshkent": "TAS", "Samarqand": "SKD", "Buxoro": "BHK", "Urganch": "UGC", "Farg'ona": "FEG", "Termiz": "TMJ" };
+  // [raqam, qayerdan, qayerga, jo'nash, davomiylik (daqiqa), narx]; qaytish reysi raqam+1 bilan avtomatik qo'shiladi
+  const FL = [
+    ["HY 051", "Toshkent", "Urganch", "07:10", 105, 890000], ["HY 055", "Toshkent", "Urganch", "18:40", 105, 820000],
+    ["HY 061", "Toshkent", "Buxoro", "08:20", 80, 740000], ["HY 065", "Toshkent", "Buxoro", "19:50", 80, 690000],
+    ["HY 031", "Toshkent", "Samarqand", "09:05", 60, 590000],
+    ["HY 041", "Toshkent", "Termiz", "06:55", 85, 760000],
+    ["HY 071", "Toshkent", "Farg'ona", "10:15", 55, 520000]
+  ];
+  const t2m = (t) => +t.slice(0, 2) * 60 + +t.slice(3);
+  const m2t = (m) => `${String(Math.floor(m / 60) % 24).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+  const avia = [];
+  FL.forEach(([no, a, b, dep, dur, price]) => {
+    avia.push({ id: no.replace(" ", ""), mode: "avia", carrier: "Uzbekistan Airways", no, from: a, to: b, fromCode: AIRPORT[a], toCode: AIRPORT[b], dep, arr: m2t(t2m(dep) + dur), dur, price, bag: "20 kg yuk" });
+    const back = no.slice(0, 3) + String(+no.slice(3) + 1).padStart(3, "0");
+    const bdep = m2t(t2m(dep) + dur + 70);
+    avia.push({ id: back.replace(" ", ""), mode: "avia", carrier: "Uzbekistan Airways", no: back, from: b, to: a, fromCode: AIRPORT[b], toCode: AIRPORT[a], dep: bdep, arr: m2t(t2m(bdep) + dur), dur, price: Math.round(price * 0.95 / 1000) * 1000, bag: "20 kg yuk" });
+  });
+
+  // [poyezd, raqam, qayerdan, qayerga, jo'nash, davomiylik, {klass: narx}, tungi]
+  const TR = [
+    ["Afrosiyob", "762F", "Toshkent", "Samarqand", "07:28", 130, { ekonom: 270000, biznes: 450000, vip: 690000 }],
+    ["Afrosiyob", "764F", "Toshkent", "Samarqand", "08:00", 130, { ekonom: 270000, biznes: 450000, vip: 690000 }],
+    ["Afrosiyob", "766F", "Toshkent", "Buxoro", "18:30", 230, { ekonom: 390000, biznes: 640000, vip: 950000 }],
+    ["Sharq", "010F", "Toshkent", "Buxoro", "08:45", 370, { ekonom: 190000, biznes: 310000 }],
+    ["Sharq", "012F", "Toshkent", "Samarqand", "16:10", 215, { ekonom: 150000, biznes: 240000 }],
+    ["Afrosiyob", "768F", "Samarqand", "Buxoro", "10:05", 95, { ekonom: 170000, biznes: 280000, vip: 420000 }],
+    ["Xorazm", "056F", "Toshkent", "Xiva", "20:50", 870, { plaskart: 260000, kupe: 380000, SV: 640000 }, true],
+    ["Surxon", "380F", "Toshkent", "Termiz", "19:10", 780, { plaskart: 230000, kupe: 340000, SV: 590000 }, true],
+    ["Farg'ona", "054F", "Toshkent", "Farg'ona", "07:45", 300, { ekonom: 160000, biznes: 260000 }]
+  ];
+  const poyezd = [];
+  TR.forEach(([name, no, a, b, dep, dur, classes, night]) => {
+    poyezd.push({ id: no, mode: "poyezd", name, no, from: a, to: b, dep, arr: m2t(t2m(dep) + dur), dur, classes, night: !!night });
+    const back = String(+no.slice(0, 3) + 1).padStart(3, "0") + "F";
+    const bdep = m2t(t2m(dep) + dur + (night ? 180 : 120));
+    poyezd.push({ id: back, mode: "poyezd", name, no: back, from: b, to: a, dep: bdep, arr: m2t(t2m(bdep) + dur), dur, classes, night: !!night });
+  });
+
+  // Haydovchili avtomobil: narx = masofa × km narxi (eng kam to'lov bilan)
+  const vehicles = [
+    { id: "sedan", name: "Sedan", model: "Chevrolet Malibu yoki shunga o'xshash", seats: 3, bags: 3, perKm: 2000, min: 150000 },
+    { id: "miniven", name: "Miniven", model: "Kia Carnival yoki shunga o'xshash", seats: 6, bags: 6, perKm: 3200, min: 250000 },
+    { id: "mikro", name: "Mikroavtobus", model: "Mercedes Sprinter, 16 o'rin", seats: 16, bags: 16, perKm: 5000, min: 450000 },
+    { id: "avtobus", name: "Avtobus", model: "Yutong yoki shunga o'xshash, 45 o'rin", seats: 45, bags: 45, perKm: 8000, min: 900000 }
+  ];
+  const KM = { "Toshkent|Samarqand": 310, "Toshkent|Buxoro": 570, "Samarqand|Buxoro": 270, "Buxoro|Xiva": 450, "Toshkent|Xiva": 1000, "Toshkent|Farg'ona": 310,
+    "Samarqand|Shahrisabz": 90, "Toshkent|Chimyon": 85, "Samarqand|Termiz": 370, "Toshkent|Termiz": 700, "Toshkent|Shahrisabz": 400, "Buxoro|Termiz": 480, "Urganch|Xiva": 35 };
+  const km = (a, b) => a === b ? 25 : KM[`${a}|${b}`] || KM[`${b}|${a}`] || 0;
+  const avto = [];
+  const places = [...new Set(Object.keys(KM).flatMap((k) => k.split("|")))];
+  places.forEach((a) => places.forEach((b) => {
+    const d = km(a, b); if (!d) return;
+    vehicles.forEach((v) => avto.push({ id: `${v.id}:${a}:${b}`, mode: "avto", vehicle: v.id, name: v.name, model: v.model, seats: v.seats, bags: v.bags, from: a, to: b, km: d,
+      dur: Math.round(d / (v.seats > 16 ? 60 : 75) * 60), price: Math.max(v.min, Math.round(d * v.perKm / 10000) * 10000), transfer: a === b }));
+  }));
+  return { avia, poyezd, avto, vehicles, airports: AIRPORT };
+})();

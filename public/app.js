@@ -9,10 +9,14 @@
 
   const TYPES = {
     hotel: { title: "Mehmonxonalar", kind: "Mehmonxona", unit: "1 kecha", from: "Kelish", to: "Ketish", guests: "Mehmonlar", noun: "kecha" },
+    hostel: { title: "Hostellar", kind: "Hostel", unit: "1 o'rin, 1 kecha", from: "Kelish", to: "Ketish", guests: "O'rinlar", noun: "kecha" },
+    transport: { title: "Transport", kind: "Transport", unit: "1 yo'lovchi", from: "Sana", to: "", guests: "Yo'lovchilar", noun: "yo'lovchi" },
     venue: { title: "Konferens-zallar", kind: "Zal", unit: "1 kun", from: "Boshlanish", to: "Tugash", guests: "Qatnashchilar", noun: "kun" },
     tour:  { title: "Tur paketlari va ekskursiyalar", kind: "Tur", unit: "1 kishi", from: "Sana", to: "Qaytish", guests: "Kishilar", noun: "kishi" }
   };
 
+  // Hotels and hostels are sold by the night.
+  const nightly = (x) => x.type === "hotel" || x.type === "hostel";
   const ROOMS = [
     { id: "standart", name: "Standart xona", mult: 1, extra: 0, note: "Ikki kishilik yoki ikkita alohida karavot" },
     { id: "deluxe", name: "Deluxe", mult: 1.35, extra: 0, note: "Kengroq xona, manzarali deraza, kofe-mashina" },
@@ -40,9 +44,12 @@
     meal: ["Ovqat kiradi", "M7 3v18M4 3v5a3 3 0 0 0 6 0V3M17 21V3c-2 1-3 4-3 7h3"],
     hotel: ["Mehmonxona", "M3 19V8M3 14h18v5M21 19v-5a3 3 0 0 0-3-3h-7v3M7 11.5a1.5 1.5 0 1 0 0-.01"],
     train: ["Poyezd chiptasi", "M7 3h10a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3zM4 10h16M8 21l2-4M16 21l-2-4M8 13.5h.01M16 13.5h.01"],
+    kitchen: ["Umumiy oshxona", "M4 3v18M8 3v6a2 2 0 0 1-4 0M14 3h5v8h-5zM16.5 11v10"],
+    laundry: ["Kir yuvish", "M5 3h14v18H5zM5 7h14M12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 5h.01"],
     transport: ["Transport", "M5 17V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v11M5 17h14M5 11h14M8 17v3M16 17v3"]
   };
   const AMEN_FILTER = {
+    hostel: ["wifi", "breakfast", "kitchen", "laundry", "ac", "transfer"],
     hotel: ["wifi", "breakfast", "pool", "spa", "parking", "transfer", "family"],
     venue: ["translation", "screen", "coffee", "parking", "wifi"],
     tour: ["hotel", "train", "guide", "transport", "meal", "tickets"]
@@ -52,7 +59,7 @@
   const FAV_KEY = "bronuz.favs";
   const $ = (s) => document.querySelector(s);
   const $$ = (s) => Array.from(document.querySelectorAll(s));
-  const state = { type: "hotel", city: "", from: "", to: "", guests: 2, sort: "rec", maxPct: 100, stars: new Set(), amen: new Set(), free: false, deals: false, favOnly: false, current: null, room: "standart", limit: 9, vFormat: "", vLimit: 6, pk: "multi" };
+  const state = { type: "hotel", city: "", from: "", to: "", guests: 2, sort: "rec", maxPct: 100, stars: new Set(), amen: new Set(), free: false, deals: false, favOnly: false, current: null, room: "standart", limit: 9, vFormat: "", vLimit: 6, pk: "multi", trMode: "avia", mapType: "" };
   let API = false;
 
   // ---------- helpers ----------
@@ -185,11 +192,24 @@
   function unitPrice(item, roomId) { return Math.round(item.price * roomOf(item, roomId).mult / 1000) * 1000; }
   function quote(item, from, to, guests, roomId) {
     const t = TYPES[item.type];
+    if (item.type === "transport") { const q = tripQuote(item.trip, roomId, guests); return { label: q.mode === "avto" ? `${q.name}, butun mashina` : `${som(q.unit)} × ${guests} ${t.noun}`, sum: q.sum }; }
     const p = unitPrice(item, roomId);
     if (item.type === "tour") return { label: `${som(p)} × ${guests} ${t.noun}`, sum: p * guests };
     const n = Math.max(1, daysBetween(from, to) + (item.type === "venue" ? 1 : 0));
+    if (item.type === "hostel") return { label: `${som(p)} × ${n} ${t.noun} × ${guests} o'rin`, sum: p * n * guests };
     return { label: `${som(p)} × ${n} ${t.noun}`, sum: p * n };
   }
+
+  // ---------- transport (sample timetable in data.js; same prices as server.js) ----------
+  const TRANSPORT = window.BRON_TRANSPORT || { avia: [], poyezd: [], avto: [], vehicles: [] };
+  const TRIPS = new Map([...TRANSPORT.avia, ...TRANSPORT.poyezd, ...TRANSPORT.avto].map((t) => [t.id, t]));
+  function tripQuote(t, cls, guests) {
+    if (t.mode === "avto") return { mode: "avto", name: t.name, unit: t.price, sum: t.price, cap: t.seats };
+    if (t.mode === "poyezd") { const c = t.classes[cls] ? cls : Object.keys(t.classes)[0]; return { mode: "poyezd", unit: t.classes[c], sum: t.classes[c] * guests, cap: 10, cls: c }; }
+    return { mode: "avia", unit: t.price, sum: t.price * guests, cap: 9 };
+  }
+  const tripName = (t) => t.mode === "avto" ? `${t.name}: ${t.from}${t.transfer ? " shahar ichida transfer" : " → " + t.to}` : t.mode === "poyezd" ? `${t.name} ${t.no}: ${t.from} → ${t.to}` : `${t.no}: ${t.from} → ${t.to}`;
+  const tripItem = (t) => t && { id: t.id, type: "transport", trip: t, name: tripName(t), city: t.from, capacity: tripQuote(t, "", 1).cap, price: tripQuote(t, "", 1).unit };
   const maxPriceFor = (type) => Math.max(...LISTINGS.filter((x) => x.type === type).map((x) => x.price), 1);
   const priceCap = () => state.maxPct >= 100 ? Infinity : Math.round(maxPriceFor(state.type) * state.maxPct / 100);
 
@@ -238,7 +258,7 @@
     if (!state.from) return fail("Sanani tanlang.");
     if (state.from < todayIso()) return fail("O'tgan sanani tanlab bo'lmaydi. Bugungi yoki keyingi kunni tanlang.");
     if (state.type !== "tour" && state.to < state.from) return fail(`"${t.to}" sanasi "${t.from}" sanasidan keyin bo'lishi kerak.`);
-    if (state.type === "hotel" && state.to === state.from) return fail("Mehmonxona uchun kamida 1 kecha tanlang.");
+    if (nightly(state) && state.to === state.from) return fail("Kamida 1 kecha tanlang.");
     return true;
   }
 
@@ -260,7 +280,7 @@
 
   function card(x) {
     const t = TYPES[x.type];
-    const cap = x.type === "hotel" ? `${x.capacity} kishigacha` : x.type === "venue" ? `${x.capacity} o'rin` : `Guruh ${x.capacity} kishigacha`;
+    const cap = x.type === "hotel" ? `${x.capacity} kishigacha` : x.type === "hostel" ? `${x.beds || x.capacity} o'rinli` : x.type === "venue" ? `${x.capacity} o'rin` : `Guruh ${x.capacity} kishigacha`;
     const off = x.old ? Math.round((1 - x.price / x.old) * 100) : 0;
     const am = (x.amenities || []).slice(0, 4);
     return `
@@ -376,7 +396,7 @@
   }
   function renderCats() {
     const n = (t) => LISTINGS.filter((x) => x.type === t).length;
-    $("#catHotel").textContent = `${n("hotel")} ta joy`;
+    $("#catHotel").textContent = `${n("hotel")} mehmonxona, ${n("hostel")} hostel`;
     $("#catVenue").textContent = `${n("venue")} ta zal`;
     $("#catTour").textContent = `${n("tour")} ta dastur`;
   }
@@ -441,25 +461,30 @@
   }
 
   function openBooking(id, roomId) {
-    const item = LISTINGS.find((x) => x.id === id);
+    const item = LISTINGS.find((x) => x.id === id) || tripItem(TRIPS.get(id));
     if (!item) return;
     state.current = item;
-    state.room = roomId || (item.type === "hotel" ? (ROOMS.find((r) => item.capacity + r.extra >= state.guests) || ROOMS[ROOMS.length - 1]).id : "standart");
+    state.room = item.type === "transport" ? roomId || "" : roomId || (item.type === "hotel" ? (ROOMS.find((r) => item.capacity + r.extra >= state.guests) || ROOMS[ROOMS.length - 1]).id : "standart");
     const t = TYPES[item.type];
     $("#dlgTitle").textContent = item.name;
-    $("#dlgCity").textContent = `${t.kind} · ${item.city}`;
+    $("#dlgCity").textContent = item.type === "transport" ? `${{ avia: "Aviareys", poyezd: "Poyezd", avto: "Haydovchili avtomobil" }[item.trip.mode]}${item.trip.dep ? " · jo'nash " + item.trip.dep : ""}` : `${t.kind} · ${item.city}`;
     $("#bFromLabel").textContent = t.from;
     $("#bToLabel").textContent = t.to;
     $("#bGuestsLabel").textContent = t.guests;
-    $("#bToWrap").hidden = item.type === "tour";
-    $("#bRoomWrap").hidden = item.type !== "hotel";
-    $("#bRoom").innerHTML = ROOMS.map((r) => `<option value="${r.id}"${r.id === state.room ? " selected" : ""}>${r.name} · ${som(unitPrice(item, r.id))}</option>`).join("");
-    $("#bFrom").value = state.from;
+    $("#bToWrap").hidden = item.type === "tour" || item.type === "transport";
+    const trainClasses = item.type === "transport" && item.trip.mode === "poyezd";
+    $("#bRoomWrap").hidden = item.type !== "hotel" && !trainClasses;
+    $("#bRoomLabel").textContent = trainClasses ? "Vagon klassi" : "Xona turi";
+    $("#bRoom").innerHTML = trainClasses
+      ? Object.entries(item.trip.classes).map(([c, pr]) => `<option value="${c}"${c === state.room ? " selected" : ""}>${c[0].toUpperCase() + c.slice(1)} · ${som(pr)}</option>`).join("")
+      : ROOMS.map((r) => `<option value="${r.id}"${r.id === state.room ? " selected" : ""}>${r.name} · ${som(unitPrice(item, r.id))}</option>`).join("");
+    $("#bFrom").value = item.type === "transport" ? $("#trDate").value || state.from : state.from;
     $("#bTo").value = state.to;
     $("#bGuests").value = Math.min(state.guests, capOf(item));
     $("#bGuests").max = capOf(item);
     $("#bookMsg").textContent = ""; $("#bookMsg").className = "form-msg";
-    if (state.guests > capOf(item)) $("#bookMsg").textContent = `Bu tanlov ${capOf(item)} kishigacha. ${state.guests} kishilik guruh uchun bir nechta xona bron qiling yoki pastdagi guruh so'rovini yuboring.`;
+    if (item.type === "transport") $("#bGuests").value = Math.min(Math.max(1, +$("#trPax").value || 1), capOf(item));
+    else if (state.guests > capOf(item)) $("#bookMsg").textContent = `Bu tanlov ${capOf(item)} kishigacha. ${state.guests} kishilik guruh uchun bir nechta xona bron qiling yoki pastdagi guruh so'rovini yuboring.`;
     updateTotal();
     openDlg($("#bookDlg"));
     if (user) { if (!$("#bName").value) $("#bName").value = user.name; if (!$("#bPhone").value) $("#bPhone").value = user.phone; }
@@ -470,15 +495,34 @@
   function updateTotal() {
     const item = state.current;
     if (!item) return;
-    state.room = $("#bRoom").value || "standart";
+    state.room = $("#bRoom").value || (item.type === "transport" ? "" : "standart");
     $("#bGuests").max = capOf(item);
     const from = $("#bFrom").value, to = $("#bTo").value;
     const guests = Math.max(1, parseInt($("#bGuests").value, 10) || 1);
-    const badDates = !from || (item.type === "hotel" && !(to > from)) || (item.type === "venue" && to && to < from);
-    if (badDates) { $("#totalCalc").textContent = "Sanalarni tekshiring"; $("#totalSum").textContent = "—"; return; }
+    const badDates = !from || (nightly(item) && !(to > from)) || (item.type === "venue" && to && to < from);
+    if (badDates) { $("#totalCalc").textContent = "Sanalarni tekshiring"; $("#totalSum").textContent = "—"; $("#bAvail").textContent = ""; return; }
     const q = quote(item, from, to || from, guests, state.room);
     $("#totalCalc").textContent = q.label;
     $("#totalSum").textContent = som(q.sum);
+    checkAvailability(item, from, to || from, guests);
+  }
+
+  // Live free-place check against the partner's calendar (server mode only).
+  let availTimer = 0;
+  function checkAvailability(item, from, to, guests) {
+    const el = $("#bAvail");
+    clearTimeout(availTimer);
+    el.textContent = ""; el.className = "avail";
+    if (!API || item.type === "transport") return;
+    availTimer = setTimeout(async () => {
+      try {
+        const r = await fetch(`/api/availability?id=${encodeURIComponent(item.id)}&from=${from}&to=${to}&guests=${guests}`);
+        const a = await r.json();
+        if (state.current !== item) return;
+        el.textContent = a.ok ? `✓ Bo'sh: ${item.type === "venue" ? "sana ochiq" : a.free + " ta joy"}` : a.reason || a.error || "";
+        el.className = "avail " + (a.ok ? "ok" : "no");
+      } catch (e) { /* offline */ }
+    }, 250);
   }
 
   async function submitBooking(e) {
@@ -489,7 +533,7 @@
     const name = $("#bName").value.trim();
     const phone = $("#bPhone").value.trim();
     const from = $("#bFrom").value;
-    const to = item.type === "tour" ? iso(addDays(day(from || todayIso()), (item.days || 1) - 1)) : $("#bTo").value;
+    const to = item.type === "transport" ? from : item.type === "tour" ? iso(addDays(day(from || todayIso()), (item.days || 1) - 1)) : $("#bTo").value;
     const guests = parseInt($("#bGuests").value, 10) || 0;
     const room = item.type === "hotel" ? state.room : undefined;
     ["#bName", "#bPhone"].forEach((s) => $(s).removeAttribute("aria-invalid"));
@@ -497,7 +541,7 @@
     if (name.length < 3) { $("#bName").setAttribute("aria-invalid", "true"); msg.textContent = "Ism familiyangizni kiriting."; return; }
     if (!validPhone(phone)) { $("#bPhone").setAttribute("aria-invalid", "true"); msg.textContent = "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing."; return; }
     if (!from || from < todayIso()) { msg.textContent = "Bugungi yoki keyingi sanani tanlang."; return; }
-    if (item.type === "hotel" && !(to > from)) { msg.textContent = "Ketish sanasi kelish sanasidan keyin bo'lishi kerak."; return; }
+    if (nightly(item) && !(to > from)) { msg.textContent = "Ketish sanasi kelish sanasidan keyin bo'lishi kerak."; return; }
     if (item.type === "venue" && to < from) { msg.textContent = "Tugash sanasi boshlanish sanasidan oldin bo'lmasin."; return; }
     if (guests < 1 || guests > capOf(item)) { msg.textContent = `Bu tanlov ${capOf(item)} kishigacha qabul qiladi.`; return; }
 
@@ -507,13 +551,15 @@
       const btn = $("#bookForm button[type=submit]");
       btn.disabled = true;
       try {
-        const r = await api("/api/bookings", { listingId: item.id, from, to, guests, client: name, phone, pay, note, room });
+        const r = item.type === "transport"
+          ? await api("/api/transport-bookings", { tripId: item.id, cls: state.room, date: from, guests, client: name, phone, pay, note })
+          : await api("/api/bookings", { listingId: item.id, from, to, guests, client: name, phone, pay, note, room });
         booking = { code: r.code, id: item.id, name: r.name, city: r.city, type: r.type, from: r.from, to: r.to, guests: r.guests, sum: r.sum, status: r.status, phone: normPhone(phone) };
       } catch (err) { msg.textContent = err.message; return; }
       finally { btn.disabled = false; }
     } else {
       const code = "BRN-" + Math.random().toString(36).slice(2, 8).toUpperCase();
-      booking = { code, id: item.id, name: item.name, city: item.city, type: item.type, from, to, guests, sum: quote(item, from, to, guests, room).sum, phone: normPhone(phone) };
+      booking = { code, id: item.id, name: item.name, city: item.city, type: item.type, from, to, guests, sum: quote(item, from, to, guests, item.type === "transport" ? state.room : room).sum, phone: normPhone(phone) };
     }
     if (user) booking.owner = user.phone;
     saveBookings([booking, ...memoryBookings]);
@@ -560,7 +606,8 @@
     if ($("#mCompany").value.trim().length < 2) { msg.textContent = "Kompaniya nomini kiriting."; return; }
     if ((parseInt($("#mPeople").value, 10) || 0) < 10) { msg.textContent = "Guruh so'rovi 10 kishidan boshlanadi."; return; }
     if (!validPhone($("#mPhone").value)) { msg.textContent = "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing."; return; }
-    if (API) {
+    if (!API) { msg.textContent = "Sayt hozir namuna rejimida ishlayapti, so'rov serverga yuborilmadi. Server ishga tushgach so'rovlar admin panelga keladi."; return; }
+    {
       try { await api("/api/group-requests", { company: $("#mCompany").value, kind: $("#mKind").value, people: $("#mPeople").value, phone: $("#mPhone").value }); }
       catch (err) { msg.textContent = err.message; return; }
     }
@@ -574,6 +621,159 @@
     $("#fFree").checked = $("#fDeals").checked = $("#fFav").checked = false;
     $("#fCity").value = ""; readSearch();
     buildFilters(); render();
+  }
+
+  // ---------- transport search ----------
+  const MODE_LABEL = { avia: "Aviachipta", poyezd: "Poyezd", avto: "Avto" };
+  const hm = (m) => `${Math.floor(m / 60)} s ${m % 60 ? (m % 60) + " daq" : ""}`.trim();
+  function placesFor(mode) {
+    const list = TRANSPORT[mode] || [];
+    return [...new Set(list.flatMap((t) => [t.from, t.to]))].sort((a, b) => a.localeCompare(b, "uz"));
+  }
+  function fillTrPlaces(keep) {
+    const pl = placesFor(state.trMode);
+    const opts = (sel) => pl.map((c) => `<option${c === sel ? " selected" : ""}>${esc(c)}</option>`).join("");
+    const from = keep && pl.includes($("#trFrom").value) ? $("#trFrom").value : pl.includes("Toshkent") ? "Toshkent" : pl[0];
+    let to = keep && pl.includes($("#trTo").value) ? $("#trTo").value : "";
+    if (!to || to === from) to = (TRANSPORT[state.trMode].find((t) => t.from === from && t.to !== from) || {}).to || pl[1];
+    $("#trFrom").innerHTML = opts(from);
+    $("#trTo").innerHTML = opts(to);
+  }
+  function tripRow(t) {
+    const pax = Math.max(1, +$("#trPax").value || 1);
+    const q = tripQuote(t, "", pax);
+    const head = t.mode === "avia"
+      ? `<span class="tr-badge">HY</span><div class="tr-who"><b>${esc(t.carrier)}</b><small>${esc(t.no)} · ${esc(t.bag)}</small></div>`
+      : t.mode === "poyezd"
+        ? `<span class="tr-badge train">${esc(t.name.slice(0, 3))}</span><div class="tr-who"><b>${esc(t.name)}</b><small>${esc(t.no)}${t.night ? " · tungi poyezd" : ""}</small></div>`
+        : `<span class="tr-badge car">${esc(t.name.slice(0, 1))}</span><div class="tr-who"><b>${esc(t.name)}</b><small>${esc(t.model)}</small></div>`;
+    const times = t.mode === "avto"
+      ? `<div class="tr-time"><div><b>${esc(t.from)}</b><small>${t.transfer ? "shahar ichida" : t.km + " km"}</small></div><div class="tr-line"><span>${t.transfer ? "aeroport / vokzal" : "≈ " + hm(t.dur)}</span></div><div><b>${esc(t.transfer ? t.from : t.to)}</b><small>${t.seats} o'rin · ${t.bags} chamadon</small></div></div>`
+      : `<div class="tr-time"><div><b>${t.dep}</b><small>${esc(t.fromCode || t.from)}</small></div><div class="tr-line"><span>${hm(t.dur)}</span></div><div><b>${t.arr}${t.arr < t.dep ? "<sup>+1</sup>" : ""}</b><small>${esc(t.toCode || t.to)}</small></div></div>`;
+    const classes = t.mode === "poyezd" ? `<div class="tr-cls">${Object.entries(t.classes).map(([c, p]) => `<button type="button" class="chip" data-book="${esc(t.id)}" data-cls="${c}">${c[0].toUpperCase() + c.slice(1)} · ${short(p)}</button>`).join("")}</div>` : "";
+    const price = t.mode === "avto" ? `<b>${som(q.sum)}</b><small>butun mashina</small>` : `<b>${som(q.unit)}</b><small>${t.mode === "poyezd" ? "dan, 1 yo'lovchi" : "1 yo'lovchi"}</small>`;
+    return `<article class="tr-row tr-${t.mode}">
+      <div class="tr-head">${head}</div>${times}${classes}
+      <div class="tr-buy"><p class="price">${price}</p><button class="btn btn-gold" type="button" data-book="${esc(t.id)}">Tanlash</button></div>
+    </article>`;
+  }
+  function renderTransport() {
+    $$("#trModes .tr-mode").forEach((b) => { const on = b.dataset.mode === state.trMode; b.classList.toggle("is-on", on); b.setAttribute("aria-selected", String(on)); });
+    const from = $("#trFrom").value, to = $("#trTo").value, pax = Math.max(1, +$("#trPax").value || 1);
+    let list = (TRANSPORT[state.trMode] || []).filter((t) => t.from === from && t.to === to);
+    if (state.trMode === "avto") list = list.filter((t) => t.seats >= pax);
+    list.sort((a, b) => (a.dep || "").localeCompare(b.dep || "") || a.price - b.price);
+    if (list.length) { $("#trList").innerHTML = list.map(tripRow).join(""); return; }
+    const alt = [...new Set((TRANSPORT[state.trMode] || []).filter((t) => t.from === from && t.to !== from).map((t) => t.to))];
+    $("#trList").innerHTML = `<div class="empty"><b>${esc(from)} → ${esc(to)}: ${MODE_LABEL[state.trMode].toLowerCase()} topilmadi</b><span>${alt.length ? `${esc(from)} dan bor yo'nalishlar:` : "Boshqa shaharni tanlang."}</span><div class="chips">${alt.map((c) => `<button type="button" class="chip" data-trto="${esc(c)}">${esc(c)}</button>`).join("")}</div></div>`;
+  }
+
+  // ---------- map (Leaflet + OpenStreetMap, loaded when the section comes into view) ----------
+  const GEO = window.BRON_GEO || {};
+  const MAP_TYPES = { "": "Hammasi", hotel: "Mehmonxona", hostel: "Hostel", venue: "Zal", tour: "Tur" };
+  let map = null, markers = new Map(), routeLine = null;
+  function geoOf(x) {
+    if (Number.isFinite(x.lat) && Number.isFinite(x.lng)) return [x.lat, x.lng];
+    const c = GEO[x.city]; if (!c) return null;
+    const h = hashOf(x.id), a = (h % 360) * Math.PI / 180, r = c[2] * (0.25 + ((h >> 9) % 100) / 130);
+    return [c[0] + Math.sin(a) * r, c[1] + Math.cos(a) * r * 1.25];
+  }
+  function loadLeaflet() {
+    if (window.L) return Promise.resolve();
+    return new Promise((ok, bad) => {
+      const css = document.createElement("link"); css.rel = "stylesheet"; css.href = "vendor/leaflet/leaflet.css"; document.head.appendChild(css);
+      const s = document.createElement("script"); s.src = "vendor/leaflet/leaflet.js"; s.onload = ok; s.onerror = bad; document.head.appendChild(s);
+    });
+  }
+  function popupHtml(x) {
+    const t = TYPES[x.type], p = photosFor(x)[0];
+    return `<div class="mp">
+      <button type="button" class="mp-ph" data-open="${esc(x.id)}">${art(x.art, x.hue, "m" + x.id)}${imgTag(p, 400)}</button>
+      <div class="mp-b"><small>${esc(x.kind || t.kind)} · ${esc(x.city)}</small><b>${esc(x.name)}</b>
+      <span class="mp-r">★ ${Number(x.rating).toFixed(1)} · ${x.reviews} sharh</span>
+      <span class="mp-p">${som(x.price)} <small>${t.unit}</small></span>
+      <div class="mp-a"><button type="button" class="btn btn-line" data-open="${esc(x.id)}">Batafsil</button><button type="button" class="btn btn-gold" data-book="${esc(x.id)}">Bron</button></div></div></div>`;
+  }
+  const mapList = () => LISTINGS.filter((x) => (!state.mapType || x.type === state.mapType) && geoOf(x));
+  function renderMapSide() {
+    if (!map) return;
+    const b = map.getBounds();
+    const all = mapList().filter((x) => b.contains(geoOf(x))).sort((a, c) => c.rating - a.rating);
+    const list = all.slice(0, 40);
+    $("#mapSide").innerHTML = `<p class="ms-count">${all.length ? `Xaritada ${all.length} ta joy${all.length > list.length ? `, eng yaxshi ${list.length} tasi` : ""}` : "Bu hududda joy yo'q. Xaritani suring yoki kichraytiring."}</p>` +
+      list.map((x) => `<button type="button" class="ms-item" data-mapgo="${esc(x.id)}"><span class="ms-dot t-${x.type}"></span><span><b>${esc(x.name)}</b><small>${esc(TYPES[x.type].kind)} · ${esc(x.city)} · ★ ${Number(x.rating).toFixed(1)}</small></span><span class="ms-p">${short(x.price)}</span></button>`).join("");
+  }
+  // Zoomed out, places are grouped per city; zoomed in, each place has its own price pin.
+  let cityPins = [];
+  function renderMapMarkers() {
+    if (!map) return;
+    markers.forEach((m) => m.remove()); markers.clear();
+    cityPins.forEach((m) => m.remove()); cityPins = [];
+    $("#mapTypes").innerHTML = Object.keys(MAP_TYPES).map((k) => `<button type="button" class="chip" data-mt="${k}" aria-pressed="${state.mapType === k}">${MAP_TYPES[k]}</button>`).join("");
+    if (map.getZoom() < 9) {
+      const by = {};
+      mapList().forEach((x) => { (by[x.city] = by[x.city] || []).push(x); });
+      Object.entries(by).forEach(([city, xs]) => {
+        const c = GEO[city]; if (!c) return;
+        const icon = L.divIcon({ className: "pin-wrap", html: `<span class="cpin"><b>${xs.length}</b>${esc(city)}</span>`, iconSize: null });
+        cityPins.push(L.marker([c[0], c[1]], { icon, title: city }).addTo(map).on("click", () => map.setView([c[0], c[1]], 12)));
+      });
+      renderMapSide();
+      return;
+    }
+    mapList().forEach((x) => {
+      const g = geoOf(x);
+      const icon = L.divIcon({ className: "pin-wrap", html: `<span class="pin t-${x.type}">${short(x.price)}</span>`, iconSize: null });
+      const m = L.marker(g, { icon, title: x.name, riseOnHover: true }).addTo(map).bindPopup(() => popupHtml(x), { maxWidth: 280, minWidth: 240, className: "mp-pop" });
+      m.on("popupopen", () => showRoute(x)); m.on("popupclose", () => showRoute(null));
+      markers.set(x.id, m);
+    });
+    renderMapSide();
+  }
+  function showRoute(x) {
+    if (routeLine) { routeLine.remove(); routeLine = null; }
+    const pts = x && x.days > 1 ? (x.route || []).map((c) => GEO[c]).filter(Boolean).map((c) => [c[0], c[1]]) : [];
+    if (pts.length > 1) routeLine = L.polyline(pts, { color: "#e0a21c", weight: 4, dashArray: "8 8" }).addTo(map);
+  }
+  async function initMap() {
+    if (map) return;
+    try { await loadLeaflet(); } catch (e) { $("#map").innerHTML = `<p class="map-load">Xaritani yuklab bo'lmadi. Internetni tekshiring.</p>`; return; }
+    $("#map").innerHTML = "";
+    map = L.map("map", { scrollWheelZoom: false, zoomControl: true }).setView([40.6, 66.2], 6);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' }).addTo(map);
+    map.on("moveend", renderMapSide);
+    let wasNear = false;
+    map.on("zoomend", () => { const near = map.getZoom() >= 9; if (near !== wasNear) { wasNear = near; renderMapMarkers(); } });
+    renderMapMarkers();
+  }
+  function showOnMap(id, stay) {
+    if (!stay) $("#xarita").scrollIntoView({ block: "start" });
+    initMap().then(() => {
+      let m = markers.get(id);
+      const x = LISTINGS.find((y) => y.id === id), g = x && geoOf(x);
+      if (!g) return;
+      if (state.mapType && x.type !== state.mapType) state.mapType = "";
+      map.setView(g, 14, { animate: false });
+      renderMapMarkers();
+      m = markers.get(id);
+      if (m) m.openPopup();
+    });
+  }
+
+  // ---------- partner application ----------
+  async function submitPartner(e) {
+    e.preventDefault();
+    const msg = $("#pfMsg");
+    msg.className = "form-msg err";
+    const body = { property: $("#pfName").value.trim(), type: $("#pfType").value, city: $("#pfCity").value, units: $("#pfUnits").value, contact: $("#pfContact").value.trim(), phone: $("#pfPhone").value };
+    if (body.property.length < 2) { msg.textContent = "Joy nomini kiriting."; return; }
+    if (!validPhone(body.phone)) { msg.textContent = "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing."; return; }
+    if (!API) { msg.textContent = "Sayt hozir namuna rejimida ishlayapti, ariza serverga yuborilmadi. Server ishga tushgach arizalar admin panelga keladi."; return; }
+    try { await api("/api/partner-requests", body); }
+    catch (err) { msg.textContent = err.message; return; }
+    msg.className = "form-msg ok";
+    msg.textContent = "Rahmat! Arizangiz qabul qilindi. Menejer siz bilan bog'lanib, joyingizni kabinetingizga biriktiradi.";
+    $("#partnerForm").reset();
   }
 
   // ---------- wiring ----------
@@ -620,6 +820,23 @@
     $("#fFav").addEventListener("change", (e) => { state.favOnly = e.target.checked; render(); });
     $("#fReset").addEventListener("click", resetFilters);
     $("#moreBtn").addEventListener("click", () => { state.limit += 9; render(); });
+    // transport
+    $("#trDate").value = $("#fFrom").value; $("#trDate").min = todayIso();
+    fillTrPlaces(false); renderTransport();
+    $("#trModes").addEventListener("click", (e) => { const b = e.target.closest("[data-mode]"); if (!b) return; state.trMode = b.dataset.mode; fillTrPlaces(true); renderTransport(); });
+    $("#trForm").addEventListener("submit", (e) => { e.preventDefault(); renderTransport(); });
+    ["#trFrom", "#trTo", "#trPax"].forEach((s) => $(s).addEventListener("change", renderTransport));
+    $("#trSwap").addEventListener("click", () => { const a = $("#trFrom").value, b = $("#trTo").value; if ([...$("#trTo").options].some((o) => o.value === a)) { $("#trFrom").value = b; $("#trTo").value = a; } renderTransport(); });
+    $("#trList").addEventListener("click", (e) => { const c = e.target.closest("[data-trto]"); if (c) { $("#trTo").value = c.dataset.trto; renderTransport(); } });
+    // map: load Leaflet only when the section is close
+    if ("IntersectionObserver" in window) new IntersectionObserver((en, o) => { if (en.some((x) => x.isIntersecting)) { o.disconnect(); initMap(); } }, { rootMargin: "300px" }).observe($("#xarita"));
+    else initMap();
+    $("#mapTypes").addEventListener("click", (e) => { const b = e.target.closest("[data-mt]"); if (!b) return; state.mapType = b.dataset.mt; renderMapMarkers(); });
+    $("#mapSide").addEventListener("click", (e) => { const b = e.target.closest("[data-mapgo]"); if (b) showOnMap(b.dataset.mapgo, true); });
+    $("#dMap").addEventListener("click", () => { const id = state.current.id; closeDlg($("#detailDlg")); showOnMap(id); });
+    // partners
+    $("#pfCity").innerHTML = CITIES.map((c) => `<option>${esc(c.name)}</option>`).join("");
+    $("#partnerForm").addEventListener("submit", submitPartner);
     $("#vFormats").addEventListener("click", (e) => { const b = e.target.closest("[data-vf]"); if (!b) return; state.vFormat = b.dataset.vf; state.vLimit = 6; renderVenues(); });
     $("#vMore").addEventListener("click", () => { state.vLimit = 99; renderVenues(); });
     $("#pKinds").addEventListener("click", (e) => { const b = e.target.closest("[data-pk]"); if (!b) return; state.pk = b.dataset.pk; renderPackages(); });
@@ -634,7 +851,7 @@
       const t = e.target;
       const fav = t.closest("[data-fav]"); if (fav) { toggleFav(fav.dataset.fav); return; }
       const open = t.closest("[data-open]"); if (open) { openDetail(open.dataset.open); return; }
-      const book = t.closest("[data-book]"); if (book) { openBooking(book.dataset.book); return; }
+      const book = t.closest("[data-book]"); if (book) { openBooking(book.dataset.book, book.dataset.cls); return; }
       const city = t.closest("[data-city]");
       if (city) { const c = city.dataset.city === state.city ? "" : city.dataset.city; $("#fCity").value = c; readSearch(); render(); $("#natijalar").scrollIntoView({ block: "start" }); return; }
       if (t.closest("[data-reset]")) { resetFilters(); return; }
@@ -830,7 +1047,7 @@
       API = true;
       restoreUser();
       $("#sampleNote").hidden = true;
-      render(); renderDeals(); renderCities(); heroCount(); renderVenues(); renderPackages(); renderCats();
+      render(); renderDeals(); renderCities(); heroCount(); renderVenues(); renderPackages(); renderCats(); renderMapMarkers();
     } catch (e) { /* static hosting: keep sample data */ }
   }
 
