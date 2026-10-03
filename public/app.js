@@ -644,7 +644,7 @@
     const name = $("#aName").value.trim(), phone = normPhone($("#aPhone").value.trim()), pass = $("#aPass").value;
     if (authMode === "register" && name.length < 3) { msg.textContent = "Ism familiyangizni kiriting."; return; }
     if (!validPhone(phone)) { msg.textContent = "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing."; return; }
-    if (pass.length < 6) { msg.textContent = "Parol kamida 6 belgidan iborat bo'lsin."; return; }
+    if (pass.length < 8) { msg.textContent = "Parol kamida 8 belgidan iborat bo'lsin."; return; }
     if (authMode === "register" && pass !== $("#aPass2").value) { msg.textContent = "Parollar bir xil emas."; return; }
     const btn = $("#authSubmit"); btn.disabled = true;
     try {

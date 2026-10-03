@@ -59,3 +59,7 @@ Shahar suratlari Wikimedia Commons'dan olinadi (`public/data.js` dagi `BRON_PHOT
 
 ## Android ilova
 `android/` — saytni ochadigan Android ilova. `main` ga push qilinganda GitHub Actions APK yig'adi va uni Releases sahifasiga `bron-uz.apk` nomi bilan joylaydi.
+
+## Xavfsizlik
+
+Xavfsizlik holati va tavsiyalar: [SECURITY.md](SECURITY.md).

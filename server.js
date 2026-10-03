@@ -13,6 +13,7 @@ const ADMIN_USER = process.env.ADMIN_USER || "admin";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "";
 const TG_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
 const TG_CHAT = process.env.TELEGRAM_CHAT_ID || "";
+const TRUST_PROXY = process.env.TRUST_PROXY === "1";
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
 const PUBLIC_DIR = path.join(__dirname, "public");
 
@@ -114,12 +115,30 @@ async function notify(text) {
 }
 
 // ---------- http helpers ----------
+// Browser-side protections sent with every response.
+const CSP = [
+  "default-src 'self'", "script-src 'self'", "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src https://fonts.gstatic.com", "img-src 'self' data: https://commons.wikimedia.org https://upload.wikimedia.org",
+  "connect-src 'self' https://commons.wikimedia.org https://upload.wikimedia.org https://fonts.googleapis.com https://fonts.gstatic.com",
+  "manifest-src 'self'", "worker-src 'self'", "frame-ancestors 'none'", "base-uri 'self'", "form-action 'self'", "object-src 'none'"
+].join("; ");
+const SECURITY_HEADERS = {
+  "content-security-policy": CSP,
+  "x-content-type-options": "nosniff",
+  "x-frame-options": "DENY",
+  "referrer-policy": "same-origin",
+  "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=()",
+  "cross-origin-opener-policy": "same-origin"
+};
+const isHttps = (req) => !!req.socket.encrypted || (TRUST_PROXY && String(req.headers["x-forwarded-proto"] || "").includes("https"));
+
 function send(res, status, body, headers = {}) {
   const isJson = typeof body !== "string" && !Buffer.isBuffer(body);
   res.writeHead(status, {
     "content-type": isJson ? "application/json; charset=utf-8" : headers["content-type"] || "text/plain; charset=utf-8",
-    "x-content-type-options": "nosniff",
-    "referrer-policy": "same-origin",
+    ...SECURITY_HEADERS,
+    ...(res.req && isHttps(res.req) ? { "strict-transport-security": "max-age=31536000; includeSubDomains" } : {}),
+    ...(isJson ? { "cache-control": "no-store" } : {}),
     ...headers
   });
   res.end(isJson ? JSON.stringify(body) : body);
@@ -143,32 +162,47 @@ function readJson(req) {
   });
 }
 
-// Simple per-IP limit for public POSTs: 10 per minute.
+// X-Forwarded-For can be forged by anyone, so it is trusted only behind your own proxy (TRUST_PROXY=1).
+const clientIp = (req) => (TRUST_PROXY && req.headers["x-forwarded-for"] ? String(req.headers["x-forwarded-for"]).split(",")[0].trim() : req.socket.remoteAddress || "");
+
+// Per-IP sliding-window limit, counted separately per bucket (bookings, login, admin...).
 const hits = new Map();
-function limited(req) {
-  const ip = (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();
+function limited(req, bucket = "post", max = 10, windowMs = 60000) {
+  const key = bucket + "|" + clientIp(req);
   const now = Date.now();
-  const list = (hits.get(ip) || []).filter((t) => now - t < 60000);
+  const list = (hits.get(key) || []).filter((t) => now - t < windowMs);
   list.push(now);
-  hits.set(ip, list);
-  return list.length > 10;
+  hits.set(key, list);
+  return list.length > max;
 }
-setInterval(() => { const now = Date.now(); for (const [k, v] of hits) if (v.every((t) => now - t > 60000)) hits.delete(k); }, 300000).unref();
+
+// Password guessing: 5 wrong passwords for one phone number lock it for 15 minutes.
+const failures = new Map();
+const locked = (phone) => { const f = failures.get(phone); return !!f && f.n >= 5 && Date.now() - f.t < 15 * 60000; };
+const noteFailure = (phone) => { const f = failures.get(phone); const fresh = !f || Date.now() - f.t > 15 * 60000; failures.set(phone, { n: fresh ? 1 : f.n + 1, t: Date.now() }); };
+setInterval(() => {
+  const now = Date.now();
+  for (const [k, v] of hits) if (v.every((t) => now - t > 15 * 60000)) hits.delete(k);
+  for (const [k, f] of failures) if (now - f.t > 15 * 60000) failures.delete(k);
+}, 300000).unref();
 
 // ---------- customer accounts ----------
 const SESSION_DAYS = 30;
 const hashPass = (pass, salt) => crypto.scryptSync(pass, salt, 64).toString("hex");
-const cookies = (req) => Object.fromEntries((req.headers.cookie || "").split(";").map((c) => c.trim().split("=")).filter((p) => p[0]).map(([k, ...v]) => [k, decodeURIComponent(v.join("="))]));
+const safeDecode = (v) => { try { return decodeURIComponent(v); } catch { return ""; } };
+const cookies = (req) => Object.fromEntries((req.headers.cookie || "").split(";").map((c) => c.trim().split("=")).filter((p) => p[0]).map(([k, ...v]) => [k, safeDecode(v.join("="))]));
+// Only a SHA-256 of the session token is stored, so a leaked database cannot be used to log in.
+const tokenHash = (t) => crypto.createHash("sha256").update(t).digest("hex");
 function currentUser(req) {
   const t = cookies(req).bron_session;
-  if (!t) return null;
-  const row = db.prepare("SELECT u.id, u.name, u.phone FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token = ? AND s.expires > ?").get(t, Date.now());
+  if (!t || !/^[0-9a-f]{64}$/.test(t)) return null;
+  const row = db.prepare("SELECT u.id, u.name, u.phone FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token = ? AND s.expires > ?").get(tokenHash(t), Date.now());
   return row || null;
 }
 function startSession(req, res, userId) {
   const token = crypto.randomBytes(32).toString("hex");
-  db.prepare("INSERT INTO sessions (token,user_id,expires) VALUES (?,?,?)").run(token, userId, Date.now() + SESSION_DAYS * 86400000);
-  const secure = (req.headers["x-forwarded-proto"] || "").includes("https") || req.socket.encrypted ? "; Secure" : "";
+  db.prepare("INSERT INTO sessions (token,user_id,expires) VALUES (?,?,?)").run(tokenHash(token), userId, Date.now() + SESSION_DAYS * 86400000);
+  const secure = isHttps(req) ? "; Secure" : "";
   return `bron_session=${token}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${SESSION_DAYS * 86400}${secure}`;
 }
 setInterval(() => db.prepare("DELETE FROM sessions WHERE expires < ?").run(Date.now()), 3600000).unref();
@@ -223,14 +257,25 @@ async function handle(req, res) {
   const p = url.pathname;
   const M = req.method;
 
+  // Cross-site request protection: every write must be JSON (other sites cannot send it without
+  // a CORS preflight, which this server never approves) and, when the browser says where it came from, from this site.
+  if (M !== "GET" && M !== "HEAD") {
+    if (!String(req.headers["content-type"] || "").startsWith("application/json")) return fail(res, 415, "So'rov JSON formatida bo'lishi kerak.");
+    const origin = req.headers.origin;
+    if (origin && origin !== "null") {
+      let host = ""; try { host = new URL(origin).host; } catch { /* bad origin */ }
+      if (host !== req.headers.host) return fail(res, 403, "Boshqa saytdan yuborilgan so'rov rad etildi.");
+    }
+  }
+
   // Public API
   if (p === "/api/auth/register" && M === "POST") {
-    if (limited(req)) return fail(res, 429, "Juda ko'p urinish. Bir daqiqadan keyin qayta urinib ko'ring.");
+    if (limited(req, "register", 5)) return fail(res, 429, "Juda ko'p urinish. Bir daqiqadan keyin qayta urinib ko'ring.");
     const b = await readJson(req);
     const name = str(b.name, 80), phone = normPhone(b.phone), pass = String(b.password || "");
     if (name.length < 3) return fail(res, 400, "Ism familiyangizni kiriting.");
     if (!validPhone(phone)) return fail(res, 400, "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing.");
-    if (pass.length < 6 || pass.length > 200) return fail(res, 400, "Parol kamida 6 belgidan iborat bo'lsin.");
+    if (pass.length < 8 || pass.length > 200) return fail(res, 400, "Parol kamida 8 belgidan iborat bo'lsin.");
     if (db.prepare("SELECT 1 FROM users WHERE phone = ?").get(phone)) return fail(res, 409, "Bu raqam bilan hisob bor. \"Kirish\" ni tanlang.");
     const salt = crypto.randomBytes(16).toString("hex");
     const r = db.prepare("INSERT INTO users (name,phone,pass_hash,salt,created) VALUES (?,?,?,?,?)").run(name, phone, hashPass(pass, salt), salt, new Date().toISOString());
@@ -238,16 +283,22 @@ async function handle(req, res) {
     return send(res, 201, { id, name, phone }, { "set-cookie": startSession(req, res, id) });
   }
   if (p === "/api/auth/login" && M === "POST") {
-    if (limited(req)) return fail(res, 429, "Juda ko'p urinish. Bir daqiqadan keyin qayta urinib ko'ring.");
+    if (limited(req, "login", 10)) return fail(res, 429, "Juda ko'p urinish. Bir daqiqadan keyin qayta urinib ko'ring.");
     const b = await readJson(req);
-    const u = db.prepare("SELECT * FROM users WHERE phone = ?").get(normPhone(b.phone));
-    const ok = u && crypto.timingSafeEqual(Buffer.from(hashPass(String(b.password || ""), u.salt), "hex"), Buffer.from(u.pass_hash, "hex"));
-    if (!ok) return fail(res, 401, "Telefon raqami yoki parol noto'g'ri.");
+    const phone = normPhone(b.phone);
+    if (locked(phone)) return fail(res, 429, "Parol 5 marta noto'g'ri kiritildi. 15 daqiqadan keyin qayta urinib ko'ring.");
+    const u = db.prepare("SELECT * FROM users WHERE phone = ?").get(phone);
+    // Hash even for unknown numbers so response time does not reveal which numbers have accounts.
+    const given = hashPass(String(b.password || ""), u ? u.salt : "0".repeat(32));
+    const ok = u && crypto.timingSafeEqual(Buffer.from(given, "hex"), Buffer.from(u.pass_hash, "hex"));
+    if (!ok) { noteFailure(phone); return fail(res, 401, "Telefon raqami yoki parol noto'g'ri."); }
+    failures.delete(phone);
+    db.prepare("DELETE FROM sessions WHERE user_id = ? AND expires < ?").run(u.id, Date.now());
     return send(res, 200, { id: u.id, name: u.name, phone: u.phone }, { "set-cookie": startSession(req, res, u.id) });
   }
   if (p === "/api/auth/logout" && M === "POST") {
     const t = cookies(req).bron_session;
-    if (t) db.prepare("DELETE FROM sessions WHERE token = ?").run(t);
+    if (t) db.prepare("DELETE FROM sessions WHERE token = ?").run(tokenHash(t));
     return send(res, 200, { ok: true }, { "set-cookie": "bron_session=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0" });
   }
   if (p === "/api/auth/me" && M === "GET") {
@@ -322,8 +373,13 @@ async function handle(req, res) {
   }
 
   // Admin
-  if (p === "/admin" || p.startsWith("/api/admin/")) {
-    if (!isAdmin(req)) return askAuth(res);
+  if (p === "/admin" || p === "/admin.js" || p.startsWith("/api/admin/")) {
+    if (!isAdmin(req)) {
+      // Wrong admin passwords are limited to 5 per 15 minutes per IP.
+      if (req.headers.authorization && limited(req, "admin-fail", 5, 15 * 60000)) return fail(res, 429, "Juda ko'p noto'g'ri urinish. 15 daqiqadan keyin qayta urinib ko'ring.");
+      return askAuth(res);
+    }
+    if (p === "/admin.js") return serveFile(res, path.join(__dirname, "admin.js"));
     if (p === "/admin") return serveFile(res, path.join(__dirname, "admin.html"));
 
     if (p === "/api/admin/bookings" && M === "GET") return send(res, 200, db.prepare("SELECT * FROM bookings ORDER BY created DESC LIMIT 500").all());
@@ -378,11 +434,15 @@ async function handle(req, res) {
 }
 
 const server = http.createServer((req, res) => {
+  res.req = req;
   handle(req, res).catch((e) => {
     if (!e.status) console.error(e);
     if (!res.headersSent) fail(res, e.status || 500, e.status ? e.message : "Serverda xatolik. Keyinroq urinib ko'ring.");
   });
 });
+
+server.requestTimeout = 15000;
+server.headersTimeout = 10000;
 
 if (require.main === module) {
   server.listen(PORT, () => console.log(`bron.uz ishga tushdi: http://localhost:${PORT}  (admin: /admin)`));

@@ -2,6 +2,8 @@
 <html lang="uz">
 <head>
   <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://commons.wikimedia.org https://upload.wikimedia.org; connect-src 'self' https://commons.wikimedia.org https://upload.wikimedia.org https://fonts.googleapis.com https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>bron.uz</title>
   <meta name="description" content="bron.uz: O'zbekiston bo'ylab mehmonxona, konferens-zal va turlarni onlayn bron qilish.">
@@ -351,7 +353,7 @@
     <label class="field" id="aNameWrap" hidden><span>Ism familiya</span><input id="aName" autocomplete="name" placeholder="Aziza Karimova"></label>
     <label class="field"><span>Telefon</span><input id="aPhone" type="tel" autocomplete="tel" placeholder="+998 90 123 45 67"></label>
     <label class="field"><span>Parol</span>
-      <span class="pass"><input id="aPass" type="password" autocomplete="current-password" placeholder="Kamida 6 belgi"><button type="button" class="pass-eye" id="aEye" aria-label="Parolni ko'rsatish">Ko'rsatish</button></span>
+      <span class="pass"><input id="aPass" type="password" autocomplete="current-password" placeholder="Kamida 8 belgi"><button type="button" class="pass-eye" id="aEye" aria-label="Parolni ko'rsatish">Ko'rsatish</button></span>
     </label>
     <label class="field" id="aPass2Wrap" hidden><span>Parolni takrorlang</span><input id="aPass2" type="password" autocomplete="new-password"></label>
     <p class="form-msg" id="authMsg" role="status"></p>
