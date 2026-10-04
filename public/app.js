@@ -4,7 +4,8 @@
 (function () {
   "use strict";
 
-  let LISTINGS = (window.BRON_LISTINGS || []).slice();
+  // Without the server every place is the sample data from data.js.
+  let LISTINGS = (window.BRON_LISTINGS || []).map((x) => ({ ...x, sample: true }));
   const CITIES = window.BRON_CITIES || [];
   const REGIONS = window.BRON_REGIONS || [];
   const REGION_OF = Object.fromEntries(CITIES.map((c) => [c.name, c.region]));
@@ -87,7 +88,8 @@
   const daysBetween = (a, b) => Math.round((new Date(b) - new Date(a)) / 86400000);
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const normPhone = (p) => p.replace(/[\s()-]/g, "");
-  const validPhone = (p) => /^\+998\d{9}$/.test(normPhone(p));
+  // Uzbek numbers need all 9 digits; foreign guests book with their own international number.
+  const validPhone = (p) => /^\+998\d{9}$/.test(normPhone(p)) || /^\+(?!998)[1-9]\d{7,14}$/.test(normPhone(p));
   const fmtDate = (s) => { const [y, m, d] = s.split("-"); return `${d}.${m}.${y}`; };
   const starStr = (n) => n ? "★".repeat(n) : "";
   const ratingWord = (r) => r >= 9.3 ? "A'lo" : r >= 8.8 ? "Juda yaxshi" : r >= 8.3 ? "Yaxshi" : "Yomon emas";
@@ -372,7 +374,7 @@
     return `
     <article class="item">
       <div style="position:relative">
-        <button class="thumb" type="button" data-open="${esc(x.id)}" aria-label="${esc(x.name)}: batafsil">${art(x.art, x.hue, x.id)}${imgTag(photosFor(x)[0], 640)}<span class="kind">${t.kind} · ${esc(x.city)}</span>${off ? `<span class="badge">−${off}%</span>` : ""}${photosFor(x)[0] ? `<span class="place">${esc(photosFor(x)[0].title)}</span>` : ""}</button>
+        <button class="thumb" type="button" data-open="${esc(x.id)}" aria-label="${esc(x.name)}: batafsil">${art(x.art, x.hue, x.id)}${imgTag(photosFor(x)[0], 640)}<span class="kind">${t.kind} · ${esc(x.city)}</span>${off ? `<span class="badge">−${off}%</span>` : ""}${x.sample ? `<span class="sample-tag">Namuna</span>` : ""}${photosFor(x)[0] ? `<span class="place">${esc(photosFor(x)[0].title)}</span>` : ""}</button>
         <button class="fav" type="button" data-fav="${esc(x.id)}" aria-pressed="${favs.has(x.id)}" aria-label="${favs.has(x.id) ? "Sevimlilardan olib tashlash" : "Sevimlilarga qo'shish"}">${heart}</button>
       </div>
       <div class="item-body">
@@ -568,6 +570,7 @@
     state.room = "standart";
     loadReviews(x);
     countView(x);
+    detailSights(x);
     const t = TYPES[x.type];
     const ps = photosFor(x);
     $("#dArt").className = "gallery";
@@ -657,7 +660,8 @@
     const badDates = !from || from < todayIso() || span > 60 || (nightly(item) && !(to > from)) || (item.type === "venue" && to && to < from);
     if (badDates) { $("#totalCalc").textContent = "Sanalarni tekshiring"; $("#totalSum").textContent = "—"; $("#bAvail").textContent = ""; return; }
     $("#bPolicy").textContent = item.type === "transport" ? "Chipta narxi namuna jadval asosida. Aniq narxni menejer tasdiqlaydi."
-      : item.free ? "✓ Bepul bekor qilish mumkin. To'lov joyida yoki oldindan." : "Bekor qilish shartlarini menejer bron tasdiqlanganda aytadi.";
+      : item.free ? "✓ Kelish kunidan oldin saytning o'zida bepul bekor qilish mumkin." : "Bekor qilish shartlarini menejer bron tasdiqlanganda aytadi.";
+    $("#bSample").hidden = !item.sample;
     const q = quote(item, from, to || from, guests, state.room, state.bRooms);
     $("#totalCalc").textContent = q.label;
     $("#totalSum").textContent = som(q.sum);
@@ -696,7 +700,7 @@
     ["#bName", "#bPhone", "#bGuests"].forEach((s) => $(s).removeAttribute("aria-invalid"));
 
     if (name.length < 3) { $("#bName").setAttribute("aria-invalid", "true"); $("#bName").focus(); msg.textContent = "Ism familiyangizni kiriting."; return; }
-    if (!validPhone(phone)) { $("#bPhone").setAttribute("aria-invalid", "true"); $("#bPhone").focus(); msg.textContent = "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing."; return; }
+    if (!validPhone(phone)) { $("#bPhone").setAttribute("aria-invalid", "true"); $("#bPhone").focus(); msg.textContent = "Telefon raqamini xalqaro ko'rinishda yozing, masalan +998 90 123 45 67."; return; }
     if (!from || from < todayIso()) { msg.textContent = "Bugungi yoki keyingi sanani tanlang."; return; }
     if (nightly(item) && !(to > from)) { msg.textContent = "Ketish sanasi kelish sanasidan keyin bo'lishi kerak."; return; }
     if (item.type === "venue" && to < from) { msg.textContent = "Tugash sanasi boshlanish sanasidan oldin bo'lmasin."; return; }
@@ -788,7 +792,20 @@
   // ---------- verified reviews (server mode) ----------
   const REVIEWED_KEY = "bronuz.reviewed";
   let reviewed = new Set(store(REVIEWED_KEY, []));
-  const canReview = (b) => API && b.type !== "transport" && b.status !== "bekor qilindi" && (b.status === "yakunlandi" || (b.to || b.from) <= todayIso()) && !b.reviewed && !reviewed.has(b.code);
+  const canReview = (b) => API && b.type !== "transport" && (b.status === "yakunlandi" || (b.status === "tasdiqlandi" && (b.to || b.from) < todayIso())) && !b.reviewed && !reviewed.has(b.code);
+  // Online cancellation: before the start day only, and a confirmed booking only where cancellation is free.
+  const canCancel = (b) => { if (!isActive(b) || (b.from || "") <= todayIso()) return false; const l = LISTINGS.find((x) => x.id === b.id); return !(b.status === "tasdiqlandi" && l && !l.free); };
+  // Guest bookings (no account) are refreshed from the server by code + phone.
+  async function refreshGuestBookings() {
+    const mine = memoryBookings.filter((b) => b.phone && /^BRN-/.test(b.code || ""));
+    if (!API || !mine.length) return;
+    try {
+      const rows = await api("/api/bookings/lookup", { items: mine.map((b) => ({ code: b.code, phone: b.phone })) });
+      const by = new Map(rows.map((r) => [r.code, r]));
+      saveBookings(memoryBookings.map((b) => by.has(b.code) ? { ...b, status: by.get(b.code).status, reviewed: by.get(b.code).reviewed } : b));
+      renderMine();
+    } catch (e) { /* offline */ }
+  }
   let reviewFor = null, reviewRate = 0;
   function openReview(code) {
     const b = myBookings().find((x) => x.code === code);
@@ -839,11 +856,11 @@
       return `
       <div class="booking">
         <span class="code">${esc(b.code)}</span>
-        <div class="grow"><b>${esc(b.name)}</b><span class="muted">${esc(b.city)} · ${dates} · ${b.guests} kishi${b.room ? " · " + esc(b.room) : ""}${b.pay ? " · " + esc(PAY_LABEL[b.pay] || b.pay) : ""}</span></div>
+        <div class="grow"><b>${esc(b.name)}</b><span class="muted">${esc(b.city)} · ${dates} · ${b.guests} kishi${b.room ? " · " + esc((ROOMS.find((r) => r.id === b.room) || { name: b.room }).name) + (b.rooms > 1 && !/×/.test(b.room) ? ` × ${b.rooms}` : "") : ""}${b.pay ? " · " + esc(PAY_LABEL[b.pay] || b.pay) : ""}</span></div>
         <span class="sum">${som(b.sum)}</span>
         <span class="st st-${STATUS_CLASS[b.status || "yangi"] || "new"}">${esc(STATUS_LABEL[b.status || "yangi"] || b.status)}</span>
         ${canReview(b) ? `<span class="b-acts"><button class="btn btn-gold" type="button" data-review="${esc(b.code)}">Sharh qoldirish</button></span>`
-          : isActive(b) ? `<span class="b-acts"><button class="btn btn-line" type="button" data-ics="${esc(b.code)}" aria-label="Kalendarga qo'shish">📅</button><button class="btn btn-line" type="button" data-cancel="${esc(b.code)}">Bekor qilish</button></span>` : ""}
+          : isActive(b) ? `<span class="b-acts"><button class="btn btn-line" type="button" data-ics="${esc(b.code)}" aria-label="Kalendarga qo'shish">📅</button>${canCancel(b) ? `<button class="btn btn-line" type="button" data-cancel="${esc(b.code)}">Bekor qilish</button>` : `<small class="muted">Bekor qilish: menejer orqali</small>`}</span>` : ""}
       </div>`;
     }).join("");
   }
@@ -856,7 +873,7 @@
     if ($("#mCompany").value.trim().length < 2) { msg.textContent = "Kompaniya nomini kiriting."; return; }
     if ((parseInt($("#mPeople").value, 10) || 0) < 10) { msg.textContent = "Guruh so'rovi 10 kishidan boshlanadi."; return; }
     if ((parseInt($("#mPeople").value, 10) || 0) > 5000) { msg.textContent = "Guruh so'rovi 5000 kishigacha qabul qilinadi."; return; }
-    if (!validPhone($("#mPhone").value)) { msg.textContent = "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing."; return; }
+    if (!validPhone($("#mPhone").value)) { msg.textContent = "Telefon raqamini xalqaro ko'rinishda yozing, masalan +998 90 123 45 67."; return; }
     if (!API) { msg.textContent = "Sayt hozir namuna rejimida ishlayapti, so'rov serverga yuborilmadi. Server ishga tushgach so'rovlar admin panelga keladi."; return; }
     {
       try { await api("/api/group-requests", { company: $("#mCompany").value, kind: $("#mKind").value, people: $("#mPeople").value, phone: $("#mPhone").value }); }
@@ -992,6 +1009,44 @@
     });
     renderMapSide();
   }
+  // Real hotels, hostels and guest houses from OpenStreetMap, looked up for the visible area when zoomed in.
+  // They are not bron.uz partners: the popup gives their own contacts and a Google Maps link with real reviews.
+  let osmLayer = null, osmTimer = 0;
+  const OSM_TYPE = { hotel: "Mehmonxona", hostel: "Hostel", guest_house: "Mehmon uyi", motel: "Motel", apartment: "Apartament" };
+  const osmCache = new Map();
+  function osmPopup(e) {
+    const t = e.tags || {}, lat = e.lat || (e.center && e.center.lat), lon = e.lon || (e.center && e.center.lon);
+    const name = t["name:" + LANG] || t.name || t["name:en"] || OSM_TYPE[t.tourism] || "Mehmonxona";
+    const addr = [t["addr:street"], t["addr:housenumber"]].filter(Boolean).join(" ");
+    const phone = t.phone || t["contact:phone"] || "", site = t.website || t["contact:website"] || "";
+    const safeSite = /^https?:\/\//i.test(site) ? site : "";
+    return `<div class="mp osm-pop"><div class="mp-b"><small>${esc(OSM_TYPE[t.tourism] || "Mehmonxona")}${t.stars ? ` · ${"★".repeat(Math.min(5, parseInt(t.stars, 10) || 0))}` : ""}</small><b>${esc(name)}</b>
+      ${addr ? `<span class="mp-r">${esc(addr)}</span>` : ""}${phone ? `<span class="mp-r"><a href="tel:${esc(phone.replace(/[^+\d]/g, ""))}">${esc(phone)}</a></span>` : ""}
+      <div class="mp-a">${safeSite ? `<a class="btn btn-line" href="${esc(safeSite)}" target="_blank" rel="noopener nofollow">Sayti</a>` : ""}<a class="btn btn-line" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + " " + lat + "," + lon)}" target="_blank" rel="noopener">Sharhlar (Google)</a></div>
+      <p class="osm-note">bron.uz hamkori emas: narx va bron uchun o'zlari bilan bog'laning. Ma'lumot: OpenStreetMap.</p></div></div>`;
+  }
+  function loadOsm() {
+    if (!map) return;
+    if (osmLayer) { osmLayer.remove(); osmLayer = null; }
+    const msg = $("#osmMsg");
+    if (!$("#osmOn").checked) { msg.textContent = ""; return; }
+    if (map.getZoom() < 10) { msg.textContent = "Ko'rish uchun shaharni yaqinlashtiring."; return; }
+    const b = map.getBounds(), r = (v) => Math.round(v * 50) / 50;
+    const key = [r(b.getSouth()), r(b.getWest()), r(b.getNorth()), r(b.getEast())].join(",");
+    const draw = (els) => {
+      osmLayer = L.layerGroup(els.filter((e) => e.lat || e.center).map((e) => L.circleMarker([e.lat || e.center.lat, e.lon || e.center.lon], { radius: 7, color: "#fff", weight: 2, fillColor: "#6b7280", fillOpacity: .95 }).bindPopup(() => osmPopup(e), { maxWidth: 280, className: "mp-pop" }))).addTo(map);
+      msg.textContent = els.length ? `Bu hududda ${els.length} ta haqiqiy joy (OpenStreetMap).` : "Bu hududda OpenStreetMap'da joy topilmadi.";
+    };
+    if (osmCache.has(key)) return draw(osmCache.get(key));
+    msg.textContent = "Yuklanmoqda...";
+    const q = `[out:json][timeout:20];nwr["tourism"~"^(hotel|hostel|guest_house|motel|apartment)$"](${key});out center tags 200;`;
+    fetch("https://overpass-api.de/api/interpreter", { method: "POST", body: "data=" + encodeURIComponent(q), headers: { "content-type": "application/x-www-form-urlencoded" } })
+      .then((r) => r.ok ? r.json() : Promise.reject(r.status))
+      .then((j) => { const els = j.elements || []; osmCache.set(key, els); if ($("#osmOn").checked) draw(els); })
+      .catch(() => { msg.textContent = "OpenStreetMap ma'lumotini yuklab bo'lmadi. Keyinroq urinib ko'ring."; });
+  }
+  const osmSoon = () => { clearTimeout(osmTimer); osmTimer = setTimeout(loadOsm, 600); };
+
   function showRoute(x) {
     if (routeLine) { routeLine.remove(); routeLine = null; }
     const pts = x && x.days > 1 ? (x.route || []).map((c) => GEO[c]).filter(Boolean).map((c) => [c[0], c[1]]) : [];
@@ -1008,7 +1063,7 @@
     map.setMinZoom(Math.max(4, map.getZoom()));
     map.setMaxBounds(L.latLngBounds(UZ).pad(0.15));
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' }).addTo(map);
-    map.on("moveend", renderMapSide);
+    map.on("moveend", () => { renderMapSide(); osmSoon(); });
     let wasNear = false;
     map.on("zoomend", () => { const near = map.getZoom() >= 9; if (near !== wasNear || !near) { wasNear = near; renderMapMarkers(); } });
     renderMapMarkers();
@@ -1037,7 +1092,7 @@
     const units = parseInt(body.units, 10);
     if (body.units && !(units >= 1 && units <= 2000)) { msg.textContent = "Xona yoki o'rinlar soni 1 dan 2000 gacha bo'lsin."; return; }
     if (body.contact.length < 2) { msg.textContent = "Mas'ul shaxs ismini kiriting."; return; }
-    if (!validPhone(body.phone)) { msg.textContent = "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing."; return; }
+    if (!validPhone(body.phone)) { msg.textContent = "Telefon raqamini xalqaro ko'rinishda yozing, masalan +998 90 123 45 67."; return; }
     if (!API) { msg.textContent = "Sayt hozir namuna rejimida ishlayapti, ariza serverga yuborilmadi. Server ishga tushgach arizalar admin panelga keladi."; return; }
     try { await api("/api/partner-requests", body); }
     catch (err) { msg.textContent = err.message; return; }
@@ -1047,11 +1102,50 @@
   }
 
   // ---------- wiring ----------
+  // ---------- sights (photos and links from Wikipedia, loaded in the browser) ----------
+  const SIGHTS = window.BRON_SIGHTS || [];
+  const SIGHT_KEY = "bron.sights.v1";
+  const LANG = (window.BRON_I18N && window.BRON_I18N.lang) || "uz";
+  const sightText = (s) => s[LANG] || s.uz;
+  const wikiUrl = (s) => `https://en.wikipedia.org/wiki/${encodeURIComponent(s.wiki.replace(/ /g, "_"))}`;
+  let sightPh = {}, sightCity = "";
+  function sightPhotos() {
+    let c = store(SIGHT_KEY, {});
+    if (!c.t || Date.now() - c.t > 14 * 864e5) c = { t: Date.now(), d: {} };
+    sightPh = c.d;
+    const todo = SIGHTS.filter((s) => !(s.wiki in sightPh));
+    if (!todo.length || !window.fetch) return;
+    Promise.all(todo.map((s) => fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(s.wiki.replace(/ /g, "_"))}`)
+      .then((r) => r.ok ? r.json() : {})
+      .then((j) => { const src = (j.thumbnail && j.thumbnail.source) || ""; sightPh[s.wiki] = src ? src.replace(/\/\d+px-/, "/640px-") : ""; })
+      .catch(() => { /* blocked or offline: the card keeps its drawing */ })))
+      .then(() => { c.d = sightPh; keep(SIGHT_KEY, c); renderSights(); });
+  }
+  function renderSights() {
+    const box = $("#sights");
+    if (!box || !SIGHTS.length) return;
+    const cities = [...new Set(SIGHTS.map((s) => s.city))];
+    $("#sightChips").innerHTML = [["", "Hammasi"]].concat(cities.map((c) => [c, c])).map(([c, l]) => `<button type="button" class="chip" data-sight-city="${esc(c)}" aria-pressed="${sightCity === c}">${esc(l)}</button>`).join("");
+    const city = (n) => CITIES.find((c) => c.name === n) || {};
+    box.innerHTML = SIGHTS.filter((s) => !sightCity || s.city === sightCity).map((s) => {
+      const [name, text] = sightText(s), ph = sightPh[s.wiki], c = city(s.city);
+      return `<article class="sight"><div class="s-ph">${art(c.art || "dome", c.hue || 200, "s" + s.wiki)}${ph ? `<img data-ph class="ph" loading="lazy" alt="${esc(name)}" src="${esc(ph)}">` : ""}<span class="kind">${esc(s.city)}</span></div>
+        <div class="s-b"><h3>${esc(name)}</h3><p>${esc(text)}</p>
+        <div class="s-a"><button type="button" class="btn btn-line" data-city="${esc(s.city)}">Yaqin joylar</button><a class="linkish" href="${wikiUrl(s)}" target="_blank" rel="noopener">Vikipediya</a></div></div></article>`;
+    }).join("");
+  }
+  function detailSights(x) {
+    const el = $("#dSights"), list = SIGHTS.filter((s) => s.city === x.city);
+    el.hidden = !list.length;
+    el.innerHTML = list.length ? `<h4 class="d-sub">Shaharda ko'rish mumkin</h4><ul class="d-sl">${list.map((s) => `<li><a href="${wikiUrl(s)}" target="_blank" rel="noopener"><b>${esc(sightText(s)[0])}</b></a><span>${esc(sightText(s)[1])}</span></li>`).join("")}</ul>` : "";
+  }
+
   // ---------- visit and view counters (server only) ----------
   const fmtN = (n) => Number(n || 0).toLocaleString("ru-RU").replace(/\u00a0/g, " ");
   const EYE = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5C6.5 5 2.7 9.4 1.5 12c1.2 2.6 5 7 10.5 7s9.3-4.4 10.5-7C21.3 9.4 17.5 5 12 5zm0 11a4 4 0 110-8 4 4 0 010 8z"/></svg>`;
+  // Small numbers on a young site would only put visitors off; the admin panel always shows them.
   function showStats(s) {
-    if (!s) return;
+    if (!s || s.visitors < 200) return;
     const el = $("#heroStats");
     el.innerHTML = `<span><b>${fmtN(s.visitors)}</b> <i>foydalanuvchi</i></span><span><b>${fmtN(s.visits)}</b> <i>tashrif</i></span><span><b>${fmtN(s.views)}</b> <i>ko'rish</i></span><span><b>${fmtN(s.users)}</b> <i>ro'yxatdan o'tgan</i></span>`;
     el.hidden = false;
@@ -1146,6 +1240,7 @@
     initAuth();
     initApp();
     renderCities();
+    renderSights(); sightPhotos();
     renderDeals();
     renderVenues();
     renderPackages();
@@ -1188,6 +1283,7 @@
     // map: load Leaflet only when the section is close
     if ("IntersectionObserver" in window) new IntersectionObserver((en, o) => { if (en.some((x) => x.isIntersecting)) { o.disconnect(); initMap(); } }, { rootMargin: "300px" }).observe($("#xarita"));
     else initMap();
+    $("#osmOn").addEventListener("change", () => { initMap().then(() => { if ($("#osmOn").checked && map.getZoom() < 10) $("#osmMsg").textContent = "Ko'rish uchun shaharni yaqinlashtiring (yoki shahar belgisini bosing)."; else loadOsm(); }); });
     $("#mapTypes").addEventListener("click", (e) => { const b = e.target.closest("[data-mt]"); if (!b) return; state.mapType = b.dataset.mt; renderMapMarkers(); });
     $("#mapSide").addEventListener("click", (e) => { const b = e.target.closest("[data-mapgo]"); if (b) showOnMap(b.dataset.mapgo, true); });
     $("#dMap").addEventListener("click", () => { const id = state.current.id; closeDlg($("#detailDlg")); showOnMap(id); });
@@ -1211,6 +1307,7 @@
       const fav = t.closest("[data-fav]"); if (fav) { toggleFav(fav.dataset.fav); return; }
       const open = t.closest("[data-open]"); if (open) { openDetail(open.dataset.open); return; }
       const book = t.closest("[data-book]"); if (book) { openBooking(book.dataset.book, book.dataset.cls); return; }
+      const sc = t.closest("[data-sight-city]"); if (sc) { sightCity = sc.dataset.sightCity; renderSights(); return; }
       const city = t.closest("[data-city]");
       if (city) { const c = city.dataset.city === state.city ? "" : city.dataset.city; $("#fCity").value = c; readSearch(); render(); $("#natijalar").scrollIntoView({ block: "start" }); return; }
       if (t.closest("[data-reset]")) { resetFilters(); return; }
@@ -1367,7 +1464,7 @@
   async function sendCode() {
     const msg = $("#authMsg"), phone = normPhone($("#aPhone").value.trim());
     msg.className = "form-msg err";
-    if (!validPhone(phone)) { msg.textContent = "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing."; $("#aPhone").focus(); return; }
+    if (!validPhone(phone)) { msg.textContent = "Telefon raqamini xalqaro ko'rinishda yozing, masalan +998 90 123 45 67."; $("#aPhone").focus(); return; }
     const btn = $("#aSendCode"); btn.disabled = true;
     try {
       await api("/api/auth/otp", { phone, purpose: authMode === "reset" ? "reset" : "register" });
@@ -1400,7 +1497,7 @@
     msg.className = "form-msg err";
     const name = $("#aName").value.trim(), phone = normPhone($("#aPhone").value.trim()), pass = $("#aPass").value;
     if (authMode === "register" && name.length < 3) { msg.textContent = "Ism familiyangizni kiriting."; return; }
-    if (!validPhone(phone)) { msg.textContent = "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing."; return; }
+    if (!validPhone(phone)) { msg.textContent = "Telefon raqamini xalqaro ko'rinishda yozing, masalan +998 90 123 45 67."; return; }
     if (pass.length < 8) { msg.textContent = "Parol kamida 8 belgidan iborat bo'lsin."; return; }
     if ((authMode === "register" || authMode === "reset") && pass !== $("#aPass2").value) { msg.textContent = "Parollar bir xil emas."; return; }
     const code = $("#aCode").value.trim();
@@ -1462,11 +1559,21 @@
       if (!Array.isArray(rows) || !rows.length) return;
       LISTINGS = rows;
       API = true;
+      const guestsDone = refreshGuestBookings();
       fetch("/api/config").then((r) => r.ok ? r.json() : null).then((c) => { if (c) CFG = c; }).catch(() => {});
       countVisit();
-      restoreUser();
-      $("#sampleNote").hidden = true;
+      // A review link from the bot (#sharh=BRN-…) opens the review form once the bookings are known.
+      Promise.all([restoreUser(), guestsDone]).then(() => {
+        const rv = /^#sharh=(BRN-[A-Z0-9]{6})$/.exec(location.hash);
+        if (!rv) return;
+        const b = myBookings().find((x) => x.code === rv[1]);
+        if (b && canReview(b)) openReview(b.code);
+        else { $("#bronlarim").scrollIntoView({ block: "start" }); toast("Sharh qoldirish uchun bron qilgan hisobingizga kiring yoki bron qilgan qurilmangizdan oching."); }
+      });
+      $("#sampleNote").hidden = !rows.some((x) => x.sample);
       render(); renderDeals(); renderCities(); heroCount(); renderVenues(); renderPackages(); renderCats(); renderMapMarkers(); renderRecent();
+      // A shared link to a place that exists only in the database can open now.
+      if (/^#joy=/.test(location.hash) && !$("#detailDlg").open) openFromHash();
     } catch (e) { /* static hosting: keep sample data */ }
   }
 

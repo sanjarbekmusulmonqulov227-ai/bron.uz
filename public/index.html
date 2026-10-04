@@ -2,10 +2,10 @@
 <html lang="uz">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://en.wikipedia.org https://commons.wikimedia.org https://upload.wikimedia.org https://fonts.googleapis.com https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://overpass-api.de https://en.wikipedia.org https://commons.wikimedia.org https://upload.wikimedia.org https://fonts.googleapis.com https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>bron.uz</title>
+  <title>bron.uz: O'zbekiston bo'ylab mehmonxona, zal va tur bron qilish</title>
   <meta name="description" content="bron.uz: O'zbekiston bo'ylab mehmonxona, konferens-zal va turlarni onlayn bron qilish.">
   <link rel="canonical" href="https://sanjarbekmusulmonqulov227-ai.github.io/bron.uz/">
   <meta property="og:type" content="website"><meta property="og:site_name" content="bron.uz"><meta property="og:title" content="bron.uz: O'zbekiston bo'ylab mehmonxona, zal va tur bron qilish"><meta property="og:description" content="14 hudud va 45 shaharda mehmonxona, hostel, konferens-zal, tur paketlari, avia, poyezd va haydovchili mashina. Narxlar so'mda."><meta property="og:image" content="https://sanjarbekmusulmonqulov227-ai.github.io/bron.uz/icons/icon-512.png">
@@ -53,7 +53,7 @@
           <p class="eyebrow light">8 shahar · 38 joy · narxlar so'mda</p>
           <p class="hero-stats" id="heroStats" hidden></p>
           <h1>O'zbekiston bo'ylab <em>mehmonxona, zal va tur</em> bir joyda</h1>
-          <p class="lead">Samarqanddagi boutique mehmonxonadan Toshkentdagi 600 o'rinli kongress-zalgacha. Bron qiling, to'lovni joyida yoki Click, Payme orqali qiling.</p>
+          <p class="lead">Samarqanddagi boutique mehmonxonadan Toshkentdagi 600 o'rinli kongress-zalgacha. Bron qiling, to'lovni joyida yoki menejer yuborgan Click, Payme havolasi orqali qiling.</p>
         </div>
         <div class="hero-visual" aria-hidden="true">
           <div class="h-arch"><div class="h-arch-in" id="heroArch"></div></div>
@@ -144,6 +144,19 @@
     <div class="chips reg-chips" id="regChips" aria-label="Hududlar"></div>
     <div class="cities" id="cities"></div>
     <div class="more-wrap"><button class="btn btn-line" type="button" id="allCities">Barcha shaharlar</button></div>
+  </section>
+
+  <section class="wrap section" id="ziyorat">
+    <div class="sec-head">
+      <div>
+        <p class="eyebrow">Turistlar uchun</p>
+        <h2>Albatta ko'ring</h2>
+      </div>
+      <p class="muted">O'zbekistonning mashhur obidalari va tabiat go'shalari. Suratlar va batafsil ma'lumot Vikipediyadan.</p>
+    </div>
+    <div class="chips" id="sightChips" aria-label="Shaharlar"></div>
+    <div class="sights" id="sights"></div>
+    <div class="more-wrap"><a class="btn btn-line" href="turistlar.html">Turistlar uchun qo'llanma: viza, pul, transport</a></div>
   </section>
 
   <section class="wrap section recent-sec" id="yaqinda" hidden>
@@ -286,6 +299,7 @@
       <div class="map" id="map" role="region" aria-label="Joylar xaritasi"><p class="map-load">Xarita yuklanmoqda...</p></div>
       <aside class="map-side" id="mapSide" aria-label="Xaritadagi ro'yxat"></aside>
     </div>
+    <div class="osm-bar"><label class="check"><input type="checkbox" id="osmOn"> <span>Haqiqiy mehmonxona va hostellarni ham ko'rsatish (OpenStreetMap)</span></label><span class="muted small" id="osmMsg"></span></div>
   </section>
 
   <div class="orn" aria-hidden="true"></div>
@@ -337,7 +351,7 @@
           </label>
           <label class="field"><span>Qatnashchilar</span><input id="mPeople" type="number" min="10" value="80" inputmode="numeric"></label>
         </div>
-        <label class="field"><span>Telefon</span><input id="mPhone" type="tel" placeholder="+998 90 123 45 67" required></label>
+        <label class="field"><span>Telefon</span><input id="mPhone" type="tel" placeholder="+998 90 123 45 67 yoki +44 …" required></label>
         <button class="btn btn-ink" type="submit">So'rov yuborish</button>
         <p class="form-msg" id="miceMsg" role="status"></p>
       </form>
@@ -371,7 +385,7 @@
           <label class="field"><span>Xona / o'rinlar soni</span><input id="pfUnits" type="number" min="1" value="10" inputmode="numeric"></label>
           <label class="field"><span>Ismingiz</span><input id="pfContact" autocomplete="name"></label>
         </div>
-        <label class="field"><span>Telefon</span><input id="pfPhone" type="tel" placeholder="+998 90 123 45 67" autocomplete="tel"></label>
+        <label class="field"><span>Telefon</span><input id="pfPhone" type="tel" placeholder="+998 90 123 45 67 yoki +44 …" autocomplete="tel"></label>
         <button class="btn btn-gold" type="submit">Ariza yuborish</button>
         <p class="form-msg" id="pfMsg" role="status"></p>
       </form>
@@ -409,7 +423,7 @@
   <section class="wrap section faq" id="savollar">
     <div class="sec-head"><div><p class="eyebrow">Savollar</p><h2>Ko'p beriladigan savollar</h2></div></div>
     <div class="faq-list">
-      <details><summary>Bron uchun oldindan to'lash kerakmi?</summary><p>Ko'p joylarda yo'q. "Joyida to'lov" ni tanlasangiz, pulni kelganingizda naqd yoki karta orqali to'laysiz. Click, Payme yoki Uzum Bank orqali oldindan to'lash ham mumkin.</p></details>
+      <details><summary>Bron uchun oldindan to'lash kerakmi?</summary><p>Ko'p joylarda yo'q. "Joyida to'lov" ni tanlasangiz, pulni kelganingizda naqd yoki karta orqali to'laysiz. Oldindan to'lamoqchi bo'lsangiz, menejer bron tasdiqlangach Click, Payme yoki Uzum Bank orqali to'lov havolasini yuboradi.</p></details>
       <details><summary>Bronni qanday bekor qilaman?</summary><p>Pastdagi "Mening bronlarim" bo'limida "Bekor qilish" tugmasini bosing. "Bepul bekor qilish" belgisi bor joylarda kelishdan 24 soat oldingacha jarima yo'q.</p></details>
       <details><summary>Chet ellik mehmonlar uchun ro'yxatdan o'tish kerakmi?</summary><p>Ha, mehmonxona sizni 24 soat ichida E-mehmon tizimida ro'yxatdan o'tkazadi. Buning uchun pasportingizni olib keling.</p></details>
       <details><summary>Kompaniya nomidan hisob-faktura olsa bo'ladimi?</summary><p>Ha. Guruh so'rovini yuboring, menejer shartnoma va hisob-fakturani kompaniyangiz rekvizitlari bilan tayyorlaydi.</p></details>
@@ -449,6 +463,7 @@
       <a href="qoidalar.html">Bron va bekor qilish qoidalari</a>
       <a href="maxfiylik.html">Maxfiylik siyosati</a>
       <a href="shaharlar.html">Barcha shaharlar</a>
+      <a href="turistlar.html">Turistlar uchun qo'llanma</a>
     </div>
     <div>
       <p class="f-title">To'lov usullari</p>
@@ -470,6 +485,7 @@
       <p id="dDesc"></p>
       <div class="d-amen" id="dAmen"></div>
       <div id="dExtra"></div>
+      <div class="d-sights" id="dSights" hidden></div>
       <div id="dRooms"></div>
       <section class="d-reviews" id="dReviews" hidden></section>
       <div class="d-foot">
@@ -499,16 +515,16 @@
     </div>
     <div class="row2">
       <label class="field"><span>Ism familiya</span><input id="bName" required placeholder="Ism Familiya" autocomplete="name"></label>
-      <label class="field"><span>Telefon</span><input id="bPhone" type="tel" required placeholder="+998 90 123 45 67" autocomplete="tel"></label>
+      <label class="field"><span>Telefon</span><input id="bPhone" type="tel" required placeholder="+998 90 123 45 67 yoki +44 …" autocomplete="tel"></label>
     </div>
     <div class="row2">
       <label class="field"><span id="bGuestsLabel">Mehmonlar</span><input id="bGuests" type="number" min="1" value="2" inputmode="numeric"></label>
       <label class="field"><span>To'lov</span>
         <select id="bPay">
           <option value="joyida">Joyida naqd / karta</option>
-          <option value="click">Click</option>
-          <option value="payme">Payme</option>
-          <option value="uzum">Uzum Bank</option>
+          <option value="click">Click (menejer havola yuboradi)</option>
+          <option value="payme">Payme (menejer havola yuboradi)</option>
+          <option value="uzum">Uzum Bank (menejer havola yuboradi)</option>
         </select>
       </label>
     </div>
@@ -518,6 +534,7 @@
       <b id="totalSum"></b>
     </div>
     <p class="muted small policy" id="bPolicy"></p>
+    <p class="note b-sample" id="bSample" hidden>Bu namuna joy: sayt qanday ishlashini ko'rsatish uchun qo'shilgan. Bron sinov sifatida qabul qilinadi.</p>
     <p class="avail" id="bAvail" role="status"></p>
     <p class="form-msg" id="bookMsg" role="status"></p>
     <p class="muted small consent">Tasdiqlash bilan <a href="oferta.html" target="_blank">ommaviy oferta</a>, <a href="qoidalar.html" target="_blank">bekor qilish qoidalari</a> va <a href="maxfiylik.html" target="_blank">maxfiylik siyosatiga</a> rozilik bildirasiz.</p>
@@ -555,7 +572,7 @@
       <button type="button" role="tab" class="seg-b" data-mode="register" aria-selected="false">Ro'yxatdan o'tish</button>
     </div>
     <label class="field" id="aNameWrap" hidden><span>Ism familiya</span><input id="aName" autocomplete="name" placeholder="Ism Familiya"></label>
-    <label class="field"><span>Telefon</span><input id="aPhone" type="tel" autocomplete="tel" placeholder="+998 90 123 45 67"></label>
+    <label class="field"><span>Telefon</span><input id="aPhone" type="tel" autocomplete="tel" placeholder="+998 90 123 45 67 yoki +44 …"></label>
     <div class="field" id="aCodeWrap" hidden><label for="aCode"><span>SMS kod</span></label><div class="otp-in"><input id="aCode" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="6 xonali kod"><button type="button" class="btn btn-line" id="aSendCode">Kod olish</button></div></div>
     <label class="field"><span id="aPassLabel">Parol</span>
       <span class="pass"><input id="aPass" type="password" autocomplete="current-password" placeholder="Kamida 8 belgi"><button type="button" class="pass-eye" id="aEye" aria-label="Parolni ko'rsatish">Ko'rsatish</button></span>
@@ -608,6 +625,7 @@
 <!--BODY-END-->
 <script src="i18n.js"></script>
 <script src="data.js"></script>
+<script src="sights.js"></script>
 <script src="picker.js"></script>
 <script src="app.js"></script>
 </body>

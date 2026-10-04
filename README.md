@@ -27,6 +27,7 @@ Sayt: http://localhost:3000, admin: http://localhost:3000/admin (login `admin`).
 | `SMS_DEV` | `1` bo'lsa SMS yuborilmaydi, kod server logiga yoziladi (sinov uchun) |
 | `TELEGRAM_POLL` | `0` bo'lsa bot mijoz va hamkor xabarlarini o'qimaydi (faqat admin xabarlari qoladi) |
 | `SITE_URL` | `tools/build-pages.js` uchun sayt manzili (sitemap va canonical havolalar) |
+| `TRUST_PROXY` | `1`: server Caddy/Nginx orqasida (haqiqiy IP `X-Forwarded-For` dan olinadi) |
 | `PORT` | Server porti (standart 3000) |
 | `DATA_DIR` | Baza papkasi (standart `./data`) |
 
@@ -44,7 +45,7 @@ Bazani saqlab qoladigan disk kerak, shuning uchun bepul "disksiz" hostinglar mos
     # fayllarni /opt/bron-uz ga ko'chiring, keyin:
     cd /opt/bron-uz && cp .env.example .env && nano .env
     sudo npm i -g pm2 && pm2 start server.js --name bron --node-args="--no-warnings --env-file=.env" && pm2 save && pm2 startup
-Keyin Caddy bilan HTTPS: `/etc/caddy/Caddyfile` ga `bron.uz { reverse_proxy localhost:3000 }` yozing.
+Keyin Caddy bilan HTTPS: `/etc/caddy/Caddyfile` ga `bron.uz { reverse_proxy localhost:3000 }` yozing. Server Caddy orqasida ishlagani uchun `.env` da `TRUST_PROXY=1` bo'lishi shart: aks holda barcha mijozlar bitta IP bo'lib ko'rinadi (cheklovlar hammaga birdan ishlaydi) va cookie `Secure` bo'lmaydi.
 
 **Variant B — Docker (Railway, Fly.io, Render + disk):**
 `Dockerfile` tayyor. `/data` papkasiga doimiy disk (volume) ulang va yuqoridagi o'zgaruvchilarni kiriting.
@@ -57,6 +58,16 @@ bron.uz ni .uz ro'yxatchisi orqali oling va DNS'da `A` yozuvini server IP manzil
 
 ## Sharhlar
 Sharhni faqat bron qilib, joyda bo'lib qaytgan mehmon qoldiradi (bron tugagan yoki holati "yakunlandi"), har bronga bitta. Ism "Ali V." ko'rinishida chiqadi. Admin panelning "Sharhlar" bo'limida sharhni yashirish mumkin. Joy kartasidagi namuna reyting alohida, haqiqiy mehmon bahosi `guestRating` bo'lib keladi.
+Bron "yakunlandi" qilinganda mijozga Telegram orqali sharh so'rovi boradi; `SITE_URL` sozlangan bo'lsa xabarda `SITE_URL/#sharh=BRN-…` havolasi bo'ladi va u sharh oynasini ochadi. Bron bekor qilinsa, uning sharhi yashiriladi.
+
+## Namuna va haqiqiy joylar
+`public/data.js` dagi joylar namuna: kartada "Namuna" belgisi chiqadi, `joy/*.html` sahifalari `noindex` va sitemapga kirmaydi. Haqiqiy hamkor joyini admin panelda "Haqiqiy joy (namuna emas)" belgisi bilan saqlang (yoki hamkor egasi biriktirilsa) va namuna belgisi o'chadi.
+
+## Bekor qilish va bron qidirish
+Mijoz bronni boshlanish kunidan oldin o'zi bekor qila oladi; tasdiqlangan pullik bronni faqat menejer bekor qiladi. Bekor qilingan bronni qayta faollashtirishda bo'sh joy yana tekshiriladi. Telefon raqami xorijiy bo'lishi mumkin (`+44…`), SMS kod esa faqat O'zbekiston raqamlariga. Kirmagan mehmon bronlari `POST /api/bookings/lookup` orqali (kod + telefon) yangilanadi.
+
+## Diqqatga sazovor joylar va xaritadagi mehmonxonalar
+`public/sights.js`: 26 ta joy (uz/ru/en matn). Suratlar mehmon brauzerida Wikipedia'dan yuklanadi (yuklanmasa rasm o'rniga chizma qoladi). Xaritada "Boshqa mehmonxonalar (OpenStreetMap)" belgisi yoqilsa, yaqinlashtirilgan hududdagi OSM mehmonxonalari kulrang nuqta bo'lib chiqadi: ular hamkor emas, faqat ma'lumot uchun. `turistlar.html`: xorijlik turist uchun qo'llanma (viza, ro'yxatdan o'tish, pul, aloqa, transport).
 
 ## Xonalar soni
 Mehmonxonada bir bronda 1–10 ta xona olinadi; narx va bo'sh xonalar soni shunga qarab hisoblanadi.

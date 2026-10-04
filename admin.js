@@ -82,10 +82,11 @@
     $("#lHue").value = x ? x.hue : 200;
     $("#lPhoto").value = x && x.photo ? x.photo : "";
     $("#lDesc").value = x && x.desc ? x.desc : "";
+    $("#lReal").checked = !x || !!x.real;
     $("#lSave").textContent = x ? "Saqlash" : "Qo'shish";
     $("#lCancel").hidden = !x;
   }
-  const formData = () => ({ type: $("#lType").value, name: $("#lName").value, city: $("#lCity").value, price: $("#lPrice").value, capacity: $("#lCap").value, rating: $("#lRating").value, reviews: $("#lReviews").value, tags: $("#lTags").value, amenities: $("#lTags").value.split(",").map(amenKey).filter(Boolean), hue: $("#lHue").value, photo: $("#lPhoto").value.trim(), desc: $("#lDesc").value.trim() });
+  const formData = () => ({ type: $("#lType").value, name: $("#lName").value, city: $("#lCity").value, price: $("#lPrice").value, capacity: $("#lCap").value, rating: $("#lRating").value, reviews: $("#lReviews").value, tags: $("#lTags").value, amenities: $("#lTags").value.split(",").map(amenKey).filter(Boolean), hue: $("#lHue").value, photo: $("#lPhoto").value.trim(), desc: $("#lDesc").value.trim(), real: $("#lReal").checked });
 
   document.addEventListener("change", async (e) => {
     const s = e.target.closest("select[data-kind]");

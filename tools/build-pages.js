@@ -12,6 +12,7 @@ const PUB = path.join(ROOT, "public");
 const SITE = (process.env.SITE_URL || "https://sanjarbekmusulmonqulov227-ai.github.io/bron.uz").replace(/\/$/, "");
 const ctx = { window: {} };
 vm.runInNewContext(fs.readFileSync(path.join(PUB, "data.js"), "utf8"), ctx);
+vm.runInNewContext(fs.readFileSync(path.join(PUB, "sights.js"), "utf8"), ctx);
 const W = ctx.window;
 const companyFile = path.join(__dirname, "company.json");
 const CO = fs.existsSync(companyFile) ? JSON.parse(fs.readFileSync(companyFile, "utf8")) : {};
@@ -50,7 +51,7 @@ function page({ file, title, desc, body, ld, depth = 0, index = true }) {
 <header class="topbar">
   <div class="wrap topbar-in">
     <a class="logo" href="${up}./" aria-label="bron.uz"><svg class="logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 20 538 180" aria-hidden="true"><path d="M24.4 141.3V46.2H13.4V37.6H50V82.9Q53.2 76.9 58.7 74Q64.2 71.1 72.3 71.1Q88.7 71.1 98.1 81.9Q107.6 92.7 107.6 111.6Q107.6 130.4 98.1 141.3Q88.7 152.1 72.3 152.1Q64.2 152.1 58.7 149.2Q53.2 146.2 50 140.2V150H13.4V141.3ZM50 115.4Q50 128.8 53.4 134.8Q56.8 140.8 64.5 140.8Q72.4 140.8 75.6 134.5Q78.8 128.1 78.8 111.6Q78.8 95 75.6 88.7Q72.4 82.4 64.5 82.4Q56.8 82.4 53.4 88.4Q50 94.4 50 107.8ZM189 72.3V95.2H180.8Q180.4 89.1 177.5 86.1Q174.6 83.1 169.1 83.1Q160.7 83.1 155.9 90.5Q151 97.8 151 110.9V141.3H165V150H114.5V141.3H125.5V81.9H113.7V73.2H151V86.8Q154.8 78.8 161 75Q167.2 71.1 176.1 71.1Q178.4 71.1 181.6 71.4Q184.8 71.7 189 72.3ZM232.9 143.9Q241 143.9 244.3 137Q247.6 130.1 247.6 111.6Q247.6 93.1 244.3 86.2Q241.1 79.3 232.9 79.3Q224.7 79.3 221.4 86.2Q218.1 93.2 218.1 111.6Q218.1 129.9 221.4 136.9Q224.7 143.9 232.9 143.9ZM232.9 152.1Q212.6 152.1 201.1 141.3Q189.5 130.5 189.5 111.6Q189.5 92.5 201.1 81.8Q212.6 71.1 232.9 71.1Q253.3 71.1 264.8 81.8Q276.2 92.5 276.2 111.6Q276.2 130.5 264.7 141.3Q253.2 152.1 232.9 152.1ZM283.2 150V141.3H294.1V81.9H283.2V73.2H319.7V84Q324.4 77.2 330.3 74.1Q336.2 71.1 345.2 71.1Q358.2 71.1 364.8 78.7Q371.4 86.3 371.4 101.1V141.3H382.4V150H336.5V141.3H345.8V100.4Q345.8 90.7 343.3 86.9Q340.8 83.1 334.7 83.1Q327 83.1 323.3 88.8Q319.7 94.4 319.7 106.8V141.3H329.1V150Z" fill="currentColor"/><path d="M18 178q180 30 360 0" fill="none" stroke="#e0a21c" stroke-width="12" stroke-linecap="round"/><path d="M401.7 135.3H415.4V150H401.7ZM431.5 133.4V107.3H445.2V111.6Q445.2 115.1 445.2 120.3Q445.1 125.5 445.1 127.3Q445.1 132.4 445.4 134.7Q445.7 137 446.3 138Q447.2 139.3 448.5 140.1Q449.9 140.8 451.6 140.8Q455.9 140.8 458.3 137.5Q460.8 134.2 460.8 128.4V107.3H474.4V150H460.8V143.8Q457.7 147.6 454.2 149.3Q450.8 151.1 446.6 151.1Q439.2 151.1 435.4 146.6Q431.5 142 431.5 133.4ZM487.4 107.3H524.6V116.9L502.1 140.2H524.6V150H486.4V140.5L508.9 117.1H487.4Z" fill="#e0a21c"/></svg></a>
-    <nav class="sp-nav"><a href="${up}shaharlar.html">Shaharlar</a><a href="${up}./#natijalar">Bron qilish</a></nav>
+    <nav class="sp-nav"><a href="${up}turistlar.html">Turistlarga</a><a href="${up}shaharlar.html">Shaharlar</a><a href="${up}./#natijalar">Bron qilish</a></nav>
     <div class="top-actions"><div class="lang-sw" role="group" aria-label="Til"><button type="button" data-lang="uz" lang="uz">UZ</button><button type="button" data-lang="ru" lang="ru">RU</button><button type="button" data-lang="en" lang="en">EN</button></div></div>
   </div>
 </header>
@@ -64,8 +65,8 @@ ${body}
 `;
 }
 
-const out = [];
-const write = (file, html) => { fs.mkdirSync(path.dirname(path.join(PUB, file)), { recursive: true }); fs.writeFileSync(path.join(PUB, file), html); out.push(file); };
+const out = [], noindex = new Set();
+const write = (file, html, index = true) => { if (!index) noindex.add(file); fs.mkdirSync(path.dirname(path.join(PUB, file)), { recursive: true }); fs.writeFileSync(path.join(PUB, file), html); out.push(file); };
 const cities = W.BRON_CITIES, listings = W.BRON_LISTINGS, regions = W.BRON_REGIONS, T = W.BRON_TRANSPORT;
 const cityOf = Object.fromEntries(cities.map((c) => [c.name, c]));
 const sampleNote = `<p class="sp-note">Namuna ma'lumot: joy nomlari, narxlar va reytinglar sayt dizaynini ko'rsatish uchun. Haqiqiy joylar hamkorlar ulangach qo'shiladi.</p>`;
@@ -92,8 +93,16 @@ ${same.length ? `<h2 class="sp-h2">Shu shahardagi boshqa joylar</h2><ul class="s
   const ld = { "@context": "https://schema.org", "@type": LD[x.type] || "LodgingBusiness", name: x.name, description: x.desc, url: `${SITE}/joy/${x.id}.html`,
     address: { "@type": "PostalAddress", addressLocality: x.city, addressRegion: c.region || undefined, addressCountry: "UZ" } };
   if (x.type === "hotel" && x.stars) ld.starRating = { "@type": "Rating", ratingValue: x.stars };
-  write(`joy/${x.id}.html`, page({ file: `joy/${x.id}.html`, depth: 1, title: `${x.name}, ${x.city}: ${t[0].toLowerCase()} bron qilish | bron.uz`, desc: `${x.name} (${x.city}). ${(x.desc || "").slice(0, 120)} Narx ${som(x.price)} dan.`, body, ld }));
+  if (x.type === "tour") delete ld.address;
+  ld.priceRange = `${som(x.price)} dan`;
+  // Every place in data.js is made up, so search engines are asked not to index these pages.
+  write(`joy/${x.id}.html`, page({ file: `joy/${x.id}.html`, depth: 1, index: false, title: `${x.name}, ${x.city}: ${t[0].toLowerCase()} bron qilish | bron.uz`, desc: `${x.name} (${x.city}). ${(x.desc || "").slice(0, 120)} Narx ${som(x.price)} dan.`, body, ld }), false);
 }
+
+// ---- sights (real places; texts in sights.js, details on Wikipedia) ----
+const SIGHTS = W.BRON_SIGHTS || [];
+const wiki = (s) => `https://en.wikipedia.org/wiki/${encodeURIComponent(s.wiki.replace(/ /g, "_"))}`;
+const sightsOf = (city) => { const l = SIGHTS.filter((s) => s.city === city); return l.length ? `<h2 class="sp-h2">Albatta ko'ring</h2><ul class="sp-list">${l.map((s) => `<li><a href="${wiki(s)}" target="_blank" rel="noopener"><b>${esc(s.uz[0])}</b></a>: ${esc(s.uz[1])}</li>`).join("")}</ul>` : ""; };
 
 // ---- cities ----
 for (const c of cities) {
@@ -109,6 +118,7 @@ for (const c of cities) {
   <a class="btn btn-gold" href="../#natijalar">Saytda qidirish</a>
 </section>
 ${groups.map(([k, l]) => `<h2 class="sp-h2">${esc(TYPE[k][1])}</h2><ul class="sp-list">${l.map((x) => `<li><a href="../joy/${encodeURIComponent(x.id)}.html">${esc(x.name)}</a> <span class="muted">${som(x.price)} · ${esc(TYPE[k][2])}</span></li>`).join("")}</ul>`).join("")}
+${sightsOf(c.name)}
 <h2 class="sp-h2">Qanday borish mumkin</h2>
 <ul class="sp-list">
   ${avia.length ? `<li><b>Avia:</b> ${avia.map(esc).join(", ")}</li>` : ""}
@@ -125,6 +135,28 @@ ${sampleNote}`;
 write("shaharlar.html", page({ file: "shaharlar.html", title: "O'zbekiston shaharlari: mehmonxona va zallar | bron.uz", desc: "O'zbekistonning 14 hududi va barcha yirik shaharlarida mehmonxona, hostel, konferens-zal va turlar.",
   body: `<section class="sp-card"><h1>O'zbekiston shaharlari</h1><p>14 hudud, ${cities.length} ta shahar. Shaharni tanlang.</p></section>
 <div class="sp-regions">${regions.map((r) => `<section><h2 class="sp-h2">${esc(r)}</h2><ul class="sp-list">${cities.filter((c) => c.region === r).map((c) => `<li><a href="shahar/${slug(c.name)}.html">${esc(c.name)}</a> <span class="muted">${listings.filter((x) => x.city === c.name).length} ta joy</span></li>`).join("")}</ul></section>`).join("")}</div>` }));
+
+
+// ---- tourist guide ----
+const TIPS = [
+  ["Viza", "Ko'plab davlatlar fuqarolari O'zbekistonga 30 kungacha vizasiz keladi. Boshqalar uchun elektron viza bor: e-visa.gov.uz. Safardan oldin o'z davlatingiz uchun shartlarni rasmiy saytda tekshiring."],
+  ["Ro'yxatdan o'tish", "Mehmonxona va hostellar chet ellik mehmonni o'zi ro'yxatdan o'tkazadi. Xususiy uyda tursangiz, mezbon sizni 3 kun ichida ro'yxatdan o'tkazishi kerak."],
+  ["Pul", "Milliy valyuta so'm (UZS). Shaharlarda Visa va Mastercard kartalari ko'p joyda o'tadi, bankomatlar bor. Pulni bank yoki rasmiy ayirboshlash shoxobchasida almashtiring."],
+  ["Aloqa", "SIM kartani Beeline, Ucell, Mobiuz yoki Uzmobile do'konidan pasport bilan olasiz. Mobil internet arzon va shaharlarda tez."],
+  ["Shaharlar orasida", "Afrosiyob tezyurar poyezdi Toshkentdan Samarqandga taxminan 2 soatda, Buxoroga 4 soatda yetkazadi. Chiptalarni oldindan oling. Xiva va Nukusga samolyot yoki poyezd bilan borish qulay."],
+  ["Shahar ichida", "Taksini ilova orqali chaqiring (Yandex Go, MyTaxi): narx oldindan ko'rinadi. Toshkentda metro arzon va qulay."],
+  ["Qachon borish kerak", "Eng qulay payt bahor (aprel–may) va kuz (sentabr–oktabr). Yozda harorat 40 °C dan oshishi mumkin, qishda tog'larda chang'i mavsumi."],
+  ["Odob", "Masjid va maqbaralarga yelka va tizzani yopadigan kiyimda kiring. Odamlarni suratga olishdan oldin ruxsat so'rang. Mehmondo'stlik qadrlanadi: choyga taklif qilishsa, bu odatiy hol."],
+  ["Taom", "Albatta tatib ko'ring: palov, somsa, lag'mon, shashlik va tandir non. Bozorlarda quruq meva va shirinliklar arzon."],
+  ["Favqulodda raqamlar", "Yong'in 101, militsiya 102, tez yordam 103."]
+];
+write("turistlar.html", page({ file: "turistlar.html", title: "O'zbekistonga sayohat: turistlar uchun maslahatlar | bron.uz", desc: "Viza, pul, aloqa, transport, ob-havo va odob: O'zbekistonga sayohatdan oldin bilish kerak bo'lgan asosiy ma'lumotlar.",
+  body: `<section class="sp-card"><p class="eyebrow">Turistlar uchun</p><h1>O'zbekistonga sayohat</h1><p>Safardan oldin bilish kerak bo'lgan asosiy ma'lumotlar va eng mashhur obidalar.</p><a class="btn btn-gold" href="./#natijalar">Mehmonxona qidirish</a></section>
+<div class="sp-tips">${TIPS.map(([h, p]) => `<section class="sp-tip"><h2 class="sp-h2">${esc(h)}</h2><p>${esc(p)}</p></section>`).join("")}</div>
+<h2 class="sp-h2">Albatta ko'ring</h2>
+<ul class="sp-list">${SIGHTS.map((s) => `<li><a href="${wiki(s)}" target="_blank" rel="noopener"><b>${esc(s.uz[0])}</b></a> <span class="muted">${esc(s.city)}</span>: ${esc(s.uz[1])}</li>`).join("")}</ul>
+<p class="muted small">Viza va kirish qoidalari o'zgarib turadi: aniq ma'lumotni O'zbekiston Tashqi ishlar vazirligi va e-visa.gov.uz saytidan tekshiring.</p>`,
+  ld: { "@context": "https://schema.org", "@type": "TravelAction", name: "O'zbekistonga sayohat", toLocation: { "@type": "Country", name: "Uzbekistan" } } }));
 
 // ---- legal pages ----
 const co = (k, fallback) => esc(CO[k] || fallback);
@@ -180,7 +212,7 @@ ${reqs}`]
 for (const [file, [title, desc, html]] of Object.entries(legal)) write(file, page({ file, title: `${title} | bron.uz`, desc, body: `<article class="sp-card sp-legal"><h1>${esc(title)}</h1>${legalNote}${html}</article>` }));
 
 // ---- sitemap & robots ----
-const urls = ["", "shaharlar.html", ...out.filter((f) => f !== "shaharlar.html")];
+const urls = ["", "turistlar.html", "shaharlar.html", ...out.filter((f) => f !== "shaharlar.html" && f !== "turistlar.html" && !noindex.has(f))];
 fs.writeFileSync(path.join(PUB, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${esc(`${SITE}/${u}`)}</loc></url>`).join("\n")}\n</urlset>\n`);
 fs.writeFileSync(path.join(PUB, "robots.txt"), `User-agent: *\nDisallow: /api/\nDisallow: /admin\nDisallow: /partner.html\nSitemap: ${SITE}/sitemap.xml\n`);
 console.log(`${out.length} ta sahifa, sitemap.xml va robots.txt yozildi (${SITE}).${filled ? "" : " Rekvizitlar yo'q: tools/company.json ni to'ldiring."}`);

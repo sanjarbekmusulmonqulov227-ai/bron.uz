@@ -54,6 +54,7 @@ db.exec(`
 if (!db.prepare("PRAGMA table_info(bookings)").all().some((c) => c.name === "user_id")) db.exec("ALTER TABLE bookings ADD COLUMN user_id INTEGER");
 // Hotels can be booked for several identical rooms at once.
 if (!db.prepare("PRAGMA table_info(bookings)").all().some((c) => c.name === "rooms")) db.exec("ALTER TABLE bookings ADD COLUMN rooms INTEGER DEFAULT 1");
+if (!db.prepare("PRAGMA table_info(bookings)").all().some((c) => c.name === "room")) db.exec("ALTER TABLE bookings ADD COLUMN room TEXT");
 db.exec(`
   CREATE TABLE IF NOT EXISTS reviews (
     id INTEGER PRIMARY KEY AUTOINCREMENT, listing_id TEXT NOT NULL, booking_code TEXT NOT NULL UNIQUE, name TEXT NOT NULL,
@@ -90,7 +91,7 @@ db.exec(`
 if (!db.prepare("PRAGMA table_info(listings)").all().some((c) => c.name === "details")) db.exec("ALTER TABLE listings ADD COLUMN details TEXT DEFAULT '{}'");
 
 // Extra listing fields kept as JSON: district, stars, old price, free cancellation, amenities, description, art style.
-const DETAIL_KEYS = ["district", "stars", "old", "free", "amenities", "desc", "art", "photo", "photos", "format", "kind", "area", "layouts", "days", "nights", "route", "itinerary", "beds", "units", "lat", "lng"];
+const DETAIL_KEYS = ["real", "district", "stars", "old", "free", "amenities", "desc", "art", "photo", "photos", "format", "kind", "area", "layouts", "days", "nights", "route", "itinerary", "beds", "units", "lat", "lng"];
 const pickDetails = (x) => Object.fromEntries(DETAIL_KEYS.filter((k) => x[k] !== undefined).map((k) => [k, x[k]]));
 
 // The site's own sample data (public/data.js): seeds an empty database and holds the transport timetable.
@@ -116,6 +117,10 @@ if (!fs.existsSync(REGIONS_MARK)) {
   if (added) console.log(`Viloyatlar uchun ${added} ta namuna joy qo'shildi.`);
 }
 
+// The listings shipped in data.js are made up; they stay marked as samples until the admin ticks
+// "real place" or a partner owns them. Places the admin adds or imports are real.
+const SEED_IDS = new Set((SAMPLE.window.BRON_LISTINGS || []).map((x) => x.id));
+const isSample = (x) => SEED_IDS.has(x.id) && !x.real && !db.prepare("SELECT 1 FROM listing_owners WHERE listing_id = ?").get(x.id);
 const rowToListing = (r) => {
   const { details, ...rest } = r;
   const d = JSON.parse(details || "{}");
@@ -133,12 +138,15 @@ const isDate = (s) => typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s) && 
 const today = () => new Date(Date.now() + 5 * 3600000).toISOString().slice(0, 10);
 const days = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
 const normPhone = (p) => String(p || "").replace(/[\s()-]/g, "");
-const validPhone = (p) => /^\+998\d{9}$/.test(normPhone(p));
+const uzPhone = (p) => /^\+998\d{9}$/.test(normPhone(p));
+// Foreign guests book with their own number; Uzbek numbers must have all 9 digits.
+const validPhone = (p) => uzPhone(p) || /^\+(?!998)[1-9]\d{7,14}$/.test(normPhone(p));
 const som = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " so'm";
 const str = (v, max) => String(v ?? "").trim().slice(0, max);
 
 // Same room multipliers as public/app.js.
 const ROOMS = { standart: { mult: 1, extra: 0 }, deluxe: { mult: 1.35, extra: 0 }, lyuks: { mult: 1.8, extra: 2 } };
+const ROOM_NAMES = { standart: "Standart xona", deluxe: "Deluxe", lyuks: "Oilaviy lyuks" };
 const roomOf = (item, room) => (item.type === "hotel" && ROOMS[room]) || ROOMS.standart;
 function quote(item, from, to, guests, room, rooms = 1) {
   const p = Math.round(item.price * roomOf(item, room).mult / 1000) * 1000;
@@ -202,7 +210,7 @@ async function notify(text) {
 const CSP = [
   "default-src 'self'", "script-src 'self'", "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src https://fonts.gstatic.com", "img-src 'self' data: https:",
-  "connect-src 'self' https://en.wikipedia.org https://commons.wikimedia.org https://upload.wikimedia.org https://fonts.googleapis.com https://fonts.gstatic.com",
+  "connect-src 'self' https://overpass-api.de https://en.wikipedia.org https://commons.wikimedia.org https://upload.wikimedia.org https://fonts.googleapis.com https://fonts.gstatic.com",
   "manifest-src 'self'", "worker-src 'self'", "frame-ancestors 'none'", "base-uri 'self'", "form-action 'self'", "object-src 'none'"
 ].join("; ");
 const SECURITY_HEADERS = {
@@ -269,10 +277,11 @@ function limited(req, bucket = "post", max = 10, windowMs = 60000) {
   return list.length > max;
 }
 
-// Password guessing: 5 wrong passwords for one phone number lock it for 15 minutes.
+// Password guessing: 5 wrong passwords for one phone number from one address lock it there for 15 minutes
+// (per address, so nobody can lock a stranger out of their own account).
 const failures = new Map();
-const locked = (phone) => { const f = failures.get(phone); return !!f && f.n >= 5 && Date.now() - f.t < 15 * 60000; };
-const noteFailure = (phone) => { const f = failures.get(phone); const fresh = !f || Date.now() - f.t > 15 * 60000; failures.set(phone, { n: fresh ? 1 : f.n + 1, t: Date.now() }); };
+const locked = (phone, ip) => { const f = failures.get(phone + "|" + ip); return !!f && f.n >= 5 && Date.now() - f.t < 15 * 60000; };
+const noteFailure = (phone, ip) => { const k = phone + "|" + ip, f = failures.get(k); const fresh = !f || Date.now() - f.t > 15 * 60000; failures.set(k, { n: fresh ? 1 : f.n + 1, t: Date.now() }); };
 setInterval(() => {
   const now = Date.now();
   for (const [k, v] of hits) if (v.every((t) => now - t > 15 * 60000)) hits.delete(k);
@@ -338,6 +347,7 @@ function validListing(b, id) {
     details: {
       district: str(b.district, 80), stars: Math.min(5, Math.max(0, parseInt(b.stars, 10) || 0)) || undefined,
       old: parseInt(b.old, 10) > 0 ? parseInt(b.old, 10) : undefined, free: b.free === undefined ? true : !!b.free,
+      real: b.real ? true : undefined,
       amenities: Array.isArray(b.amenities) ? b.amenities.map((t) => str(t, 20)).slice(0, 12) : undefined,
       desc: str(b.desc, 600), art: str(b.art, 20) || undefined,
       photo: /^https:\/\/\S+$/.test(str(b.photo, 500)) ? str(b.photo, 500) : undefined,
@@ -383,10 +393,30 @@ const describeBooking = (code) => {
   const b = db.prepare("SELECT * FROM bookings WHERE code = ?").get(code);
   if (!b) return "";
   const dates = b.date_from === b.date_to ? b.date_from : `${b.date_from} – ${b.date_to}`;
-  return `${b.code}: ${b.listing_name}\n${dates}, ${b.guests} kishi${b.rooms > 1 ? `, ${b.rooms} xona` : ""}\nSumma: ${som(b.sum)}\nHolat: ${STATUS_TEXT[b.status] || b.status}`;
+  return `${b.code}: ${b.listing_name}\n${dates}, ${b.guests} kishi${b.room ? `, ${ROOM_NAMES[b.room] || b.room}` : ""}${b.rooms > 1 ? ` × ${b.rooms}` : ""}\nSumma: ${som(b.sum)}\nHolat: ${STATUS_TEXT[b.status] || b.status}`;
 };
 const tg = require("./lib/telegram")({ db, token: TG_TOKEN, secret: SECRET, describe: { booking: describeBooking } });
 const statusChanged = (code) => tg.toBooking(code, `Bron holati o'zgardi.\n\n${describeBooking(code)}`);
+// One place for status changes: a cancelled booking comes back only if its dates are still free,
+// and its review (if any) disappears with it.
+function setStatus(row, status) {
+  if (row.status === "bekor qilindi" && status !== "bekor qilindi" && row.type !== "transport") {
+    const l = db.prepare("SELECT * FROM listings WHERE id = ?").get(row.listing_id);
+    if (l) {
+      const av = availability(rowToListing(l), row.date_from, row.date_to, row.guests, row.code, row.rooms || 1);
+      if (!av.ok) return `Bronni qayta tiklab bo'lmaydi: ${av.reason}`;
+    }
+  }
+  db.prepare("UPDATE bookings SET status = ? WHERE code = ?").run(status, row.code);
+  if (status === "bekor qilindi") db.prepare("UPDATE reviews SET hidden = 1 WHERE booking_code = ?").run(row.code);
+  statusChanged(row.code);
+  // After the stay, ask the guest for a review (the only way reviews get on the site).
+  if (status === "yakunlandi" && row.type !== "transport") {
+    const site = (process.env.SITE_URL || "").replace(/\/$/, "");
+    tg.toBooking(row.code, `⭐ Qanday o'tdi? Bahoingiz boshqa mehmonlarga yordam beradi.\n${site ? `${site}/#sharh=${row.code}` : "Saytdagi \"Bronlarim\" bo'limida \"Sharh qoldirish\" tugmasini bosing."}`);
+  }
+  return "";
+}
 const sms = require("./lib/sms");
 
 async function partnerRoutes(req, res, p, M, url) {
@@ -401,7 +431,7 @@ async function partnerRoutes(req, res, p, M, url) {
   }
   if (p === "/api/partner/bookings" && M === "GET") {
     if (!ids.length) return send(res, 200, []);
-    const rows = db.prepare(`SELECT code, listing_id, listing_name, type, date_from, date_to, guests, sum, pay, client, phone, note, status, created FROM bookings
+    const rows = db.prepare(`SELECT code, listing_id, listing_name, type, date_from, date_to, guests, room, rooms, sum, pay, client, phone, note, status, created FROM bookings
       WHERE listing_id IN (${ids.map(() => "?").join(",")}) ORDER BY date_from DESC LIMIT 300`).all(...ids);
     return send(res, 200, rows);
   }
@@ -411,9 +441,9 @@ async function partnerRoutes(req, res, p, M, url) {
     const row = db.prepare("SELECT * FROM bookings WHERE code = ?").get(m[1]);
     if (!row || !ids.includes(row.listing_id)) return fail(res, 404, "Bron topilmadi.");
     if (!["tasdiqlandi", "bekor qilindi", "yakunlandi"].includes(b.status)) return fail(res, 400, "Holat noto'g'ri.");
-    db.prepare("UPDATE bookings SET status = ? WHERE code = ?").run(b.status, m[1]);
+    const err = setStatus(row, b.status);
+    if (err) return fail(res, 409, err);
     notify(`🏨 Hamkor ${u.name}: ${m[1]} → ${b.status}`);
-    statusChanged(m[1]);
     return send(res, 200, { ok: true });
   }
   m = /^\/api\/partner\/listings\/([\w-]{1,40})$/.exec(p);
@@ -508,7 +538,7 @@ async function handle(req, res) {
     if (limited(req, "otp", 3, 10 * 60000)) return fail(res, 429, "Juda ko'p SMS so'raldi. 10 daqiqadan keyin qayta urinib ko'ring.");
     const b = await readJson(req);
     const phone = normPhone(b.phone), purpose = b.purpose === "reset" ? "reset" : "register";
-    if (!validPhone(phone)) return fail(res, 400, "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing.");
+    if (!uzPhone(phone)) return fail(res, 400, "SMS kod faqat O'zbekiston raqamlariga (+998) yuboriladi.");
     const exists = !!db.prepare("SELECT 1 FROM users WHERE phone = ?").get(phone);
     if (purpose === "register" && exists) return fail(res, 409, "Bu raqam bilan hisob bor. \"Kirish\" ni tanlang.");
     const last = db.prepare("SELECT expires FROM otps WHERE phone = ? AND purpose = ?").get(phone, purpose);
@@ -534,7 +564,7 @@ async function handle(req, res) {
     const salt = crypto.randomBytes(16).toString("hex");
     db.prepare("UPDATE users SET pass_hash = ?, salt = ? WHERE id = ?").run(hashPass(pass, salt), salt, u.id);
     db.prepare("DELETE FROM sessions WHERE user_id = ?").run(u.id);
-    failures.delete(phone);
+    for (const k of failures.keys()) if (k.startsWith(phone + "|")) failures.delete(k);
     return send(res, 200, { ok: true });
   }
 
@@ -543,7 +573,7 @@ async function handle(req, res) {
     const b = await readJson(req);
     const name = str(b.name, 80), phone = normPhone(b.phone), pass = String(b.password || "");
     if (name.length < 3) return fail(res, 400, "Ism familiyangizni kiriting.");
-    if (!validPhone(phone)) return fail(res, 400, "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing.");
+    if (!validPhone(phone)) return fail(res, 400, "Telefon raqamini xalqaro ko'rinishda yozing, masalan +998 90 123 45 67.");
     if (pass.length < 8 || pass.length > 200) return fail(res, 400, "Parol kamida 8 belgidan iborat bo'lsin.");
     if (db.prepare("SELECT 1 FROM users WHERE phone = ?").get(phone)) return fail(res, 409, "Bu raqam bilan hisob bor. \"Kirish\" ni tanlang.");
     if (sms.enabled && !checkOtp(phone, "register", b.code)) return fail(res, 400, "SMS kod noto'g'ri yoki eskirgan.");
@@ -556,13 +586,13 @@ async function handle(req, res) {
     if (limited(req, "login", 10)) return fail(res, 429, "Juda ko'p urinish. Bir daqiqadan keyin qayta urinib ko'ring.");
     const b = await readJson(req);
     const phone = normPhone(b.phone);
-    if (locked(phone)) return fail(res, 429, "Parol 5 marta noto'g'ri kiritildi. 15 daqiqadan keyin qayta urinib ko'ring.");
+    if (locked(phone, clientIp(req))) return fail(res, 429, "Parol 5 marta noto'g'ri kiritildi. 15 daqiqadan keyin qayta urinib ko'ring.");
     const u = db.prepare("SELECT * FROM users WHERE phone = ?").get(phone);
     // Hash even for unknown numbers so response time does not reveal which numbers have accounts.
     const given = hashPass(String(b.password || ""), u ? u.salt : "0".repeat(32));
     const ok = u && crypto.timingSafeEqual(Buffer.from(given, "hex"), Buffer.from(u.pass_hash, "hex"));
-    if (!ok) { noteFailure(phone); return fail(res, 401, "Telefon raqami yoki parol noto'g'ri."); }
-    failures.delete(phone);
+    if (!ok) { noteFailure(phone, clientIp(req)); return fail(res, 401, "Telefon raqami yoki parol noto'g'ri."); }
+    failures.delete(phone + "|" + clientIp(req));
     db.prepare("DELETE FROM sessions WHERE user_id = ? AND expires < ?").run(u.id, Date.now());
     return send(res, 200, { id: u.id, name: u.name, phone: u.phone }, { "set-cookie": startSession(req, res, u.id) });
   }
@@ -578,7 +608,7 @@ async function handle(req, res) {
   if (p === "/api/my/bookings" && M === "GET") {
     const u = currentUser(req);
     if (!u) return fail(res, 401, "Avval hisobingizga kiring.");
-    const rows = db.prepare("SELECT code, listing_id AS id, listing_name AS name, city, type, date_from AS 'from', date_to AS 'to', guests, rooms, sum, status, phone, EXISTS(SELECT 1 FROM reviews r WHERE r.booking_code = bookings.code) AS reviewed FROM bookings WHERE user_id = ? ORDER BY created DESC LIMIT 100").all(u.id);
+    const rows = db.prepare("SELECT code, listing_id AS id, listing_name AS name, city, type, date_from AS 'from', date_to AS 'to', guests, room, rooms, sum, status, phone, EXISTS(SELECT 1 FROM reviews r WHERE r.booking_code = bookings.code) AS reviewed FROM bookings WHERE user_id = ? ORDER BY created DESC LIMIT 100").all(u.id);
     return send(res, 200, rows);
   }
 
@@ -588,7 +618,7 @@ async function handle(req, res) {
     const views = Object.fromEntries(db.prepare("SELECT listing_id, n FROM listing_views").all().map((r) => [r.listing_id, r.n]));
     const rows = db.prepare("SELECT * FROM listings WHERE active = 1").all().map(rowToListing)
       .map((x) => stats[x.id] ? { ...x, guestReviews: stats[x.id].n, guestRating: Math.round(stats[x.id].avg * 10) / 10 } : x)
-      .map((x) => ({ ...x, views: views[x.id] || 0 }));
+      .map((x) => ({ ...x, views: views[x.id] || 0, sample: isSample(x) }));
     return send(res, 200, rows);
   }
 
@@ -607,7 +637,8 @@ async function handle(req, res) {
     if (!row || !((u && row.user_id === u.id) || row.phone === normPhone(b.phone))) return fail(res, 404, "Bron topilmadi.");
     if (row.type === "transport") return fail(res, 400, "Transport uchun sharh qoldirilmaydi.");
     if (row.status === "bekor qilindi") return fail(res, 400, "Bekor qilingan bron uchun sharh qoldirib bo'lmaydi.");
-    if (row.status !== "yakunlandi" && row.date_to > today()) return fail(res, 400, "Sharhni joyda bo'lib qaytganingizdan keyin qoldirishingiz mumkin.");
+    // Only a stay that really happened: finished by the place, or confirmed and already over.
+    if (!(row.status === "yakunlandi" || (row.status === "tasdiqlandi" && row.date_to < today()))) return fail(res, 400, "Sharhni joyda bo'lib qaytganingizdan keyin qoldirishingiz mumkin.");
     const rating = parseInt(b.rating, 10);
     if (!(rating >= 1 && rating <= 10)) return fail(res, 400, "1 dan 10 gacha baho qo'ying.");
     const text = str(b.text, 1000);
@@ -638,8 +669,11 @@ async function handle(req, res) {
     if (!t) return fail(res, 404, "Reys topilmadi.");
     const client = str(b.client, 80), phone = normPhone(b.phone), date = b.date, guests = parseInt(b.guests, 10) || 0;
     if (client.length < 3) return fail(res, 400, "Ism familiyangizni kiriting.");
-    if (!validPhone(phone)) return fail(res, 400, "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing.");
+    if (!validPhone(phone)) return fail(res, 400, "Telefon raqamini xalqaro ko'rinishda yozing, masalan +998 90 123 45 67.");
     if (!isDate(date) || date < today()) return fail(res, 400, "Bugungi yoki keyingi sanani tanlang.");
+    if (date > addIso(today(), 365)) return fail(res, 400, "Bron bir yil oldindan qabul qilinadi.");
+    const nowHm = new Date(Date.now() + 5 * 3600000).toISOString().slice(11, 16);
+    if (date === today() && t.dep && t.dep <= nowHm) return fail(res, 400, "Bu reys bugun jo'nab ketgan. Boshqa sana yoki reysni tanlang.");
     const q = tripQuote(t, b.cls, guests);
     if (guests < 1 || guests > q.cap) return fail(res, 400, `Bir bronda ${q.cap} yo'lovchigacha.`);
     const pay = PAY.includes(b.pay) ? b.pay : "joyida";
@@ -658,7 +692,7 @@ async function handle(req, res) {
     const r = { property: str(b.property, 120), type: ["hotel", "hostel", "venue", "tour"].includes(b.type) ? b.type : "hotel", city: str(b.city, 40), units: Math.min(2000, Math.max(0, parseInt(b.units, 10) || 0)), contact: str(b.contact, 80), phone: normPhone(b.phone) };
     if (r.property.length < 2) return fail(res, 400, "Joy nomini kiriting.");
     if (r.contact.length < 2) return fail(res, 400, "Mas'ul shaxs ismini kiriting.");
-    if (!validPhone(r.phone)) return fail(res, 400, "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing.");
+    if (!validPhone(r.phone)) return fail(res, 400, "Telefon raqamini xalqaro ko'rinishda yozing, masalan +998 90 123 45 67.");
     db.prepare("INSERT INTO partner_requests (property,type,city,units,contact,phone,created) VALUES (?,?,?,?,?,?,?)").run(r.property, r.type, r.city, r.units, r.contact, r.phone, new Date().toISOString());
     notify(`🤝 Yangi hamkor arizasi: ${r.property} (${r.type}, ${r.city}), ${r.units} ta joy\n${r.contact} ${r.phone}`);
     return send(res, 201, { ok: true });
@@ -693,14 +727,16 @@ async function handle(req, res) {
     const guests = parseInt(b.guests, 10) || 0;
     const pay = PAY.includes(b.pay) ? b.pay : "joyida";
     if (client.length < 3) return fail(res, 400, "Ism familiyangizni kiriting.");
-    if (!validPhone(phone)) return fail(res, 400, "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing.");
+    if (!validPhone(phone)) return fail(res, 400, "Telefon raqamini xalqaro ko'rinishda yozing, masalan +998 90 123 45 67.");
     if (!isDate(from) || from < today()) return fail(res, 400, "Bugungi yoki keyingi sanani tanlang.");
     if (!isDate(to)) return fail(res, 400, "Sanani tekshiring.");
+    if (from > addIso(today(), 365)) return fail(res, 400, "Bron bir yil oldindan qabul qilinadi.");
     if ((item.type === "hotel" || item.type === "hostel") && !(to > from)) return fail(res, 400, "Ketish sanasi kelish sanasidan keyin bo'lishi kerak.");
     if (item.type === "venue" && to < from) return fail(res, 400, "Tugash sanasi boshlanish sanasidan oldin bo'lmasin.");
     if (days(from, to) > 60) return fail(res, 400, "Bir bron 60 kundan oshmasin.");
     if (guests < 1) return fail(res, 400, "Mehmonlar sonini kiriting.");
-    if (item.type !== "hotel" && guests > item.capacity) return fail(res, 400, `Bu joy ${item.capacity} kishigacha qabul qiladi.`);
+    const maxGuests = item.type === "hostel" ? capacityOf(item) : item.capacity;
+    if (item.type !== "hotel" && guests > maxGuests) return fail(res, 400, `Bu joy ${maxGuests} kishigacha qabul qiladi.`);
 
     const room = item.type === "hotel" && ROOMS[b.room] ? b.room : "standart";
     const rooms = item.type === "hotel" ? Math.min(10, Math.max(1, parseInt(b.rooms, 10) || 1)) : 1;
@@ -711,14 +747,27 @@ async function handle(req, res) {
     if (!av.ok) return fail(res, 409, av.reason);
     const sum = quote(item, from, to, guests, room, rooms);
     const code = "BRN-" + crypto.randomBytes(4).toString("hex").toUpperCase().slice(0, 6);
-    const booking = { code, listing_id: item.id, listing_name: item.name, city: item.city, type: item.type, date_from: from, date_to: to, guests, rooms, sum, pay, client, phone, note: str(b.note, 500), status: "yangi", created: new Date().toISOString(), user_id: currentUser(req)?.id ?? null };
-    db.prepare(`INSERT INTO bookings (code,listing_id,listing_name,city,type,date_from,date_to,guests,rooms,sum,pay,client,phone,note,status,created,user_id)
-                VALUES (:code,:listing_id,:listing_name,:city,:type,:date_from,:date_to,:guests,:rooms,:sum,:pay,:client,:phone,:note,:status,:created,:user_id)`).run(booking);
-    const text = `🆕 Yangi bron ${code}\n${item.name} (${item.city})\n${from}${to !== from ? " – " + to : ""}, ${guests} kishi${rooms > 1 ? `, ${rooms} xona` : ""}\nSumma: ${som(sum)} · to'lov: ${pay}\nMijoz: ${client}, ${phone}${booking.note ? "\nIzoh: " + booking.note : ""}`;
+    const booking = { code, listing_id: item.id, listing_name: item.name, city: item.city, type: item.type, date_from: from, date_to: to, guests, room: item.type === "hotel" ? room : null, rooms, sum, pay, client, phone, note: str(b.note, 500), status: "yangi", created: new Date().toISOString(), user_id: currentUser(req)?.id ?? null };
+    db.prepare(`INSERT INTO bookings (code,listing_id,listing_name,city,type,date_from,date_to,guests,room,rooms,sum,pay,client,phone,note,status,created,user_id)
+                VALUES (:code,:listing_id,:listing_name,:city,:type,:date_from,:date_to,:guests,:room,:rooms,:sum,:pay,:client,:phone,:note,:status,:created,:user_id)`).run(booking);
+    const text = `🆕 Yangi bron ${code}\n${item.name} (${item.city})\n${from}${to !== from ? " – " + to : ""}, ${guests} kishi${item.type === "hotel" ? `, ${ROOM_NAMES[room]}${rooms > 1 ? ` × ${rooms}` : ""}` : ""}\nSumma: ${som(sum)} · to'lov: ${pay}\nMijoz: ${client}, ${phone}${booking.note ? "\nIzoh: " + booking.note : ""}`;
     notify(text);
     const owner = db.prepare("SELECT user_id FROM listing_owners WHERE listing_id = ?").get(item.id);
     if (owner) tg.toPartner(owner.user_id, text);
     return send(res, 201, { code, sum, status: booking.status, name: item.name, city: item.city, type: item.type, from, to, guests, rooms, tg: tg.bookingLink(code) });
+  }
+
+  // Guests without an account keep their bookings on the device; this refreshes them (code + phone must match).
+  if (p === "/api/bookings/lookup" && M === "POST") {
+    if (limited(req, "lookup", 20)) return fail(res, 429, "Juda ko'p so'rov. Bir daqiqadan keyin urinib ko'ring.");
+    const b = await readJson(req, 5000);
+    const items = (Array.isArray(b.items) ? b.items : []).slice(0, 30);
+    const out = [];
+    for (const it of items) {
+      const row = db.prepare("SELECT code, listing_id AS id, listing_name AS name, city, type, date_from AS 'from', date_to AS 'to', guests, room, rooms, sum, status, phone FROM bookings WHERE code = ?").get(str(it.code, 12));
+      if (row && row.phone === normPhone(it.phone)) out.push({ ...row, reviewed: !!db.prepare("SELECT 1 FROM reviews WHERE booking_code = ?").get(row.code) });
+    }
+    return send(res, 200, out);
   }
 
   // Customer cancels their own booking; phone must match.
@@ -732,9 +781,12 @@ async function handle(req, res) {
     if (!mine) return fail(res, 404, "Bron topilmadi.");
     if (row.status === "bekor qilindi") return send(res, 200, { ok: true, status: row.status });
     if (row.status === "yakunlandi") return fail(res, 409, "Yakunlangan bronni bekor qilib bo'lmaydi.");
-    db.prepare("UPDATE bookings SET status = 'bekor qilindi' WHERE code = ?").run(m[1]);
+    // Online cancellation only before the start day, and for confirmed bookings only where the place offers free cancellation.
+    if (row.date_from <= today()) return fail(res, 409, "Bugun boshlanadigan yoki boshlangan bronni sayt orqali bekor qilib bo'lmaydi. Menejer bilan bog'laning.");
+    const lst = db.prepare("SELECT * FROM listings WHERE id = ?").get(row.listing_id);
+    if (row.status === "tasdiqlandi" && lst && !rowToListing(lst).free) return fail(res, 409, "Bu joyda bepul bekor qilish yo'q. Tasdiqlangan bronni bekor qilish uchun menejer bilan bog'laning.");
+    setStatus(row, "bekor qilindi");
     notify(`❌ Mijoz bronni bekor qildi: ${m[1]} (${row.listing_name}, ${row.date_from})`);
-    statusChanged(m[1]);
     const owner = db.prepare("SELECT user_id FROM listing_owners WHERE listing_id = ?").get(row.listing_id);
     if (owner) tg.toPartner(owner.user_id, `❌ Mijoz bronni bekor qildi: ${m[1]} (${row.listing_name}, ${row.date_from})`);
     return send(res, 200, { ok: true });
@@ -747,7 +799,7 @@ async function handle(req, res) {
     if (company.length < 2) return fail(res, 400, "Kompaniya nomini kiriting.");
     if (people < 10) return fail(res, 400, "Guruh so'rovi 10 kishidan boshlanadi.");
     if (people > 5000) return fail(res, 400, "Guruh so'rovi 5000 kishigacha qabul qilinadi.");
-    if (!validPhone(phone)) return fail(res, 400, "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing.");
+    if (!validPhone(phone)) return fail(res, 400, "Telefon raqamini xalqaro ko'rinishda yozing, masalan +998 90 123 45 67.");
     db.prepare("INSERT INTO group_requests (company,kind,people,phone,created) VALUES (?,?,?,?,?)").run(company, kind, people, phone, new Date().toISOString());
     notify(`🏢 Guruh so'rovi: ${company}\n${kind}, ${people} kishi\nTelefon: ${phone}`);
     return send(res, 201, { ok: true });
@@ -768,9 +820,10 @@ async function handle(req, res) {
     if (m && M === "PATCH") {
       const b = await readJson(req);
       if (!STATUSES.includes(b.status)) return fail(res, 400, "Holat noto'g'ri.");
-      const r = db.prepare("UPDATE bookings SET status = ? WHERE code = ?").run(b.status, m[1]);
-      if (r.changes) statusChanged(m[1]);
-      return r.changes ? send(res, 200, { ok: true }) : fail(res, 404, "Bron topilmadi.");
+      const row = db.prepare("SELECT * FROM bookings WHERE code = ?").get(m[1]);
+      if (!row) return fail(res, 404, "Bron topilmadi.");
+      const err = setStatus(row, b.status);
+      return err ? fail(res, 409, err) : send(res, 200, { ok: true });
     }
 
     if (p === "/api/admin/reviews" && M === "GET") return send(res, 200, db.prepare("SELECT r.*, l.name AS listing_name FROM reviews r LEFT JOIN listings l ON l.id = r.listing_id ORDER BY r.created DESC LIMIT 500").all());
