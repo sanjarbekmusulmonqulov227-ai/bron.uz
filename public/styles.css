@@ -933,3 +933,9 @@ body { background: var(--bg); }
 .sp-warn { background: color-mix(in srgb, var(--gold) 22%, transparent); border-radius: 10px; padding: 10px 12px; }
 .sp-regions { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px 24px; }
 @media (max-width: 640px) { .sp-nav { display: none; } .sp-card { padding: 18px; } }
+
+/* v11: bron.uz wordmark */
+.logo .logo-svg { height: 38px; width: auto; display: block; }
+.footer .logo .logo-svg { height: 44px; }
+.ph-top .ph-ic { width: 16px; height: 16px; border-radius: 4px; }
+@media (max-width: 640px) { .logo .logo-svg { height: 32px; } }
