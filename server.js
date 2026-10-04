@@ -91,6 +91,16 @@ if (db.prepare("SELECT COUNT(*) AS n FROM listings").get().n === 0) {
   console.log(`Bazaga ${seed.length} ta namuna joy yozildi.`);
 }
 
+// Databases created before the regional sample listings get them once (a marker file stops deleted ones coming back).
+const REGIONS_MARK = path.join(DATA_DIR, "regions-v9.done");
+if (!fs.existsSync(REGIONS_MARK)) {
+  const ins = db.prepare("INSERT OR IGNORE INTO listings (id,type,name,city,rating,reviews,price,capacity,tags,hue,glyph,details) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
+  let added = 0;
+  for (const x of (SAMPLE.window.BRON_LISTINGS || []).filter((x) => x.sample)) added += ins.run(x.id, x.type, x.name, x.city, x.rating, x.reviews, x.price, x.capacity, JSON.stringify(x.amenities || []), x.hue, "", JSON.stringify(pickDetails(x))).changes;
+  fs.writeFileSync(REGIONS_MARK, new Date().toISOString());
+  if (added) console.log(`Viloyatlar uchun ${added} ta namuna joy qo'shildi.`);
+}
+
 const rowToListing = (r) => {
   const { details, ...rest } = r;
   const d = JSON.parse(details || "{}");
@@ -177,7 +187,7 @@ async function notify(text) {
 const CSP = [
   "default-src 'self'", "script-src 'self'", "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src https://fonts.gstatic.com", "img-src 'self' data: https:",
-  "connect-src 'self' https://commons.wikimedia.org https://upload.wikimedia.org https://fonts.googleapis.com https://fonts.gstatic.com",
+  "connect-src 'self' https://en.wikipedia.org https://commons.wikimedia.org https://upload.wikimedia.org https://fonts.googleapis.com https://fonts.gstatic.com",
   "manifest-src 'self'", "worker-src 'self'", "frame-ancestors 'none'", "base-uri 'self'", "form-action 'self'", "object-src 'none'"
 ].join("; ");
 const SECURITY_HEADERS = {
@@ -203,13 +213,13 @@ function send(res, status, body, headers = {}) {
 }
 const fail = (res, status, error) => send(res, status, { error });
 
-function readJson(req) {
+function readJson(req, max = 20000) {
   return new Promise((resolve, reject) => {
     let size = 0;
     const chunks = [];
     req.on("data", (c) => {
       size += c.length;
-      if (size > 20000) { reject(Object.assign(new Error("So'rov juda katta."), { status: 413 })); req.destroy(); return; }
+      if (size > max) { reject(Object.assign(new Error("So'rov juda katta."), { status: 413 })); req.destroy(); return; }
       chunks.push(c);
     });
     req.on("end", () => {
@@ -301,7 +311,9 @@ function validListing(b, id) {
       desc: str(b.desc, 600), art: str(b.art, 20) || undefined,
       photo: /^https:\/\/\S+$/.test(str(b.photo, 500)) ? str(b.photo, 500) : undefined,
       // Venue and tour-package extras (kept as-is from the sample data, cleaned up here).
-      photos: Array.isArray(b.photos) ? b.photos.filter((x) => x && typeof x.file === "string").slice(0, 6).map((x) => ({ file: str(x.file, 200), title: str(x.title, 100) })) : undefined,
+      // Photos: Commons file names ({file}) or direct https links (a string or {url}), e.g. from a bulk import.
+      photos: Array.isArray(b.photos) ? b.photos.map((x) => typeof x === "string" ? { url: x } : x).filter((x) => x && (typeof x.file === "string" || /^https:\/\/\S+$/.test(str(x.url, 500)))).slice(0, 8)
+        .map((x) => x.file ? { file: str(x.file, 200), title: str(x.title, 100) } : { url: str(x.url, 500), title: str(x.title, 100) }) : undefined,
       format: ["conf", "meet", "gala", "open", "expo"].includes(b.format) ? b.format : undefined,
       kind: str(b.kind, 40) || undefined,
       area: parseInt(b.area, 10) > 0 ? parseInt(b.area, 10) : undefined,
@@ -637,6 +649,30 @@ async function handle(req, res) {
       if (!u) return fail(res, 404, "Bu raqam bilan ro'yxatdan o'tgan foydalanuvchi yo'q. Hamkor avval saytda ro'yxatdan o'tsin.");
       db.prepare("INSERT INTO listing_owners (listing_id, user_id) VALUES (?, ?) ON CONFLICT(listing_id) DO UPDATE SET user_id = excluded.user_id").run(m[1], u.id);
       return send(res, 200, { ok: true, owner: u.phone });
+    }
+    // Bulk import (JSON array from admin: CSV is parsed in the browser). A row with a known id updates that listing.
+    if (p === "/api/admin/listings/import" && M === "POST") {
+      const b = await readJson(req, 3000000);
+      if (!Array.isArray(b.items) || !b.items.length) return fail(res, 400, "Ro'yxat bo'sh.");
+      if (b.items.length > 2000) return fail(res, 400, "Bir martada ko'pi bilan 2000 ta joy yuklanadi.");
+      const ins = db.prepare("INSERT INTO listings (id,type,name,city,rating,reviews,price,capacity,tags,hue,glyph,active,details) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+      const upd = db.prepare("UPDATE listings SET type=?,name=?,city=?,rating=?,reviews=?,price=?,capacity=?,tags=?,hue=?,glyph=?,active=?,details=? WHERE id=?");
+      const has = db.prepare("SELECT 1 FROM listings WHERE id = ?");
+      let added = 0, updated = 0;
+      const errors = [];
+      db.exec("BEGIN");
+      try {
+        b.items.forEach((row, i) => {
+          if (!row || typeof row !== "object") { errors.push({ row: i + 1, error: "Qator noto'g'ri." }); return; }
+          const known = /^[\w-]{1,40}$/.test(String(row.id || "")) && has.get(String(row.id));
+          const x = validListing(row, known ? String(row.id) : "L" + crypto.randomBytes(4).toString("hex"));
+          if (typeof x === "string") { errors.push({ row: i + 1, error: x }); return; }
+          const v = [x.type, x.name, x.city, x.rating, x.reviews, x.price, x.capacity, JSON.stringify(x.tags), x.hue, x.glyph, x.active ? 1 : 0, JSON.stringify(x.details)];
+          if (known) { upd.run(...v, x.id); updated++; } else { ins.run(x.id, ...v); added++; }
+        });
+        db.exec("COMMIT");
+      } catch (e) { db.exec("ROLLBACK"); throw e; }
+      return send(res, 200, { added, updated, errors: errors.slice(0, 50), failed: errors.length });
     }
     if (p === "/api/admin/listings" && M === "POST") {
       const x = validListing(await readJson(req), "L" + crypto.randomBytes(3).toString("hex"));

@@ -6,6 +6,17 @@
 
   let LISTINGS = (window.BRON_LISTINGS || []).slice();
   const CITIES = window.BRON_CITIES || [];
+  const REGIONS = window.BRON_REGIONS || [];
+  const REGION_OF = Object.fromEntries(CITIES.map((c) => [c.name, c.region]));
+  // The city filter holds a city name, or "@" + a region name for every city in that region.
+  const inPlace = (city, f) => !f || (f[0] === "@" ? REGION_OF[city] === f.slice(1) : city === f);
+  // <option>s grouped by region (places outside the list go last).
+  function placeOptions(names, sel) {
+    const groups = REGIONS.map((r) => [r, names.filter((n) => REGION_OF[n] === r)]).filter(([, l]) => l.length);
+    const rest = names.filter((n) => !REGIONS.includes(REGION_OF[n]));
+    const opt = (n) => `<option value="${esc(n)}"${n === sel ? " selected" : ""}>${esc(n)}</option>`;
+    return groups.map(([r, l]) => `<optgroup label="${esc(r)}">${l.map(opt).join("")}</optgroup>`).join("") + (rest.length ? `<optgroup label="Boshqa">${rest.map(opt).join("")}</optgroup>` : "");
+  }
 
   const TYPES = {
     hotel: { title: "Mehmonxonalar", kind: "Mehmonxona", unit: "1 kecha", from: "Kelish", to: "Ketish", guests: "Mehmonlar", noun: "kecha" },
@@ -60,7 +71,7 @@
   const T = (s) => (window.BRON_I18N ? window.BRON_I18N.t(s) : s);
   const $ = (s) => document.querySelector(s);
   const $$ = (s) => Array.from(document.querySelectorAll(s));
-  const state = { type: "hotel", city: "", from: "", to: "", guests: 2, sort: "rec", maxPct: 100, stars: new Set(), amen: new Set(), free: false, deals: false, favOnly: false, current: null, room: "standart", limit: 9, vFormat: "", vLimit: 6, pk: "multi", trMode: "avia", mapType: "" };
+  const state = { type: "hotel", city: "", from: "", to: "", guests: 2, sort: "rec", maxPct: 100, stars: new Set(), amen: new Set(), free: false, deals: false, favOnly: false, current: null, room: "standart", limit: 9, vFormat: "", vLimit: 6, pk: "multi", trMode: "avia", mapType: "", region: "", allCities: false };
   let API = false;
 
   // ---------- helpers ----------
@@ -168,6 +179,28 @@
     if (host) host.querySelectorAll(":scope > .place, :scope > .g-cap").forEach((c) => c.remove());
   }, true);
 
+  // Cities without hand-picked photos take the photos of their Wikipedia article (Commons files only), cached for two weeks.
+  const WIKI_KEY = "bron.wikiph.v1";
+  function wikiPhotos(done) {
+    const need = CITIES.filter((c) => c.wiki && !(PHOTOS[c.name] || []).length);
+    if (!need.length || !window.fetch) return;
+    let cache = store(WIKI_KEY, {});
+    if (!cache.t || Date.now() - cache.t > 14 * 864e5) cache = { t: Date.now(), d: {} };
+    const apply = () => need.forEach((c) => { const l = cache.d[c.name]; if (l && l.length) PHOTOS[c.name] = l.map((file) => ({ file, title: c.name })); });
+    apply();
+    const todo = need.filter((c) => !cache.d[c.name]);
+    if (!todo.length) return done();
+    const BAD = /(map|flag|coat|seal|emblem|logo|locat|karta|gerb|xarita|bayroq|\.svg|\.png|\.gif|\.tif)/i;
+    Promise.all(todo.map((c) => fetch(`https://en.wikipedia.org/api/rest_v1/page/media-list/${encodeURIComponent(c.wiki.replace(/ /g, "_"))}`)
+      .then((r) => r.ok ? r.json() : { items: [] })
+      .then((j) => {
+        cache.d[c.name] = (j.items || []).filter((it) => it.type === "image" && /^File:.+\.jpe?g$/i.test(it.title || "") && !BAD.test(it.title)
+          && (it.srcset || []).some((x) => /\/commons\//.test(x.src))).map((it) => it.title.slice(5)).slice(0, 5);
+      })
+      .catch(() => { /* offline or blocked: keep the drawing */ })))
+      .then(() => { keep(WIKI_KEY, cache); apply(); done(); });
+  }
+
   function heroPhoto() {
     const p = (PHOTOS["Samarqand"] || [])[1];
     if (!p) return;
@@ -227,7 +260,7 @@
     const from = pl.includes($("#qFrom").value) ? $("#qFrom").value : pl.includes("Toshkent") ? "Toshkent" : pl[0];
     let to = pl.includes($("#qTo").value) && $("#qTo").value !== from ? $("#qTo").value : "";
     if (!to) to = ((TRANSPORT[mode] || []).find((t) => t.from === from && t.to !== from) || {}).to || pl.find((c) => c !== from) || from;
-    const opts = (sel, skip) => pl.filter((c) => c !== skip || mode === "avto").map((c) => `<option value="${esc(c)}"${c === sel ? " selected" : ""}>${esc(c)}</option>`).join("");
+    const opts = (sel, skip) => placeOptions(pl.filter((c) => c !== skip || mode === "avto"), sel);
     $("#qFrom").innerHTML = opts(from);
     $("#qTo").innerHTML = opts(to, from);
   }
@@ -312,7 +345,7 @@
     const cap = priceCap();
     const need = state.guests;
     let list = LISTINGS.filter((x) => x.type === state.type
-      && (!state.city || x.city === state.city)
+      && inPlace(x.city, state.city)
       && x.capacity + (x.type === "hotel" ? 2 : 0) >= need
       && x.price <= cap
       && (!state.stars.size || state.stars.has(x.stars))
@@ -355,7 +388,7 @@
     const t = TYPES[state.type];
     const list = results();
     $("#resEyebrow").textContent = t.title;
-    $("#resTitle").textContent = state.city ? state.city : "Barcha shaharlar";
+    $("#resTitle").textContent = state.city ? state.city.replace(/^@/, "") : "Barcha shaharlar";
     $("#resCount").textContent = `${list.length} ta variant`;
     $$(".city").forEach((c) => { c.classList.toggle("is-on", c.dataset.city === state.city); c.setAttribute("aria-pressed", String(c.dataset.city === state.city)); });
     const shown = list.slice(0, state.limit);
@@ -449,12 +482,22 @@
 
   function renderCities() {
     const cur = $("#fCity").value;
-    $("#fCity").innerHTML = `<option value="">Barcha shaharlar</option>` + CITIES.map((c) => `<option value="${esc(c.name)}"${c.name === cur ? " selected" : ""}>${esc(c.name)}</option>`).join("");
-    $("#cities").innerHTML = CITIES.map((c) => {
-      const n = LISTINGS.filter((x) => x.city === c.name).length;
+    const regionOpts = REGIONS.map((r) => `<option value="@${esc(r)}"${"@" + r === cur ? " selected" : ""}>${esc(r)}: hammasi</option>`).join("");
+    $("#fCity").innerHTML = `<option value="">Barcha shaharlar</option><optgroup label="Butun hudud">${regionOpts}</optgroup>` + placeOptions(CITIES.map((c) => c.name), cur);
+    const count = (f) => LISTINGS.filter((x) => inPlace(x.city, f)).length;
+    $("#regChips").innerHTML = [["", "Mashhur"]].concat(REGIONS.map((r) => [r, r])).map(([r, label]) => `<button type="button" class="chip" data-region="${esc(r)}" aria-pressed="${state.region === r}">${esc(label)}${r ? ` <small>${count("@" + r)}</small>` : ""}</button>`).join("");
+    // "Mashhur": the original eight cities and regional centres; a region chip shows every city in it.
+    let list = state.region ? CITIES.filter((c) => c.region === state.region) : CITIES.filter((c) => c.size !== 1);
+    const all = !state.region && state.allCities;
+    if (all) list = CITIES;
+    $("#cities").innerHTML = list.map((c) => {
+      const n = count(c.name);
       return `<button class="city${state.city === c.name ? " is-on" : ""}" type="button" data-city="${esc(c.name)}" aria-pressed="${state.city === c.name}"><span class="arch">${art(c.art, c.hue, "city" + c.name)}${imgTag((PHOTOS[c.name] || [])[0], 640)}<span class="c-txt"><span class="c-count">${n} ta joy</span><b>${esc(c.name)}</b><small>${esc(c.note)}</small></span></span></button>`;
     }).join("");
+    $("#allCities").hidden = !!state.region || all;
+    $("#allCities").textContent = `Barcha ${CITIES.length} ta shahar`;
   }
+
 
   function renderDeals() {
     const list = LISTINGS.filter((x) => x.old).sort((a, b) => (b.old - b.price) / b.old - (a.old - a.price) / a.old).slice(0, 6);
@@ -780,7 +823,7 @@
   }
   function fillTrPlaces(keep) {
     const pl = placesFor(state.trMode);
-    const opts = (sel) => pl.map((c) => `<option value="${esc(c)}"${c === sel ? " selected" : ""}>${esc(c)}</option>`).join("");
+    const opts = (sel) => placeOptions(pl, sel);
     const from = keep && pl.includes($("#trFrom").value) ? $("#trFrom").value : pl.includes("Toshkent") ? "Toshkent" : pl[0];
     let to = keep && pl.includes($("#trTo").value) ? $("#trTo").value : "";
     if (!to || to === from) to = (TRANSPORT[state.trMode].find((t) => t.from === from && t.to !== from) || {}).to || pl[1];
@@ -797,7 +840,7 @@
         : `<span class="tr-badge car">${esc(t.name.slice(0, 1))}</span><div class="tr-who"><b>${esc(t.name)}</b><small>${esc(t.model)}</small></div>`;
     const times = t.mode === "avto"
       ? `<div class="tr-time"><div><b>${esc(t.from)}</b><small>${t.transfer ? "shahar ichida" : t.km + " km"}</small></div><div class="tr-line"><span>${t.transfer ? "aeroport / vokzal" : "≈ " + hm(t.dur)}</span></div><div><b>${esc(t.transfer ? t.from : t.to)}</b><small>${t.seats} o'rin · ${t.bags} chamadon</small></div></div>`
-      : `<div class="tr-time"><div><b>${t.dep}</b><small>${esc(t.fromCode || t.from)}</small></div><div class="tr-line"><span>${hm(t.dur)}</span></div><div><b>${t.arr}${t.arr < t.dep ? "<sup>+1</sup>" : ""}</b><small>${esc(t.toCode || t.to)}</small></div></div>`;
+      : `<div class="tr-time"><div><b>${t.dep}</b><small>${esc(t.fromCode || t.from)}</small></div><div class="tr-line"><span>${hm(t.dur)}</span>${t.via ? `<small class="tr-via">${esc(t.via)} orqali</small>` : ""}</div><div><b>${t.arr}${t.arr < t.dep ? "<sup>+1</sup>" : ""}</b><small>${esc(t.toCode || t.to)}</small></div></div>`;
     const classes = t.mode === "poyezd" ? `<div class="tr-cls">${Object.entries(t.classes).map(([c, p]) => `<button type="button" class="chip" data-book="${esc(t.id)}" data-cls="${c}">${c[0].toUpperCase() + c.slice(1)} · ${short(p)}</button>`).join("")}</div>` : "";
     const price = t.mode === "avto" ? `<b>${som(q.sum)}</b><small>butun mashina</small>` : `<b>${som(q.unit)}</b><small>${t.mode === "poyezd" ? "dan, 1 yo'lovchi" : "1 yo'lovchi"}</small>`;
     return `<article class="tr-row tr-${t.mode}">
@@ -810,7 +853,7 @@
     const from = $("#trFrom").value, to = $("#trTo").value, pax = Math.max(1, +$("#trPax").value || 1);
     let list = (TRANSPORT[state.trMode] || []).filter((t) => t.from === from && t.to === to);
     if (state.trMode === "avto") list = list.filter((t) => t.seats >= pax);
-    list.sort((a, b) => (a.dep || "").localeCompare(b.dep || "") || a.price - b.price);
+    list.sort((a, b) => !!a.via - !!b.via || (a.dep || "").localeCompare(b.dep || "") || a.price - b.price);
     if (list.length) { $("#trList").innerHTML = list.map(tripRow).join(""); return; }
     const alt = [...new Set((TRANSPORT[state.trMode] || []).filter((t) => t.from === from && t.to !== from).map((t) => t.to))];
     $("#trList").innerHTML = `<div class="empty"><b>${esc(from)} → ${esc(to)}: ${MODE_LABEL[state.trMode].toLowerCase()} topilmadi</b><span>${alt.length ? `${esc(from)} dan bor yo'nalishlar:` : "Boshqa shaharni tanlang."}</span><div class="chips">${alt.map((c) => `<button type="button" class="chip" data-trto="${esc(c)}">${esc(c)}</button>`).join("")}</div></div>`;
@@ -998,7 +1041,9 @@
     $("#mapSide").addEventListener("click", (e) => { const b = e.target.closest("[data-mapgo]"); if (b) showOnMap(b.dataset.mapgo, true); });
     $("#dMap").addEventListener("click", () => { const id = state.current.id; closeDlg($("#detailDlg")); showOnMap(id); });
     // partners
-    $("#pfCity").innerHTML = CITIES.map((c) => `<option value="${esc(c.name)}">${esc(c.name)}</option>`).join("");
+    $("#pfCity").innerHTML = placeOptions(CITIES.map((c) => c.name), "Toshkent");
+    $("#regChips").addEventListener("click", (e) => { const b = e.target.closest("[data-region]"); if (!b) return; state.region = b.dataset.region; state.allCities = false; renderCities(); });
+    $("#allCities").addEventListener("click", () => { state.allCities = true; renderCities(); });
     $("#partnerForm").addEventListener("submit", submitPartner);
     $("#vFormats").addEventListener("click", (e) => { const b = e.target.closest("[data-vf]"); if (!b) return; state.vFormat = b.dataset.vf; state.vLimit = 6; renderVenues(); });
     $("#vMore").addEventListener("click", () => { state.vLimit = 99; renderVenues(); });
@@ -1080,6 +1125,7 @@
     renderRecent();
     openFromHash();
     loadListings();
+    wikiPhotos(() => { renderCities(); render(); renderDeals(); renderRecent(); renderVenues(); });
   }
 
   // ---------- accounts ----------

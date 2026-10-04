@@ -51,7 +51,7 @@
   }
 
   const SKIP = new Set(["SCRIPT", "STYLE", "TEXTAREA", "CODE", "PRE", "svg"]);
-  const ATTRS = ["placeholder", "aria-label", "title", "alt"];
+  const ATTRS = ["placeholder", "aria-label", "title", "alt", "label"];
   const mine = new WeakMap();
   function textNode(n) {
     const v = n.nodeValue;

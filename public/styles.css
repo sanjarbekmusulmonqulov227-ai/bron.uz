@@ -844,3 +844,10 @@ body { background: var(--bg); }
 .sort select { min-width: 0; max-width: 100%; }
 .tr-mode { min-width: 0; text-align: center; }
 @media (max-width: 600px) { .res-tools .sort { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 6px; } .tr-mode svg { display: none; } }
+
+/* ---- v9: regions and connecting flights ---- */
+.reg-chips { margin: -4px 0 18px; }
+@media (max-width: 700px) { .reg-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: thin; padding-bottom: 6px; } }
+.reg-chips .chip { white-space: nowrap; flex: none; }
+.reg-chips .chip small { opacity: .7; font-weight: 600; margin-left: 2px; }
+.tr-via { position: absolute; left: 50%; top: 8px; transform: translateX(-50%); font-size: .7rem; color: var(--anor); white-space: nowrap; font-weight: 700; }

@@ -79,3 +79,13 @@ Xavfsizlik holati va tavsiyalar: [SECURITY.md](SECURITY.md).
 - Sayt o'zbek, rus va ingliz tilida. Tilni yuqoridagi UZ / RU / EN tugmalari yoki `?lang=ru` havolasi bilan tanlash mumkin.
 - Asosiy matn o'zbekcha yoziladi. Tarjimalar `public/i18n-ru.js` va `public/i18n-en.js` fayllarida: chapda o'zbekcha matn, o'ngda tarjima. Sonlar `{n}` bilan yoziladi.
 - Yangi matn qo'shsangiz va tarjimasini yozmasangiz, u o'zbekcha ko'rinadi.
+
+## Hududlar, shaharlar va ommaviy yuklash
+
+`public/data.js` da O'zbekistonning 14 hududi (`BRON_REGIONS`) va 45 shahar (`BRON_CITIES`, har birida `region`) bor. Shahar filtrida butun hududni tanlash mumkin. Yangi shaharlardagi mehmonxona, hostel va zallar **namuna** (nomlar va narxlar o'ylab topilgan); eski bazaga ular server birinchi ishga tushganda bir marta qo'shiladi (`data/regions-v9.done`).
+
+Transport: 11 aeroport (Toshkentdan har biriga ertalabki va kechki reys, qolgan juftliklar Toshkent orqali ulanadi), 29 poyezd yo'nalishi (ikki tomonga), istalgan ikki shahar orasida haydovchili mashina (masofa ma'lum bo'lmasa, to'g'ri chiziq × 1.3). Jadval va narxlar namuna.
+
+Shahar suratlari: `BRON_PHOTOS` da surati yo'q shaharlar uchun brauzer Vikipediya maqolasidagi Commons suratlarini oladi (`wiki` maydoni) va 14 kun saqlaydi.
+
+Haqiqiy mehmonxonalarni qo'shish: admin → Joylar → **Ommaviy yuklash**. CSV ustunlari `id,type,name,city,district,stars,price,capacity,rating,reviews,amenities,photos,desc,lat,lng` (qulayliklar `wifi;pool`, suratlar `https://...|https://...`), yoki JSON massiv. API: `POST /api/admin/listings/import` `{ "items": [...] }`, bir martada 2000 tagacha; mavjud `id` yangilanadi.

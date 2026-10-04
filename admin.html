@@ -33,7 +33,8 @@
   .btn.line { background: none; color: var(--ink); border: 1px solid var(--line); }
   form.edit { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; margin-bottom: 16px; }
   form.edit label { display: grid; gap: 3px; font-size: .8rem; color: var(--muted); font-weight: 600; }
-  form.edit .actions { display: flex; gap: 8px; align-items: end; }
+  form.edit .actions, .imp .actions { display: flex; gap: 8px; align-items: end; flex-wrap: wrap; }
+  .imp { display: grid; gap: 10px; margin-bottom: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; } .imp summary { cursor: pointer; } .imp label { display: grid; gap: 3px; font-size: .8rem; color: var(--muted); font-weight: 600; } .imp textarea { font: .85rem/1.4 ui-monospace, monospace; width: 100%; box-sizing: border-box; } .imp code { font-size: .8rem; } .small { font-size: .85rem; }
   .msg { min-height: 1.3em; margin: 8px 0; } .msg.err { color: var(--err); } .msg.ok { color: var(--ok); }
   [hidden] { display: none !important; }
 </style>
@@ -83,7 +84,15 @@
       <label>Tavsif<input id="lDesc" maxlength="600"></label>
       <div class="actions"><button class="btn" type="submit" id="lSave">Qo'shish</button><button class="btn line" type="button" id="lCancel" hidden>Bekor</button></div>
     </form>
-    <datalist id="cities"><option>Toshkent</option><option>Samarqand</option><option>Buxoro</option><option>Xiva</option></datalist>
+    <details class="edit imp" id="importBox">
+      <summary><b>Ommaviy yuklash (CSV yoki JSON)</b>: ko'p mehmonxonani suratlari va qulayliklari bilan bir martada qo'shish</summary>
+      <p class="muted small">CSV ustunlari: <code>id,type,name,city,district,stars,price,capacity,rating,reviews,amenities,photos,desc,lat,lng</code>. Qulayliklar <code>wifi;breakfast;pool</code> ko'rinishida, suratlar <code>https://...|https://...</code> ko'rinishida. Mavjud <code>id</code> bo'lsa, o'sha joy yangilanadi. Bir martada 2000 tagacha.</p>
+      <label>Fayl<input type="file" id="impFile" accept=".csv,.json,text/csv,application/json"></label>
+      <label class="wide">Yoki shu yerga joylang<textarea id="impText" rows="6" placeholder="type,name,city,stars,price,capacity,amenities,photos&#10;hotel,Misol Hotel,Nukus,3,450000,3,wifi;breakfast,https://example.com/1.jpg"></textarea></label>
+      <div class="actions"><button class="btn line" type="button" id="impCheck">Tekshirish</button><button class="btn" type="button" id="impGo">Yuklash</button><a class="btn line" id="impTpl" download="bron-joylar-namuna.csv" href="#">Namuna fayl</a></div>
+      <p class="small" id="impOut" role="status"></p>
+    </details>
+    <datalist id="cities"><option>Toshkent</option><option>Samarqand</option><option>Buxoro</option><option>Xiva</option><option>Shahrisabz</option><option>Farg'ona</option><option>Chimyon</option><option>Termiz</option><option>Nukus</option><option>Mo'ynoq</option><option>Xo'jayli</option><option>Beruniy</option><option>Urganch</option><option>Navoiy</option><option>Zarafshon</option><option>Nurota</option><option>Kattaqo'rg'on</option><option>Urgut</option><option>G'ijduvon</option><option>Kogon</option><option>Qarshi</option><option>Kitob</option><option>Denov</option><option>Boysun</option><option>Sherobod</option><option>Jizzax</option><option>Zomin</option><option>Guliston</option><option>Yangiyer</option><option>Sirdaryo</option><option>Chirchiq</option><option>Angren</option><option>Olmaliq</option><option>Bekobod</option><option>Nurafshon</option><option>Qo'qon</option><option>Marg'ilon</option><option>Rishton</option><option>Quvasoy</option><option>Andijon</option><option>Asaka</option><option>Xonobod</option><option>Namangan</option><option>Chust</option><option>Chortoq</option></datalist>
     <div class="tbl"><table>
       <thead><tr><th>Nomi</th><th>Turi</th><th>Shahar</th><th>Narx</th><th>Sig'im</th><th>Holat</th><th>Egasi (hamkor telefoni)</th><th></th></tr></thead>
       <tbody id="listingsBody"></tbody>

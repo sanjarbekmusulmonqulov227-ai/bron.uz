@@ -1,14 +1,71 @@
 // Namuna ma'lumotlar: joy nomlari, narxlar va reytinglar dizaynni ko'rsatish uchun o'ylab topilgan.
 // Server ishlayotgan bo'lsa, ro'yxat /api/listings dan olinadi va bu ma'lumot ishlatilmaydi.
+// O'zbekistonning 14 hududi (12 viloyat, Qoraqalpog'iston Respublikasi va Toshkent shahri).
+window.BRON_REGIONS = [
+  "Toshkent shahri",
+  "Toshkent viloyati",
+  "Andijon viloyati",
+  "Buxoro viloyati",
+  "Farg'ona viloyati",
+  "Jizzax viloyati",
+  "Xorazm viloyati",
+  "Namangan viloyati",
+  "Navoiy viloyati",
+  "Qashqadaryo viloyati",
+  "Qoraqalpog'iston Respublikasi",
+  "Samarqand viloyati",
+  "Sirdaryo viloyati",
+  "Surxondaryo viloyati"
+];
+
+// size: 0 asl ro'yxat (joylar quyida qo'lda yozilgan), 2 viloyat markazi, 1 kichik shahar (namuna joylar pastda yaratiladi).
+// wiki: shahar suratlari Vikipediya maqolasidan olinadi (BRON_PHOTOS da surat bo'lmasa).
 window.BRON_CITIES = [
-  { name: "Toshkent", note: "Poytaxt, biznes va metro", art: "tower", hue: 212 },
-  { name: "Samarqand", note: "Registon va Shohi Zinda", art: "dome", hue: 200 },
-  { name: "Buxoro", note: "Eski shahar va Labi Hovuz", art: "minaret", hue: 32 },
-  { name: "Xiva", note: "Ichan Qal'a devorlari ichida", art: "fortress", hue: 18 },
-  { name: "Shahrisabz", note: "Oqsaroy va Amir Temur yurti", art: "portal", hue: 190 },
-  { name: "Farg'ona", note: "Rishton sopoli, Marg'ilon ipagi", art: "garden", hue: 140 },
-  { name: "Chimyon", note: "Tog'lar, chang'i, Chorvoq", art: "mountain", hue: 205 },
-  { name: "Termiz", note: "Qadimiy Baqtriya, Surxon", art: "stupa", hue: 40 }
+  { name: "Toshkent", region: "Toshkent shahri", note: "Poytaxt, biznes va metro", art: "tower", hue: 212, wiki: "Tashkent", size: 0 },
+  { name: "Samarqand", region: "Samarqand viloyati", note: "Registon va Shohi Zinda", art: "dome", hue: 200, wiki: "Samarkand", size: 0 },
+  { name: "Buxoro", region: "Buxoro viloyati", note: "Eski shahar va Labi Hovuz", art: "minaret", hue: 32, wiki: "Bukhara", size: 0 },
+  { name: "Xiva", region: "Xorazm viloyati", note: "Ichan Qal'a devorlari ichida", art: "fortress", hue: 18, wiki: "Khiva", size: 0 },
+  { name: "Shahrisabz", region: "Qashqadaryo viloyati", note: "Oqsaroy va Amir Temur yurti", art: "portal", hue: 190, wiki: "Shahrisabz", size: 0 },
+  { name: "Farg'ona", region: "Farg'ona viloyati", note: "Rishton sopoli, Marg'ilon ipagi", art: "garden", hue: 140, wiki: "Fergana", size: 0 },
+  { name: "Chimyon", region: "Toshkent viloyati", note: "Tog'lar, chang'i, Chorvoq", art: "mountain", hue: 205, wiki: "Chimgan", size: 0 },
+  { name: "Termiz", region: "Surxondaryo viloyati", note: "Qadimiy Baqtriya, Surxon", art: "stupa", hue: 40, wiki: "Termez", size: 0 },
+  { name: "Nukus", region: "Qoraqalpog'iston Respublikasi", note: "Savitskiy muzeyi, Amudaryo", art: "classic", hue: 35, wiki: "Nukus", size: 2 },
+  { name: "Mo'ynoq", region: "Qoraqalpog'iston Respublikasi", note: "Orol dengizi, kemalar qabristoni", art: "lake", hue: 45, wiki: "Moʻynoq", size: 1 },
+  { name: "Xo'jayli", region: "Qoraqalpog'iston Respublikasi", note: "Mizdahkon qadimiy shahri", art: "stupa", hue: 30, wiki: "Xoʻjayli", size: 1 },
+  { name: "Beruniy", region: "Qoraqalpog'iston Respublikasi", note: "Elliqqal'a qal'alari yo'li", art: "fortress", hue: 28, wiki: "Beruniy", size: 1 },
+  { name: "Urganch", region: "Xorazm viloyati", note: "Xorazm markazi, Xiva yonida", art: "fortress", hue: 25, wiki: "Urgench", size: 2 },
+  { name: "Navoiy", region: "Navoiy viloyati", note: "Viloyat markazi, erkin iqtisodiy zona", art: "tower", hue: 205, wiki: "Navoiy", size: 2 },
+  { name: "Zarafshon", region: "Navoiy viloyati", note: "Qizilqum, Muruntov koni", art: "house", hue: 38, wiki: "Zarafshan, Uzbekistan", size: 1 },
+  { name: "Nurota", region: "Navoiy viloyati", note: "Chashma buloq, Aydarko'l yo'li", art: "mountain", hue: 35, wiki: "Nurota", size: 1 },
+  { name: "Kattaqo'rg'on", region: "Samarqand viloyati", note: "Kattaqo'rg'on suv ombori", art: "lake", hue: 190, wiki: "Kattakurgan", size: 1 },
+  { name: "Urgut", region: "Samarqand viloyati", note: "Urgut bozori va Chor chinor", art: "garden", hue: 100, wiki: "Urgut", size: 1 },
+  { name: "G'ijduvon", region: "Buxoro viloyati", note: "G'ijduvon kulolchiligi", art: "minaret", hue: 30, wiki: "Gʻijduvon", size: 1 },
+  { name: "Kogon", region: "Buxoro viloyati", note: "Buxoroning temir yo'l darvozasi", art: "house", hue: 40, wiki: "Kogon", size: 1 },
+  { name: "Qarshi", region: "Qashqadaryo viloyati", note: "Odina masjidi, Qashqadaryo markazi", art: "dome", hue: 30, wiki: "Qarshi", size: 2 },
+  { name: "Kitob", region: "Qashqadaryo viloyati", note: "Hisor tog'lari etagi", art: "mountain", hue: 140, wiki: "Kitob", size: 1 },
+  { name: "Denov", region: "Surxondaryo viloyati", note: "Sangardak sharsharasi yo'li", art: "mountain", hue: 130, wiki: "Denov", size: 1 },
+  { name: "Boysun", region: "Surxondaryo viloyati", note: "Boysun bahori, tog' qishloqlari", art: "mountain", hue: 30, wiki: "Boysun", size: 1 },
+  { name: "Sherobod", region: "Surxondaryo viloyati", note: "Sherobod tog'lari, Jarqo'rg'on", art: "stupa", hue: 35, wiki: "Sherobod", size: 1 },
+  { name: "Jizzax", region: "Jizzax viloyati", note: "Viloyat markazi, Sangzor bo'yi", art: "tower", hue: 30, wiki: "Jizzakh", size: 2 },
+  { name: "Zomin", region: "Jizzax viloyati", note: "Zomin milliy bog'i, sihatgohlar", art: "mountain", hue: 140, wiki: "Zaamin", size: 1 },
+  { name: "Guliston", region: "Sirdaryo viloyati", note: "Viloyat markazi, Mirzacho'l", art: "garden", hue: 90, wiki: "Gulistan, Uzbekistan", size: 2 },
+  { name: "Yangiyer", region: "Sirdaryo viloyati", note: "Mirzacho'l bog'lari", art: "garden", hue: 110, wiki: "Yangiyer", size: 1 },
+  { name: "Sirdaryo", region: "Sirdaryo viloyati", note: "Daryo bo'yidagi shahar", art: "lake", hue: 195, wiki: "Sirdaryo (town)", size: 1 },
+  { name: "Chirchiq", region: "Toshkent viloyati", note: "Chirchiq daryosi, tog' etagi", art: "mountain", hue: 150, wiki: "Chirchiq", size: 1 },
+  { name: "Angren", region: "Toshkent viloyati", note: "Ohangaron vodiysi, Qamchiq yo'li", art: "mountain", hue: 30, wiki: "Angren, Uzbekistan", size: 1 },
+  { name: "Olmaliq", region: "Toshkent viloyati", note: "Tog'-kon sanoati markazi", art: "tower", hue: 220, wiki: "Olmaliq", size: 1 },
+  { name: "Bekobod", region: "Toshkent viloyati", note: "Sirdaryo bo'yi, Farhod GESi", art: "lake", hue: 200, wiki: "Bekabad", size: 1 },
+  { name: "Nurafshon", region: "Toshkent viloyati", note: "Toshkent viloyati markazi", art: "tower", hue: 200, wiki: "Nurafshon", size: 1 },
+  { name: "Qo'qon", region: "Farg'ona viloyati", note: "Xudoyorxon o'rdasi", art: "portal", hue: 190, wiki: "Kokand", size: 2 },
+  { name: "Marg'ilon", region: "Farg'ona viloyati", note: "Yodgorlik ipak fabrikasi", art: "garden", hue: 320, wiki: "Margilan", size: 1 },
+  { name: "Rishton", region: "Farg'ona viloyati", note: "Rishton kulolchiligi", art: "house", hue: 205, wiki: "Rishton", size: 1 },
+  { name: "Quvasoy", region: "Farg'ona viloyati", note: "Tog' etagidagi shahar", art: "mountain", hue: 150, wiki: "Quvasoy", size: 1 },
+  { name: "Andijon", region: "Andijon viloyati", note: "Bobur yurti, Jome majmuasi", art: "dome", hue: 25, wiki: "Andijan", size: 2 },
+  { name: "Asaka", region: "Andijon viloyati", note: "Avtomobilsozlar shahri", art: "tower", hue: 210, wiki: "Asaka", size: 1 },
+  { name: "Xonobod", region: "Andijon viloyati", note: "Andijonning tog'li hududi", art: "mountain", hue: 150, wiki: "Xonobod", size: 1 },
+  { name: "Namangan", region: "Namangan viloyati", note: "Gullar shahri, Mullo Qirg'iz", art: "garden", hue: 330, wiki: "Namangan", size: 2 },
+  { name: "Chust", region: "Namangan viloyati", note: "Chust pichog'i va do'ppisi", art: "house", hue: 30, wiki: "Chust, Uzbekistan", size: 1 },
+  { name: "Chortoq", region: "Namangan viloyati", note: "Chortoq sihatgohi", art: "lake", hue: 180, wiki: "Chortoq", size: 1 }
 ];
 
 window.BRON_LISTINGS = [
@@ -184,6 +241,38 @@ window.BRON_LISTINGS = [
     amenities: ["guide", "transport", "tickets"], desc: "Fayoztepa, Qoratepa, Zurmala stupasi va Al-Hakim at-Termiziy majmuasi.",
     itinerary: [["09:00", "Arxeologiya muzeyi."], ["11:00", "Fayoztepa va Qoratepa."], ["14:00", "Zurmala stupasi, Al-Hakim at-Termiziy."]] }
 ];
+// ---- Har bir viloyat va shahar uchun namuna joylar (nomlari va narxlari o'ylab topilgan) ----
+// Haqiqiy mehmonxonalar hamkor sifatida ulanadi yoki admin paneldagi "Ommaviy yuklash" orqali qo'shiladi.
+(function () {
+  const seed = (s) => { let h = 7; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return () => (h = (h * 1103515245 + 12345) >>> 0) / 4294967296; };
+  const round = (n, k) => Math.round(n / k) * k;
+  const D = { hotel4: "To'rt yulduzli mehmonxona: shahar markazida, restoran, konferens-xona va avtoturargoh.",
+    hotel3: "Qulay uch yulduzli mehmonxona, nonushta narxga kiradi.",
+    guest: "Oilaviy mehmon uyi: hovli, uy taomlari va mahalliy mezbonlar.",
+    hostel: "Arzon hostel: umumiy oshxona, kir yuvish va tez internet.",
+    venue: "Shahar markazidagi konferens-zal: ekran, ovoz tizimi va kofe-breyk." };
+  const DIST = ["Shahar markazi", "Markaziy ko'cha", "Vokzal yonida", "Bog' ko'chasi", "Eski shahar"];
+  let n = 0;
+  const id = (p) => `${p}${String(++n).padStart(3, "0")}`;
+  window.BRON_CITIES.filter((c) => c.size).forEach((c) => {
+    const R = seed(c.name), big = c.size === 2, k = big ? 1 : 0.8;
+    const rate = (a) => Math.round((a + R() * 0.9) * 10) / 10;
+    const add = (x) => window.BRON_LISTINGS.push(Object.assign({ city: c.name, district: DIST[Math.floor(R() * DIST.length)], reviews: 8 + Math.floor(R() * (big ? 320 : 90)), free: R() > 0.3, sample: true }, x, { desc: `${c.note}. ${x.desc}` }));
+    if (big) {
+      add({ id: id("r"), type: "hotel", name: `${c.name} Grand Hotel`, stars: 4, rating: rate(8.4), price: round((620000 + R() * 380000) * k, 10000), capacity: 4, art: "classic", hue: c.hue,
+        amenities: ["wifi", "breakfast", "restaurant", "parking", "ac", "gym"], desc: D.hotel4 });
+      add({ id: id("r"), type: "venue", format: "conf", kind: "Konferens-zal", name: `${c.name} Konferens Zali`, rating: rate(8.5), price: round(4500000 + R() * 3500000, 100000), capacity: 250, area: 420,
+        layouts: { teatr: 250, sinf: 120, banket: 160, furshet: 280 }, art: "hall", hue: c.hue, amenities: ["wifi", "screen", "stage", "coffee", "parking"], desc: D.venue });
+      add({ id: id("r"), type: "hostel", kind: "Hostel", name: `${c.name} Hostel`, rating: rate(8.6), price: round(80000 + R() * 50000, 5000), capacity: 6, beds: 24, art: "house", hue: (c.hue + 40) % 360,
+        amenities: ["wifi", "kitchen", "laundry", "ac"], desc: D.hostel });
+    }
+    add({ id: id("r"), type: "hotel", name: `${c.name} Plaza`, stars: 3, rating: rate(8.1), price: round((380000 + R() * 220000) * k, 10000), capacity: 3, art: c.art, hue: c.hue,
+      amenities: ["wifi", "breakfast", "parking", "ac"], desc: D.hotel3 });
+    add({ id: id("r"), type: "hotel", name: `${c.name} Mehmon Uyi`, stars: 2, rating: rate(8.7), price: round((220000 + R() * 160000) * k, 10000), capacity: 4, art: "house", hue: (c.hue + 20) % 360,
+      amenities: ["wifi", "breakfast", "family", "parking"], desc: D.guest });
+  });
+})();
+
 
 // Haqiqiy shahar suratlari: Wikimedia Commons (erkin litsenziyalar, mualliflari fayl sahifasida).
 // Joy kartochkasida o'sha joy joylashgan shaharning surati ko'rsatiladi, mehmonxonaning o'zi emas.
@@ -237,31 +326,59 @@ window.BRON_PHOTOS = {
 window.BRON_GEO = {
   "Toshkent": [41.3111, 69.2797, 0.045], "Samarqand": [39.6548, 66.9757, 0.018], "Buxoro": [39.7758, 64.4142, 0.012],
   "Xiva": [41.3785, 60.3594, 0.006], "Shahrisabz": [39.0626, 66.8302, 0.01], "Farg'ona": [40.3842, 71.7843, 0.02],
-  "Chimyon": [41.5536, 70.0270, 0.02], "Termiz": [37.2242, 67.2783, 0.02], "Urganch": [41.5506, 60.6317, 0.01],
-  "Qo'qon": [40.5286, 70.9425, 0.01], "Marg'ilon": [40.4712, 71.7246, 0.01], "Rishton": [40.3569, 71.2847, 0.01],
-  "Chorvoq": [41.6315, 70.0420, 0.01], "Ayozqal'a": [42.0000, 61.0700, 0.01], "Fayoztepa": [37.2617, 67.1878, 0.004], "Boysun": [38.2058, 67.1986, 0.01]
+  "Chimyon": [41.5536, 70.0270, 0.02], "Termiz": [37.2242, 67.2783, 0.02], "Urganch": [41.5506, 60.6317, 0.015],
+  "Qo'qon": [40.5286, 70.9425, 0.012], "Marg'ilon": [40.4712, 71.7246, 0.01], "Rishton": [40.3569, 71.2847, 0.008],
+  "Chorvoq": [41.6315, 70.0420, 0.01], "Ayozqal'a": [42.0000, 61.0700, 0.01], "Fayoztepa": [37.2617, 67.1878, 0.004],
+  "Boysun": [38.2058, 67.1986, 0.008], "Nukus": [42.4600, 59.6100, 0.02], "Mo'ynoq": [43.7683, 59.0214, 0.008],
+  "Xo'jayli": [42.4047, 59.4517, 0.008], "Beruniy": [41.6911, 60.7525, 0.008], "Navoiy": [40.0844, 65.3792, 0.015],
+  "Zarafshon": [41.5747, 64.1997, 0.01], "Nurota": [40.5614, 65.6886, 0.008], "Kattaqo'rg'on": [39.8986, 66.2561, 0.01],
+  "Urgut": [39.4022, 67.2431, 0.008], "G'ijduvon": [40.1000, 64.6833, 0.008], "Kogon": [39.7228, 64.5517, 0.008],
+  "Qarshi": [38.8606, 65.7891, 0.015], "Kitob": [39.1185, 66.8811, 0.008], "Denov": [38.2672, 67.8989, 0.01],
+  "Sherobod": [37.6667, 67.0000, 0.008], "Jizzax": [40.1158, 67.8422, 0.015], "Zomin": [39.9606, 68.3953, 0.01],
+  "Guliston": [40.4897, 68.7842, 0.012], "Yangiyer": [40.2750, 68.8225, 0.008], "Sirdaryo": [40.8436, 68.6617, 0.008],
+  "Chirchiq": [41.4689, 69.5822, 0.012], "Angren": [41.0167, 70.1436, 0.012], "Olmaliq": [40.8447, 69.5983, 0.01],
+  "Bekobod": [40.2208, 69.2697, 0.01], "Nurafshon": [41.0400, 69.3580, 0.008], "Quvasoy": [40.2972, 71.9800, 0.008],
+  "Andijon": [40.7821, 72.3442, 0.015], "Asaka": [40.6417, 72.2383, 0.008], "Xonobod": [40.8017, 73.0000, 0.008],
+  "Namangan": [40.9983, 71.6726, 0.015], "Chust": [41.0033, 71.2372, 0.008], "Chortoq": [41.0700, 71.8200, 0.008]
 };
 
 // ---- Transport: namuna jadval (haqiqiy chipta tizimlariga ulanmagan) ----
 window.BRON_TRANSPORT = (function () {
-  const AIRPORT = { "Toshkent": "TAS", "Samarqand": "SKD", "Buxoro": "BHK", "Urganch": "UGC", "Farg'ona": "FEG", "Termiz": "TMJ" };
-  // [raqam, qayerdan, qayerga, jo'nash, davomiylik (daqiqa), narx]; qaytish reysi raqam+1 bilan avtomatik qo'shiladi
+  const AIRPORT = { "Toshkent": "TAS", "Samarqand": "SKD", "Buxoro": "BHK", "Urganch": "UGC", "Farg'ona": "FEG", "Termiz": "TMJ",
+    "Nukus": "NCU", "Navoiy": "NVI", "Qarshi": "KSQ", "Namangan": "NMA", "Andijon": "AZN" };
+  // Toshkentdan har bir aeroportga ertalabki va kechki reys: [shahar, ertalabki raqam, jo'nash, kechki raqam, jo'nash, davomiylik (daqiqa), narx].
+  // Qaytish reysi raqam+1 bilan avtomatik qo'shiladi; aeroportlar orasidagi qolgan yo'nalishlar Toshkent orqali ulanadi.
   const FL = [
-    ["HY 051", "Toshkent", "Urganch", "07:10", 105, 890000], ["HY 055", "Toshkent", "Urganch", "18:40", 105, 820000],
-    ["HY 061", "Toshkent", "Buxoro", "08:20", 80, 740000], ["HY 065", "Toshkent", "Buxoro", "19:50", 80, 690000],
-    ["HY 031", "Toshkent", "Samarqand", "09:05", 60, 590000],
-    ["HY 041", "Toshkent", "Termiz", "06:55", 85, 760000],
-    ["HY 071", "Toshkent", "Farg'ona", "10:15", 55, 520000]
+    ["Urganch", "HY 051", "07:10", "HY 055", "18:40", 105, 890000], ["Buxoro", "HY 061", "08:20", "HY 065", "19:50", 80, 740000],
+    ["Samarqand", "HY 031", "09:05", "HY 035", "19:30", 60, 590000], ["Termiz", "HY 041", "06:55", "HY 045", "17:50", 85, 760000],
+    ["Farg'ona", "HY 071", "10:15", "HY 075", "18:20", 55, 520000], ["Nukus", "HY 101", "07:30", "HY 105", "18:10", 130, 980000],
+    ["Navoiy", "HY 111", "08:40", "HY 115", "19:05", 75, 690000], ["Qarshi", "HY 121", "07:50", "HY 125", "18:30", 70, 650000],
+    ["Namangan", "HY 131", "09:30", "HY 135", "19:40", 50, 490000], ["Andijon", "HY 141", "08:10", "HY 145", "18:00", 60, 520000]
   ];
   const t2m = (t) => +t.slice(0, 2) * 60 + +t.slice(3);
   const m2t = (m) => `${String(Math.floor(m / 60) % 24).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
-  const avia = [];
-  FL.forEach(([no, a, b, dep, dur, price]) => {
-    avia.push({ id: no.replace(" ", ""), mode: "avia", carrier: "Uzbekistan Airways", no, from: a, to: b, fromCode: AIRPORT[a], toCode: AIRPORT[b], dep, arr: m2t(t2m(dep) + dur), dur, price, bag: "20 kg yuk" });
-    const back = no.slice(0, 3) + String(+no.slice(3) + 1).padStart(3, "0");
-    const bdep = m2t(t2m(dep) + dur + 70);
-    avia.push({ id: back.replace(" ", ""), mode: "avia", carrier: "Uzbekistan Airways", no: back, from: b, to: a, fromCode: AIRPORT[b], toCode: AIRPORT[a], dep: bdep, arr: m2t(t2m(bdep) + dur), dur, price: Math.round(price * 0.95 / 1000) * 1000, bag: "20 kg yuk" });
+  const flight = (no, a, b, depMin, dur, price) => ({ id: no.replace(" ", ""), mode: "avia", carrier: "Uzbekistan Airways", no, from: a, to: b, fromCode: AIRPORT[a], toCode: AIRPORT[b],
+    dep: m2t(depMin), arr: m2t(depMin + dur), dur, price, bag: "20 kg yuk", depMin, arrMin: depMin + dur });
+  const direct = [];
+  FL.forEach(([city, ...rest]) => {
+    const [mNo, mDep, eNo, eDep, dur, price] = rest;
+    [[mNo, mDep, price], [eNo, eDep, Math.round(price * 0.93 / 1000) * 1000]].forEach(([no, dep, p]) => {
+      direct.push(flight(no, "Toshkent", city, t2m(dep), dur, p));
+      const back = no.slice(0, 3) + String(+no.slice(3) + 1).padStart(3, "0");
+      direct.push(flight(back, city, "Toshkent", t2m(dep) + dur + 70, dur, Math.round(p * 0.95 / 1000) * 1000));
+    });
   });
+  // Ulanuvchi reyslar: X → Toshkent → Y, kamida 1 soat, ko'pi bilan 9 soat kutish, bir kunda.
+  const via = [];
+  const cities = FL.map((f) => f[0]);
+  cities.forEach((a) => cities.forEach((b) => {
+    if (a === b) return;
+    direct.filter((f) => f.from === a && f.to === "Toshkent").forEach((l1) => direct.filter((f) => f.from === "Toshkent" && f.to === b && f.depMin >= l1.arrMin + 60 && f.depMin <= l1.arrMin + 540).forEach((l2) => {
+      via.push({ id: `${l1.id}-${l2.id}`, mode: "avia", carrier: "Uzbekistan Airways", no: `${l1.no} + ${l2.no}`, from: a, to: b, fromCode: AIRPORT[a], toCode: AIRPORT[b],
+        dep: l1.dep, arr: l2.arr, dur: l2.arrMin - l1.depMin, price: Math.round((l1.price + l2.price) * 0.85 / 1000) * 1000, bag: "20 kg yuk", via: "Toshkent", wait: l2.depMin - l1.arrMin });
+    }));
+  }));
+  const avia = direct.map(({ depMin, arrMin, ...f }) => f).concat(via);
 
   // [poyezd, raqam, qayerdan, qayerga, jo'nash, davomiylik, {klass: narx}, tungi]
   const TR = [
@@ -271,9 +388,29 @@ window.BRON_TRANSPORT = (function () {
     ["Sharq", "010F", "Toshkent", "Buxoro", "08:45", 370, { ekonom: 190000, biznes: 310000 }],
     ["Sharq", "012F", "Toshkent", "Samarqand", "16:10", 215, { ekonom: 150000, biznes: 240000 }],
     ["Afrosiyob", "768F", "Samarqand", "Buxoro", "10:05", 95, { ekonom: 170000, biznes: 280000, vip: 420000 }],
+    ["Afrosiyob", "770F", "Toshkent", "Qarshi", "07:00", 200, { ekonom: 290000, biznes: 480000 }],
+    ["Afrosiyob", "772F", "Toshkent", "Navoiy", "17:20", 190, { ekonom: 320000, biznes: 520000 }],
     ["Xorazm", "056F", "Toshkent", "Xiva", "20:50", 870, { plaskart: 260000, kupe: 380000, SV: 640000 }, true],
+    ["Xorazm", "072F", "Toshkent", "Urganch", "19:30", 840, { plaskart: 250000, kupe: 370000, SV: 620000 }, true],
+    ["Orol", "058F", "Toshkent", "Nukus", "16:40", 1080, { plaskart: 290000, kupe: 430000, SV: 710000 }, true],
+    ["Orol", "074F", "Nukus", "Mo'ynoq", "08:10", 270, { plaskart: 90000, kupe: 140000 }],
+    ["Amudaryo", "070F", "Buxoro", "Urganch", "09:15", 420, { plaskart: 150000, kupe: 230000 }],
     ["Surxon", "380F", "Toshkent", "Termiz", "19:10", 780, { plaskart: 230000, kupe: 340000, SV: 590000 }, true],
-    ["Farg'ona", "054F", "Toshkent", "Farg'ona", "07:45", 300, { ekonom: 160000, biznes: 260000 }]
+    ["Surxon", "382F", "Qarshi", "Termiz", "08:30", 330, { plaskart: 120000, kupe: 180000 }],
+    ["Surxon", "384F", "Termiz", "Denov", "07:40", 150, { plaskart: 60000, kupe: 95000 }],
+    ["Shahrisabz", "386F", "Qarshi", "Shahrisabz", "06:50", 140, { ekonom: 70000, biznes: 110000 }],
+    ["Farg'ona", "054F", "Toshkent", "Farg'ona", "07:45", 300, { ekonom: 160000, biznes: 260000 }],
+    ["Vodiy", "060F", "Toshkent", "Andijon", "06:30", 330, { ekonom: 170000, biznes: 280000 }],
+    ["Vodiy", "062F", "Toshkent", "Namangan", "08:20", 280, { ekonom: 150000, biznes: 250000 }],
+    ["Vodiy", "064F", "Toshkent", "Qo'qon", "14:10", 240, { ekonom: 130000, biznes: 220000 }],
+    ["Vodiy", "076F", "Qo'qon", "Marg'ilon", "10:00", 75, { ekonom: 45000 }],
+    ["Mirzacho'l", "066F", "Toshkent", "Jizzax", "09:40", 140, { ekonom: 110000, biznes: 180000 }],
+    ["Mirzacho'l", "068F", "Toshkent", "Guliston", "11:20", 90, { ekonom: 70000, biznes: 120000 }],
+    ["Mirzacho'l", "078F", "Toshkent", "Bekobod", "15:30", 150, { ekonom: 60000 }],
+    ["Ohangaron", "080F", "Toshkent", "Angren", "08:05", 110, { ekonom: 50000 }],
+    ["Zarafshon", "082F", "Navoiy", "Zarafshon", "07:20", 240, { ekonom: 90000, biznes: 140000 }],
+    ["Zarafshon", "084F", "Samarqand", "Kattaqo'rg'on", "12:30", 60, { ekonom: 40000 }],
+    ["Chirchiq", "086F", "Toshkent", "Chirchiq", "07:10", 55, { ekonom: 25000 }]
   ];
   const poyezd = [];
   TR.forEach(([name, no, a, b, dep, dur, classes, night]) => {
@@ -283,18 +420,22 @@ window.BRON_TRANSPORT = (function () {
     poyezd.push({ id: back, mode: "poyezd", name, no: back, from: b, to: a, dep: bdep, arr: m2t(t2m(bdep) + dur), dur, classes, night: !!night });
   });
 
-  // Haydovchili avtomobil: narx = masofa × km narxi (eng kam to'lov bilan)
+  // Haydovchili avtomobil: istalgan ikki shahar orasida. Narx = masofa × km narxi (eng kam to'lov bilan).
   const vehicles = [
     { id: "sedan", name: "Sedan", model: "Chevrolet Malibu yoki shunga o'xshash", seats: 3, bags: 3, perKm: 2000, min: 150000 },
     { id: "miniven", name: "Miniven", model: "Kia Carnival yoki shunga o'xshash", seats: 6, bags: 6, perKm: 3200, min: 250000 },
     { id: "mikro", name: "Mikroavtobus", model: "Mercedes Sprinter, 16 o'rin", seats: 16, bags: 16, perKm: 5000, min: 450000 },
     { id: "avtobus", name: "Avtobus", model: "Yutong yoki shunga o'xshash, 45 o'rin", seats: 45, bags: 45, perKm: 8000, min: 900000 }
   ];
+  // Yo'l bo'yicha ma'lum masofalar; qolganlari to'g'ri chiziq masofasi × 1.3 (yo'l egriligi) dan taxminan hisoblanadi.
   const KM = { "Toshkent|Samarqand": 310, "Toshkent|Buxoro": 570, "Samarqand|Buxoro": 270, "Buxoro|Xiva": 450, "Toshkent|Xiva": 1000, "Toshkent|Farg'ona": 310,
-    "Samarqand|Shahrisabz": 90, "Toshkent|Chimyon": 85, "Samarqand|Termiz": 370, "Toshkent|Termiz": 700, "Toshkent|Shahrisabz": 400, "Buxoro|Termiz": 480, "Urganch|Xiva": 35 };
-  const km = (a, b) => a === b ? 25 : KM[`${a}|${b}`] || KM[`${b}|${a}`] || 0;
+    "Samarqand|Shahrisabz": 90, "Toshkent|Chimyon": 85, "Samarqand|Termiz": 370, "Toshkent|Termiz": 700, "Toshkent|Shahrisabz": 400, "Buxoro|Termiz": 480, "Urganch|Xiva": 35,
+    "Toshkent|Nukus": 1150, "Toshkent|Andijon": 360, "Toshkent|Namangan": 290, "Toshkent|Qarshi": 520, "Toshkent|Jizzax": 200, "Toshkent|Guliston": 120, "Nukus|Mo'ynoq": 210 };
+  const GEO = window.BRON_GEO || {};
+  const hav = (p, q) => { const r = Math.PI / 180, a = Math.sin((q[0] - p[0]) * r / 2) ** 2 + Math.cos(p[0] * r) * Math.cos(q[0] * r) * Math.sin((q[1] - p[1]) * r / 2) ** 2; return 12742 * Math.asin(Math.sqrt(a)); };
+  const km = (a, b) => a === b ? 25 : KM[`${a}|${b}`] || KM[`${b}|${a}`] || (GEO[a] && GEO[b] ? Math.max(10, Math.round(hav(GEO[a], GEO[b]) * 1.3 / 5) * 5) : 0);
   const avto = [];
-  const places = [...new Set(Object.keys(KM).flatMap((k) => k.split("|")))];
+  const places = (window.BRON_CITIES || []).map((c) => c.name).concat(["Chorvoq"]).filter((c) => GEO[c]);
   places.forEach((a) => places.forEach((b) => {
     const d = km(a, b); if (!d) return;
     vehicles.forEach((v) => avto.push({ id: `${v.id}:${a}:${b}`, mode: "avto", vehicle: v.id, name: v.name, model: v.model, seats: v.seats, bags: v.bags, from: a, to: b, km: d,

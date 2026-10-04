@@ -2,7 +2,7 @@
 <html lang="uz">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://commons.wikimedia.org https://upload.wikimedia.org https://fonts.googleapis.com https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://en.wikipedia.org https://commons.wikimedia.org https://upload.wikimedia.org https://fonts.googleapis.com https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>bron.uz</title>
@@ -129,9 +129,11 @@
         <p class="eyebrow">Yo'nalishlar</p>
         <h2>Qayerga boramiz?</h2>
       </div>
-      <p class="muted">Shaharni bosing, faqat o'sha yerdagi joylar ko'rsatiladi.</p>
+      <p class="muted">O'zbekistonning 14 hududi va barcha yirik shaharlari. Hududni tanlang, so'ng shaharni bosing.</p>
     </div>
+    <div class="chips reg-chips" id="regChips" aria-label="Hududlar"></div>
     <div class="cities" id="cities"></div>
+    <div class="more-wrap"><button class="btn btn-line" type="button" id="allCities">Barcha shaharlar</button></div>
   </section>
 
   <section class="wrap section recent-sec" id="yaqinda" hidden>

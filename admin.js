@@ -113,6 +113,59 @@
     } catch (err) { say(err.message); }
   });
 
+  // ---------- bulk import ----------
+  // CSV with a header row (quoted fields allowed) or a JSON array; lists inside a cell use ";" (amenities) and "|" (photos).
+  function parseCsv(text) {
+    const rows = []; let row = [], cell = "", q = false;
+    const sep = (text.split("\n")[0].match(/;/g) || []).length > (text.split("\n")[0].match(/,/g) || []).length ? ";" : ",";
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (q) { if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; } else if (c === '"') q = false; else cell += c; }
+      else if (c === '"') q = true;
+      else if (c === sep) { row.push(cell); cell = ""; }
+      else if (c === "\n" || c === "\r") { if (c === "\r" && text[i + 1] === "\n") i++; row.push(cell); cell = ""; if (row.some((x) => x.trim())) rows.push(row); row = []; }
+      else cell += c;
+    }
+    row.push(cell); if (row.some((x) => x.trim())) rows.push(row);
+    const head = (rows.shift() || []).map((h) => h.trim().toLowerCase());
+    return rows.map((r) => Object.fromEntries(head.map((h, i) => [h, (r[i] || "").trim()]).filter(([h, v]) => h && v !== "")));
+  }
+  const listOf = (v, re) => Array.isArray(v) ? v : String(v || "").split(re).map((t) => t.trim()).filter(Boolean);
+  function importRows() {
+    const text = $("#impText").value.trim();
+    if (!text) throw new Error("Fayl tanlang yoki ma'lumotni joylang.");
+    let rows = /^[[{]/.test(text) ? JSON.parse(text) : parseCsv(text);
+    if (!Array.isArray(rows)) rows = rows.items || [rows];
+    return rows.map((r) => ({
+      ...r,
+      type: String(r.type || "hotel").toLowerCase(),
+      amenities: listOf(r.amenities, /[;|]/).map((t) => amenKey(t) || t.toLowerCase()).filter(Boolean),
+      photos: listOf(r.photos, /[|\s]+/).filter((u) => /^https:\/\//.test(typeof u === "string" ? u : u.url || "") || (u && u.file)),
+      photo: r.photo || undefined
+    }));
+  }
+  $("#impFile").addEventListener("change", async () => { const f = $("#impFile").files[0]; if (f) $("#impText").value = await f.text(); });
+  $("#impTpl").addEventListener("click", () => {
+    const csv = "id,type,name,city,district,stars,price,capacity,rating,reviews,amenities,photos,desc,lat,lng\n,hotel,Misol Hotel,Nukus,Markaz,3,450000,3,8.6,0,wifi;breakfast;parking,https://example.com/1.jpg|https://example.com/2.jpg,\"Qisqa tavsif, xonalar haqida\",42.46,59.61\n";
+    $("#impTpl").href = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv" }));
+  });
+  $("#impCheck").addEventListener("click", () => {
+    try {
+      const rows = importRows();
+      const bad = rows.map((r, i) => !r.name || !r.city || !(+r.price > 0) || !(+r.capacity > 0) ? i + 1 : 0).filter(Boolean);
+      $("#impOut").textContent = `${rows.length} ta qator o'qildi. ${bad.length ? `Nomi, shahri, narxi yoki sig'imi yo'q qatorlar: ${bad.slice(0, 20).join(", ")}.` : "Hammasi to'g'ri ko'rinadi."}`;
+    } catch (err) { $("#impOut").textContent = err.message; }
+  });
+  $("#impGo").addEventListener("click", async () => {
+    try {
+      const rows = importRows();
+      $("#impOut").textContent = "Yuklanmoqda...";
+      const r = await call("POST", "/api/admin/listings/import", { items: rows });
+      $("#impOut").textContent = `Qo'shildi: ${r.added}, yangilandi: ${r.updated}, xato: ${r.failed}.` + (r.errors.length ? " " + r.errors.map((e) => `${e.row}-qator: ${e.error}`).join(" ") : "");
+      loadListings();
+    } catch (err) { $("#impOut").textContent = err.message; }
+  });
+
   loadBookings().catch((err) => say(err.message));
   setInterval(() => { if (!$("#tab-bookings").hidden) loadBookings().catch(() => {}); }, 30000);
 })();
