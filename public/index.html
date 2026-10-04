@@ -7,6 +7,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>bron.uz</title>
   <meta name="description" content="bron.uz: O'zbekiston bo'ylab mehmonxona, konferens-zal va turlarni onlayn bron qilish.">
+  <link rel="canonical" href="https://sanjarbekmusulmonqulov227-ai.github.io/bron.uz/">
+  <meta property="og:type" content="website"><meta property="og:site_name" content="bron.uz"><meta property="og:title" content="bron.uz: O'zbekiston bo'ylab mehmonxona, zal va tur bron qilish"><meta property="og:description" content="14 hudud va 45 shaharda mehmonxona, hostel, konferens-zal, tur paketlari, avia, poyezd va haydovchili mashina. Narxlar so'mda."><meta property="og:image" content="https://sanjarbekmusulmonqulov227-ai.github.io/bron.uz/icons/icon-512.png">
   <meta name="theme-color" content="#15306f">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -96,8 +98,15 @@
           </label>
           <label class="field">
             <span id="fGuestsLabel">Mehmonlar</span>
-            <input type="number" id="fGuests" min="1" max="5000" value="2" inputmode="numeric">
+            <input type="number" id="fGuests" min="1" max="5000" value="2" inputmode="numeric" hidden>
+            <button type="button" class="dp-btn gp-btn" id="fGuestsBtn" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7a3 3 0 1 0 0-.01M16 8a2.5 2.5 0 1 0 0-.01M2 20v-1a5 5 0 0 1 10 0v1M13 20v-1a4 4 0 0 1 8 0v1"/></svg><span id="fGuestsTxt">2 kishi · 1 xona</span></button>
           </label>
+          <div class="gp-pop" id="guestsPop" role="dialog" aria-label="Mehmonlar va xonalar" hidden>
+            <div class="gp-row"><div><b>Kattalar</b><small>18 yoshdan</small></div><div class="gp-step"><button type="button" data-gp="adults" data-d="-1" aria-label="Kamaytirish">−</button><output id="gpAdults">2</output><button type="button" data-gp="adults" data-d="1" aria-label="Ko'paytirish">+</button></div></div>
+            <div class="gp-row"><div><b>Bolalar</b><small>0–17 yosh</small></div><div class="gp-step"><button type="button" data-gp="kids" data-d="-1" aria-label="Kamaytirish">−</button><output id="gpKids">0</output><button type="button" data-gp="kids" data-d="1" aria-label="Ko'paytirish">+</button></div></div>
+            <div class="gp-row"><div><b>Xonalar</b><small>Har xonaga 4 kishigacha</small></div><div class="gp-step"><button type="button" data-gp="rooms" data-d="-1" aria-label="Kamaytirish">−</button><output id="gpRooms">1</output><button type="button" data-gp="rooms" data-d="1" aria-label="Ko'paytirish">+</button></div></div>
+            <button type="button" class="btn btn-gold gp-done" id="gpDone">Tayyor</button>
+          </div>
           <button class="btn btn-gold search-btn" type="submit">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
             Qidirish
@@ -434,6 +443,13 @@
       <a href="#ilova">Ilovani o'rnatish</a>
     </div>
     <div>
+      <p class="f-title">Huquqiy</p>
+      <a href="oferta.html">Ommaviy oferta</a>
+      <a href="qoidalar.html">Bron va bekor qilish qoidalari</a>
+      <a href="maxfiylik.html">Maxfiylik siyosati</a>
+      <a href="shaharlar.html">Barcha shaharlar</a>
+    </div>
+    <div>
       <p class="f-title">To'lov usullari</p>
       <div class="pays"><span>Click</span><span>Payme</span><span>Uzum</span><span>Naqd</span></div>
     </div>
@@ -453,6 +469,7 @@
       <div class="d-amen" id="dAmen"></div>
       <div id="dExtra"></div>
       <div id="dRooms"></div>
+      <section class="d-reviews" id="dReviews" hidden></section>
       <div class="d-foot">
         <p class="price" id="dPrice"></p>
         <div class="v-acts"><button class="btn btn-line" type="button" id="dMap">Xaritada</button><button class="btn btn-gold" type="button" id="dBook">Bron qilish</button></div>
@@ -470,7 +487,10 @@
       </div>
       <button type="button" class="x" data-close aria-label="Yopish">×</button>
     </div>
-    <label class="field" id="bRoomWrap"><span id="bRoomLabel">Xona turi</span><select id="bRoom"></select></label>
+    <div class="row2 room-row">
+      <label class="field" id="bRoomWrap"><span id="bRoomLabel">Xona turi</span><select id="bRoom"></select></label>
+      <label class="field" id="bRoomsWrap"><span>Xonalar soni</span><select id="bRooms"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></label>
+    </div>
     <div class="row2">
       <label class="field"><span id="bFromLabel">Kelish</span><input type="date" id="bFrom" required></label>
       <label class="field" id="bToWrap"><span id="bToLabel">Ketish</span><input type="date" id="bTo" required></label>
@@ -498,6 +518,7 @@
     <p class="muted small policy" id="bPolicy"></p>
     <p class="avail" id="bAvail" role="status"></p>
     <p class="form-msg" id="bookMsg" role="status"></p>
+    <p class="muted small consent">Tasdiqlash bilan <a href="oferta.html" target="_blank">ommaviy oferta</a>, <a href="qoidalar.html" target="_blank">bekor qilish qoidalari</a> va <a href="maxfiylik.html" target="_blank">maxfiylik siyosatiga</a> rozilik bildirasiz.</p>
     <button class="btn btn-gold wide" type="submit">Bronni tasdiqlash</button>
   </form>
 </dialog>
@@ -513,6 +534,7 @@
     <p class="muted small" id="doneNote"></p>
     <div class="done-acts">
       <button class="btn btn-line" type="button" id="doneIcs">Kalendarga qo'shish</button>
+      <a class="btn btn-gold" id="doneTg" target="_blank" rel="noopener" hidden>Telegram'da kuzatish</a>
       <a class="btn btn-line" id="doneShare" target="_blank" rel="noopener">Telegram'da ulashish</a>
       <button class="btn btn-line" type="button" id="donePrint">Chop etish</button>
       <a class="btn btn-gold" href="#bronlarim" data-close>Bronlarim</a>
@@ -532,13 +554,30 @@
     </div>
     <label class="field" id="aNameWrap" hidden><span>Ism familiya</span><input id="aName" autocomplete="name" placeholder="Ism Familiya"></label>
     <label class="field"><span>Telefon</span><input id="aPhone" type="tel" autocomplete="tel" placeholder="+998 90 123 45 67"></label>
-    <label class="field"><span>Parol</span>
+    <div class="field" id="aCodeWrap" hidden><label for="aCode"><span>SMS kod</span></label><div class="otp-in"><input id="aCode" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="6 xonali kod"><button type="button" class="btn btn-line" id="aSendCode">Kod olish</button></div></div>
+    <label class="field"><span id="aPassLabel">Parol</span>
       <span class="pass"><input id="aPass" type="password" autocomplete="current-password" placeholder="Kamida 8 belgi"><button type="button" class="pass-eye" id="aEye" aria-label="Parolni ko'rsatish">Ko'rsatish</button></span>
     </label>
     <label class="field" id="aPass2Wrap" hidden><span>Parolni takrorlang</span><input id="aPass2" type="password" autocomplete="new-password"></label>
     <p class="form-msg" id="authMsg" role="status"></p>
+    <label class="check" id="aAgreeWrap" hidden><input type="checkbox" id="aAgree"> <span><a href="oferta.html" target="_blank">Ommaviy oferta</a> va <a href="maxfiylik.html" target="_blank">maxfiylik siyosati</a> bilan tanishdim va roziman</span></label>
     <button class="btn btn-gold wide" type="submit" id="authSubmit">Kirish</button>
+    <button type="button" class="linkish" id="aForgot" hidden>Parolni unutdingizmi?</button>
     <p class="muted small" id="authNote"></p>
+  </form>
+</dialog>
+
+<dialog id="reviewDlg" class="dlg" aria-labelledby="rvTitle">
+  <form id="reviewForm" class="dlg-in" novalidate>
+    <div class="dlg-head">
+      <div><p class="eyebrow">Sharh</p><h3 id="rvTitle"></h3></div>
+      <button type="button" class="x" data-close aria-label="Yopish">×</button>
+    </div>
+    <p class="muted small">Sharhni faqat shu joyda bo'lgan mehmon qoldira oladi. Ismingizdan faqat ism va familiyaning bosh harfi ko'rsatiladi.</p>
+    <div class="field"><span>Baho</span><div class="rv-stars" id="rvRate" role="radiogroup" aria-label="Baho"><button type="button" class="chip" role="radio" aria-checked="false" data-rate="1">1</button><button type="button" class="chip" role="radio" aria-checked="false" data-rate="2">2</button><button type="button" class="chip" role="radio" aria-checked="false" data-rate="3">3</button><button type="button" class="chip" role="radio" aria-checked="false" data-rate="4">4</button><button type="button" class="chip" role="radio" aria-checked="false" data-rate="5">5</button><button type="button" class="chip" role="radio" aria-checked="false" data-rate="6">6</button><button type="button" class="chip" role="radio" aria-checked="false" data-rate="7">7</button><button type="button" class="chip" role="radio" aria-checked="false" data-rate="8">8</button><button type="button" class="chip" role="radio" aria-checked="false" data-rate="9">9</button><button type="button" class="chip" role="radio" aria-checked="false" data-rate="10">10</button></div></div>
+    <label class="field"><span>Taassurotingiz</span><textarea id="rvText" rows="4" maxlength="1000" placeholder="Nima yoqdi, nimani yaxshilash kerak?"></textarea></label>
+    <p class="form-msg" id="rvMsg" role="status"></p>
+    <button class="btn btn-gold wide" type="submit">Sharhni yuborish</button>
   </form>
 </dialog>
 
@@ -567,6 +606,7 @@
 <!--BODY-END-->
 <script src="i18n.js"></script>
 <script src="data.js"></script>
+<script src="picker.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

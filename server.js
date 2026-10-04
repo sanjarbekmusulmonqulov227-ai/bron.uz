@@ -52,6 +52,18 @@ db.exec(`
   );
 `);
 if (!db.prepare("PRAGMA table_info(bookings)").all().some((c) => c.name === "user_id")) db.exec("ALTER TABLE bookings ADD COLUMN user_id INTEGER");
+// Hotels can be booked for several identical rooms at once.
+if (!db.prepare("PRAGMA table_info(bookings)").all().some((c) => c.name === "rooms")) db.exec("ALTER TABLE bookings ADD COLUMN rooms INTEGER DEFAULT 1");
+db.exec(`
+  CREATE TABLE IF NOT EXISTS reviews (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, listing_id TEXT NOT NULL, booking_code TEXT NOT NULL UNIQUE, name TEXT NOT NULL,
+    rating INTEGER NOT NULL, text TEXT, created TEXT NOT NULL, hidden INTEGER DEFAULT 0
+  );
+  CREATE TABLE IF NOT EXISTS otps (
+    phone TEXT NOT NULL, purpose TEXT NOT NULL, code_hash TEXT NOT NULL, expires INTEGER NOT NULL, tries INTEGER DEFAULT 0,
+    PRIMARY KEY (phone, purpose)
+  );
+`);
 
 // Older databases limited listing types to hotel/venue/tour; rebuild without that CHECK so hostels fit.
 if (/CHECK \(type IN/.test(db.prepare("SELECT sql FROM sqlite_master WHERE name = 'listings'").get()?.sql || "")) {
@@ -125,11 +137,11 @@ const str = (v, max) => String(v ?? "").trim().slice(0, max);
 // Same room multipliers as public/app.js.
 const ROOMS = { standart: { mult: 1, extra: 0 }, deluxe: { mult: 1.35, extra: 0 }, lyuks: { mult: 1.8, extra: 2 } };
 const roomOf = (item, room) => (item.type === "hotel" && ROOMS[room]) || ROOMS.standart;
-function quote(item, from, to, guests, room) {
+function quote(item, from, to, guests, room, rooms = 1) {
   const p = Math.round(item.price * roomOf(item, room).mult / 1000) * 1000;
   if (item.type === "tour") return p * guests;
   const n = Math.max(1, days(from, to) + (item.type === "venue" ? 1 : 0));
-  return item.type === "hostel" ? p * n * guests : p * n;
+  return item.type === "hostel" ? p * n * guests : item.type === "hotel" ? p * n * rooms : p * n;
 }
 
 // ---------- availability ----------
@@ -144,12 +156,12 @@ function dayList(item, from, to) {
 }
 const addIso = (d, n) => new Date(Date.parse(d) + n * 86400000).toISOString().slice(0, 10);
 function usedOn(item, d, ignoreCode) {
-  const rows = db.prepare("SELECT code, type, date_from, date_to, guests FROM bookings WHERE listing_id = ? AND status != 'bekor qilindi' AND date_from <= ? AND date_to >= ?").all(item.id, d, d);
+  const rows = db.prepare("SELECT code, type, date_from, date_to, guests, rooms FROM bookings WHERE listing_id = ? AND status != 'bekor qilindi' AND date_from <= ? AND date_to >= ?").all(item.id, d, d);
   return rows.filter((r) => r.code !== ignoreCode && (item.type === "venue" || item.type === "tour" ? true : d < r.date_to))
-    .reduce((n, r) => n + (item.type === "hostel" || item.type === "tour" ? r.guests : 1), 0);
+    .reduce((n, r) => n + (item.type === "hostel" || item.type === "tour" ? r.guests : item.type === "hotel" ? r.rooms || 1 : 1), 0);
 }
-function availability(item, from, to, guests, ignoreCode) {
-  const need = item.type === "hostel" || item.type === "tour" ? guests : 1;
+function availability(item, from, to, guests, ignoreCode, rooms = 1) {
+  const need = item.type === "hostel" || item.type === "tour" ? guests : item.type === "hotel" ? rooms : 1;
   const cap = capacityOf(item);
   let free = cap;
   for (const d of dayList(item, from, to)) {
@@ -260,6 +272,15 @@ setInterval(() => {
 // ---------- customer accounts ----------
 const SESSION_DAYS = 30;
 const hashPass = (pass, salt) => crypto.scryptSync(pass, salt, 64).toString("hex");
+// A code is good for 5 minutes and 5 tries, and only once.
+function checkOtp(phone, purpose, code) {
+  const r = db.prepare("SELECT * FROM otps WHERE phone = ? AND purpose = ?").get(phone, purpose);
+  if (!r || r.expires < Date.now() || r.tries >= 5 || !/^\d{6}$/.test(String(code || ""))) { if (r) db.prepare("UPDATE otps SET tries = tries + 1 WHERE phone = ? AND purpose = ?").run(phone, purpose); return false; }
+  const ok = crypto.timingSafeEqual(Buffer.from(hashPass(String(code), SECRET.slice(0, 32)), "hex"), Buffer.from(r.code_hash, "hex"));
+  if (ok) db.prepare("DELETE FROM otps WHERE phone = ? AND purpose = ?").run(phone, purpose);
+  else db.prepare("UPDATE otps SET tries = tries + 1 WHERE phone = ? AND purpose = ?").run(phone, purpose);
+  return ok;
+}
 const safeDecode = (v) => { try { return decodeURIComponent(v); } catch { return ""; } };
 const cookies = (req) => Object.fromEntries((req.headers.cookie || "").split(";").map((c) => c.trim().split("=")).filter((p) => p[0]).map(([k, ...v]) => [k, safeDecode(v.join("="))]));
 // Only a SHA-256 of the session token is stored, so a leaked database cannot be used to log in.
@@ -346,6 +367,18 @@ const SECRET = fs.readFileSync(SECRET_FILE, "utf8").trim();
 const icalKey = (id) => crypto.createHmac("sha256", SECRET).update("ical:" + id).digest("hex").slice(0, 32);
 const ownedIds = (uid) => db.prepare("SELECT listing_id FROM listing_owners WHERE user_id = ?").all(uid).map((r) => r.listing_id);
 
+// ---------- Telegram bot (customers follow their booking, partners get new bookings) ----------
+const STATUS_TEXT = { yangi: "🕓 yangi, menejer ko'rib chiqmoqda", tasdiqlandi: "✅ tasdiqlandi", "bekor qilindi": "❌ bekor qilindi", yakunlandi: "🏁 yakunlandi" };
+const describeBooking = (code) => {
+  const b = db.prepare("SELECT * FROM bookings WHERE code = ?").get(code);
+  if (!b) return "";
+  const dates = b.date_from === b.date_to ? b.date_from : `${b.date_from} – ${b.date_to}`;
+  return `${b.code}: ${b.listing_name}\n${dates}, ${b.guests} kishi${b.rooms > 1 ? `, ${b.rooms} xona` : ""}\nSumma: ${som(b.sum)}\nHolat: ${STATUS_TEXT[b.status] || b.status}`;
+};
+const tg = require("./lib/telegram")({ db, token: TG_TOKEN, secret: SECRET, describe: { booking: describeBooking } });
+const statusChanged = (code) => tg.toBooking(code, `Bron holati o'zgardi.\n\n${describeBooking(code)}`);
+const sms = require("./lib/sms");
+
 async function partnerRoutes(req, res, p, M, url) {
   const u = currentUser(req);
   if (!u) return fail(res, 401, "Avval hisobingizga kiring.");
@@ -354,7 +387,7 @@ async function partnerRoutes(req, res, p, M, url) {
   if (p === "/api/partner/me" && M === "GET") {
     const listings = ids.map((id) => db.prepare("SELECT * FROM listings WHERE id = ?").get(id)).filter(Boolean).map(rowToListing)
       .map((x) => ({ ...x, capacityPerDay: capacityOf(x), ical: `/api/ical/${x.id}.ics?key=${icalKey(x.id)}` }));
-    return send(res, 200, { user: u, listings });
+    return send(res, 200, { user: u, listings, tg: tg.partnerLink(u.id) });
   }
   if (p === "/api/partner/bookings" && M === "GET") {
     if (!ids.length) return send(res, 200, []);
@@ -370,6 +403,7 @@ async function partnerRoutes(req, res, p, M, url) {
     if (!["tasdiqlandi", "bekor qilindi", "yakunlandi"].includes(b.status)) return fail(res, 400, "Holat noto'g'ri.");
     db.prepare("UPDATE bookings SET status = ? WHERE code = ?").run(b.status, m[1]);
     notify(`🏨 Hamkor ${u.name}: ${m[1]} → ${b.status}`);
+    statusChanged(m[1]);
     return send(res, 200, { ok: true });
   }
   m = /^\/api\/partner\/listings\/([\w-]{1,40})$/.exec(p);
@@ -427,6 +461,45 @@ async function handle(req, res) {
   }
 
   // Public API
+  // What this server can do, so the page shows only working features.
+  if (p === "/api/config" && M === "GET") return send(res, 200, { sms: sms.enabled, telegram: tg.username ? `https://t.me/${tg.username}` : "", reviews: true });
+
+  // One-time SMS code for registration and password reset (only when SMS is configured).
+  if (p === "/api/auth/otp" && M === "POST") {
+    if (!sms.enabled) return fail(res, 400, "SMS tasdiqlash yoqilmagan.");
+    if (limited(req, "otp", 3, 10 * 60000)) return fail(res, 429, "Juda ko'p SMS so'raldi. 10 daqiqadan keyin qayta urinib ko'ring.");
+    const b = await readJson(req);
+    const phone = normPhone(b.phone), purpose = b.purpose === "reset" ? "reset" : "register";
+    if (!validPhone(phone)) return fail(res, 400, "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing.");
+    const exists = !!db.prepare("SELECT 1 FROM users WHERE phone = ?").get(phone);
+    if (purpose === "register" && exists) return fail(res, 409, "Bu raqam bilan hisob bor. \"Kirish\" ni tanlang.");
+    const last = db.prepare("SELECT expires FROM otps WHERE phone = ? AND purpose = ?").get(phone, purpose);
+    if (last && last.expires - 4 * 60000 > Date.now()) return fail(res, 429, "Kod yuborildi. Qayta so'rashdan oldin bir daqiqa kuting.");
+    // A reset for an unknown number answers the same way, so the form does not reveal who has an account.
+    if (purpose === "reset" && !exists) return send(res, 200, { ok: true });
+    const code = String(crypto.randomInt(100000, 1000000));
+    db.prepare("INSERT INTO otps (phone, purpose, code_hash, expires, tries) VALUES (?,?,?,?,0) ON CONFLICT(phone, purpose) DO UPDATE SET code_hash = excluded.code_hash, expires = excluded.expires, tries = 0")
+      .run(phone, purpose, hashPass(code, SECRET.slice(0, 32)), Date.now() + 5 * 60000);
+    try { await sms.sendCode(phone, code); } catch (e) { console.warn(e.message); return fail(res, 502, "SMS yuborilmadi. Keyinroq urinib ko'ring."); }
+    return send(res, 200, { ok: true });
+  }
+
+  if (p === "/api/auth/reset" && M === "POST") {
+    if (!sms.enabled) return fail(res, 400, "SMS tasdiqlash yoqilmagan.");
+    if (limited(req, "reset", 5)) return fail(res, 429, "Juda ko'p urinish. Bir daqiqadan keyin qayta urinib ko'ring.");
+    const b = await readJson(req);
+    const phone = normPhone(b.phone), pass = String(b.password || "");
+    if (pass.length < 8 || pass.length > 200) return fail(res, 400, "Parol kamida 8 belgidan iborat bo'lsin.");
+    if (!checkOtp(phone, "reset", b.code)) return fail(res, 400, "SMS kod noto'g'ri yoki eskirgan.");
+    const u = db.prepare("SELECT id FROM users WHERE phone = ?").get(phone);
+    if (!u) return fail(res, 400, "SMS kod noto'g'ri yoki eskirgan.");
+    const salt = crypto.randomBytes(16).toString("hex");
+    db.prepare("UPDATE users SET pass_hash = ?, salt = ? WHERE id = ?").run(hashPass(pass, salt), salt, u.id);
+    db.prepare("DELETE FROM sessions WHERE user_id = ?").run(u.id);
+    failures.delete(phone);
+    return send(res, 200, { ok: true });
+  }
+
   if (p === "/api/auth/register" && M === "POST") {
     if (limited(req, "register", 5)) return fail(res, 429, "Juda ko'p urinish. Bir daqiqadan keyin qayta urinib ko'ring.");
     const b = await readJson(req);
@@ -435,6 +508,7 @@ async function handle(req, res) {
     if (!validPhone(phone)) return fail(res, 400, "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing.");
     if (pass.length < 8 || pass.length > 200) return fail(res, 400, "Parol kamida 8 belgidan iborat bo'lsin.");
     if (db.prepare("SELECT 1 FROM users WHERE phone = ?").get(phone)) return fail(res, 409, "Bu raqam bilan hisob bor. \"Kirish\" ni tanlang.");
+    if (sms.enabled && !checkOtp(phone, "register", b.code)) return fail(res, 400, "SMS kod noto'g'ri yoki eskirgan.");
     const salt = crypto.randomBytes(16).toString("hex");
     const r = db.prepare("INSERT INTO users (name,phone,pass_hash,salt,created) VALUES (?,?,?,?,?)").run(name, phone, hashPass(pass, salt), salt, new Date().toISOString());
     const id = Number(r.lastInsertRowid);
@@ -466,23 +540,55 @@ async function handle(req, res) {
   if (p === "/api/my/bookings" && M === "GET") {
     const u = currentUser(req);
     if (!u) return fail(res, 401, "Avval hisobingizga kiring.");
-    const rows = db.prepare("SELECT code, listing_id AS id, listing_name AS name, city, type, date_from AS 'from', date_to AS 'to', guests, sum, status, phone FROM bookings WHERE user_id = ? ORDER BY created DESC LIMIT 100").all(u.id);
+    const rows = db.prepare("SELECT code, listing_id AS id, listing_name AS name, city, type, date_from AS 'from', date_to AS 'to', guests, rooms, sum, status, phone, EXISTS(SELECT 1 FROM reviews r WHERE r.booking_code = bookings.code) AS reviewed FROM bookings WHERE user_id = ? ORDER BY created DESC LIMIT 100").all(u.id);
     return send(res, 200, rows);
   }
 
   if (p === "/api/listings" && M === "GET") {
-    const rows = db.prepare("SELECT * FROM listings WHERE active = 1").all().map(rowToListing);
+    // Verified guest reviews are counted separately from the listing's own (sample) rating.
+    const stats = Object.fromEntries(db.prepare("SELECT listing_id, COUNT(*) AS n, AVG(rating) AS avg FROM reviews WHERE hidden = 0 GROUP BY listing_id").all().map((r) => [r.listing_id, r]));
+    const rows = db.prepare("SELECT * FROM listings WHERE active = 1").all().map(rowToListing)
+      .map((x) => stats[x.id] ? { ...x, guestReviews: stats[x.id].n, guestRating: Math.round(stats[x.id].avg * 10) / 10 } : x);
     return send(res, 200, rows);
   }
 
   let m;
+  m = /^\/api\/listings\/([\w-]{1,40})\/reviews$/.exec(p);
+  if (m && M === "GET") {
+    const rows = db.prepare("SELECT name, rating, text, created FROM reviews WHERE listing_id = ? AND hidden = 0 ORDER BY created DESC LIMIT 50").all(m[1]);
+    return send(res, 200, rows);
+  }
+  // Only a guest whose stay is over can review, once per booking; the phone (or the logged-in owner) proves it is theirs.
+  if (p === "/api/reviews" && M === "POST") {
+    if (limited(req)) return fail(res, 429, "Juda ko'p so'rov. Bir daqiqadan keyin urinib ko'ring.");
+    const b = await readJson(req);
+    const row = db.prepare("SELECT * FROM bookings WHERE code = ?").get(str(b.code, 12));
+    const u = currentUser(req);
+    if (!row || !((u && row.user_id === u.id) || row.phone === normPhone(b.phone))) return fail(res, 404, "Bron topilmadi.");
+    if (row.type === "transport") return fail(res, 400, "Transport uchun sharh qoldirilmaydi.");
+    if (row.status === "bekor qilindi") return fail(res, 400, "Bekor qilingan bron uchun sharh qoldirib bo'lmaydi.");
+    if (row.status !== "yakunlandi" && row.date_to > today()) return fail(res, 400, "Sharhni joyda bo'lib qaytganingizdan keyin qoldirishingiz mumkin.");
+    const rating = parseInt(b.rating, 10);
+    if (!(rating >= 1 && rating <= 10)) return fail(res, 400, "1 dan 10 gacha baho qo'ying.");
+    const text = str(b.text, 1000);
+    if (db.prepare("SELECT 1 FROM reviews WHERE booking_code = ?").get(row.code)) return fail(res, 409, "Bu bron uchun sharh allaqachon qoldirilgan.");
+    // Show the first name and the initial of the surname only.
+    const parts = row.client.split(/\s+/).filter(Boolean);
+    const name = parts[0] + (parts[1] ? " " + parts[1][0] + "." : "");
+    db.prepare("INSERT INTO reviews (listing_id, booking_code, name, rating, text, created) VALUES (?,?,?,?,?,?)").run(row.listing_id, row.code, name, rating, text, new Date().toISOString());
+    notify(`⭐ Yangi sharh: ${row.listing_name}, ${rating}/10\n${name}: ${text}`);
+    const owner = db.prepare("SELECT user_id FROM listing_owners WHERE listing_id = ?").get(row.listing_id);
+    if (owner) tg.toPartner(owner.user_id, `⭐ Yangi sharh: ${row.listing_name}, ${rating}/10\n${name}: ${text}`);
+    return send(res, 201, { ok: true });
+  }
   if (p === "/api/availability" && M === "GET") {
     const row = db.prepare("SELECT * FROM listings WHERE id = ? AND active = 1").get(str(url.searchParams.get("id"), 40));
     if (!row) return fail(res, 404, "Bu joy topilmadi.");
     const item = rowToListing(row);
     const from = url.searchParams.get("from"), to = item.type === "tour" ? from : url.searchParams.get("to") || from;
     if (!isDate(from) || !isDate(to) || to < from || days(from, to) > 60) return fail(res, 400, "Sanani tekshiring.");
-    return send(res, 200, availability(item, from, to, Math.max(1, parseInt(url.searchParams.get("guests"), 10) || 1)));
+    const rooms = Math.min(10, Math.max(1, parseInt(url.searchParams.get("rooms"), 10) || 1));
+    return send(res, 200, availability(item, from, to, Math.max(1, parseInt(url.searchParams.get("guests"), 10) || 1), undefined, item.type === "hotel" ? rooms : 1));
   }
 
   if (p === "/api/transport-bookings" && M === "POST") {
@@ -503,7 +609,7 @@ async function handle(req, res) {
     db.prepare(`INSERT INTO bookings (code,listing_id,listing_name,city,type,date_from,date_to,guests,sum,pay,client,phone,note,status,created,user_id)
                 VALUES (:code,:listing_id,:listing_name,:city,:type,:date_from,:date_to,:guests,:sum,:pay,:client,:phone,:note,:status,:created,:user_id)`).run(row);
     notify(`🚆 Transport broni ${code}\n${q.label}\n${date}${t.dep ? " " + t.dep : ""}, ${guests} kishi\nSumma: ${som(q.sum)}\nMijoz: ${client}, ${phone}`);
-    return send(res, 201, { code, sum: q.sum, status: "yangi", name: q.label, city: t.from, type: "transport", from: date, to: date, guests });
+    return send(res, 201, { code, sum: q.sum, status: "yangi", name: q.label, city: t.from, type: "transport", from: date, to: date, guests, tg: tg.bookingLink(code) });
   }
 
   if (p === "/api/partner-requests" && M === "POST") {
@@ -557,16 +663,22 @@ async function handle(req, res) {
     if (item.type !== "hotel" && guests > item.capacity) return fail(res, 400, `Bu joy ${item.capacity} kishigacha qabul qiladi.`);
 
     const room = item.type === "hotel" && ROOMS[b.room] ? b.room : "standart";
-    if (guests > item.capacity + roomOf(item, room).extra) return fail(res, 400, `Bu xona ${item.capacity + roomOf(item, room).extra} kishigacha.`);
-    const av = availability(item, from, to, guests);
+    const rooms = item.type === "hotel" ? Math.min(10, Math.max(1, parseInt(b.rooms, 10) || 1)) : 1;
+    const perRoom = item.capacity + roomOf(item, room).extra;
+    if (item.type === "hotel" && guests > perRoom * rooms) return fail(res, 400, rooms > 1 ? `${rooms} ta xonaga ${perRoom * rooms} kishigacha joylashadi.` : `Bu xona ${perRoom} kishigacha.`);
+    if (item.type === "hotel" && rooms > guests) return fail(res, 400, "Xonalar soni mehmonlar sonidan ko'p bo'lmasin.");
+    const av = availability(item, from, to, guests, undefined, rooms);
     if (!av.ok) return fail(res, 409, av.reason);
-    const sum = quote(item, from, to, guests, room);
+    const sum = quote(item, from, to, guests, room, rooms);
     const code = "BRN-" + crypto.randomBytes(4).toString("hex").toUpperCase().slice(0, 6);
-    const booking = { code, listing_id: item.id, listing_name: item.name, city: item.city, type: item.type, date_from: from, date_to: to, guests, sum, pay, client, phone, note: str(b.note, 500), status: "yangi", created: new Date().toISOString(), user_id: currentUser(req)?.id ?? null };
-    db.prepare(`INSERT INTO bookings (code,listing_id,listing_name,city,type,date_from,date_to,guests,sum,pay,client,phone,note,status,created,user_id)
-                VALUES (:code,:listing_id,:listing_name,:city,:type,:date_from,:date_to,:guests,:sum,:pay,:client,:phone,:note,:status,:created,:user_id)`).run(booking);
-    notify(`🆕 Yangi bron ${code}\n${item.name} (${item.city})\n${from}${to !== from ? " – " + to : ""}, ${guests} kishi\nSumma: ${som(sum)} · to'lov: ${pay}\nMijoz: ${client}, ${phone}${booking.note ? "\nIzoh: " + booking.note : ""}`);
-    return send(res, 201, { code, sum, status: booking.status, name: item.name, city: item.city, type: item.type, from, to, guests });
+    const booking = { code, listing_id: item.id, listing_name: item.name, city: item.city, type: item.type, date_from: from, date_to: to, guests, rooms, sum, pay, client, phone, note: str(b.note, 500), status: "yangi", created: new Date().toISOString(), user_id: currentUser(req)?.id ?? null };
+    db.prepare(`INSERT INTO bookings (code,listing_id,listing_name,city,type,date_from,date_to,guests,rooms,sum,pay,client,phone,note,status,created,user_id)
+                VALUES (:code,:listing_id,:listing_name,:city,:type,:date_from,:date_to,:guests,:rooms,:sum,:pay,:client,:phone,:note,:status,:created,:user_id)`).run(booking);
+    const text = `🆕 Yangi bron ${code}\n${item.name} (${item.city})\n${from}${to !== from ? " – " + to : ""}, ${guests} kishi${rooms > 1 ? `, ${rooms} xona` : ""}\nSumma: ${som(sum)} · to'lov: ${pay}\nMijoz: ${client}, ${phone}${booking.note ? "\nIzoh: " + booking.note : ""}`;
+    notify(text);
+    const owner = db.prepare("SELECT user_id FROM listing_owners WHERE listing_id = ?").get(item.id);
+    if (owner) tg.toPartner(owner.user_id, text);
+    return send(res, 201, { code, sum, status: booking.status, name: item.name, city: item.city, type: item.type, from, to, guests, rooms, tg: tg.bookingLink(code) });
   }
 
   // Customer cancels their own booking; phone must match.
@@ -582,6 +694,9 @@ async function handle(req, res) {
     if (row.status === "yakunlandi") return fail(res, 409, "Yakunlangan bronni bekor qilib bo'lmaydi.");
     db.prepare("UPDATE bookings SET status = 'bekor qilindi' WHERE code = ?").run(m[1]);
     notify(`❌ Mijoz bronni bekor qildi: ${m[1]} (${row.listing_name}, ${row.date_from})`);
+    statusChanged(m[1]);
+    const owner = db.prepare("SELECT user_id FROM listing_owners WHERE listing_id = ?").get(row.listing_id);
+    if (owner) tg.toPartner(owner.user_id, `❌ Mijoz bronni bekor qildi: ${m[1]} (${row.listing_name}, ${row.date_from})`);
     return send(res, 200, { ok: true });
   }
 
@@ -614,9 +729,17 @@ async function handle(req, res) {
       const b = await readJson(req);
       if (!STATUSES.includes(b.status)) return fail(res, 400, "Holat noto'g'ri.");
       const r = db.prepare("UPDATE bookings SET status = ? WHERE code = ?").run(b.status, m[1]);
+      if (r.changes) statusChanged(m[1]);
       return r.changes ? send(res, 200, { ok: true }) : fail(res, 404, "Bron topilmadi.");
     }
 
+    if (p === "/api/admin/reviews" && M === "GET") return send(res, 200, db.prepare("SELECT r.*, l.name AS listing_name FROM reviews r LEFT JOIN listings l ON l.id = r.listing_id ORDER BY r.created DESC LIMIT 500").all());
+    m = /^\/api\/admin\/reviews\/(\d+)$/.exec(p);
+    if (m && M === "PATCH") {
+      const b = await readJson(req);
+      const r = db.prepare("UPDATE reviews SET hidden = ? WHERE id = ?").run(b.hidden ? 1 : 0, Number(m[1]));
+      return r.changes ? send(res, 200, { ok: true }) : fail(res, 404, "Sharh topilmadi.");
+    }
     if (p === "/api/admin/requests" && M === "GET") return send(res, 200, db.prepare("SELECT * FROM group_requests ORDER BY created DESC LIMIT 500").all());
     m = /^\/api\/admin\/requests\/(\d+)$/.exec(p);
     if (m && M === "PATCH") {
@@ -719,5 +842,6 @@ server.headersTimeout = 10000;
 
 if (require.main === module) {
   server.listen(PORT, () => console.log(`bron.uz ishga tushdi: http://localhost:${PORT}  (admin: /admin)`));
+  tg.start();
 }
 module.exports = { server, db, CITIES };

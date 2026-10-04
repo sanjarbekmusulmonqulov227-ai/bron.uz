@@ -71,8 +71,9 @@
   const T = (s) => (window.BRON_I18N ? window.BRON_I18N.t(s) : s);
   const $ = (s) => document.querySelector(s);
   const $$ = (s) => Array.from(document.querySelectorAll(s));
-  const state = { type: "hotel", city: "", from: "", to: "", guests: 2, sort: "rec", maxPct: 100, stars: new Set(), amen: new Set(), free: false, deals: false, favOnly: false, current: null, room: "standart", limit: 9, vFormat: "", vLimit: 6, pk: "multi", trMode: "avia", mapType: "", region: "", allCities: false };
+  const state = { type: "hotel", city: "", from: "", to: "", guests: 2, sort: "rec", maxPct: 100, stars: new Set(), amen: new Set(), free: false, deals: false, favOnly: false, current: null, room: "standart", limit: 9, vFormat: "", vLimit: 6, pk: "multi", trMode: "avia", mapType: "", region: "", allCities: false, kids: 0, rooms: 1, bRooms: 1 };
   let API = false;
+  let CFG = { sms: false, telegram: "", reviews: false };
 
   // ---------- helpers ----------
   const som = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " so'm";
@@ -230,13 +231,14 @@
   // ---------- pricing ----------
   function roomOf(item, roomId) { return item.type === "hotel" ? (ROOMS.find((r) => r.id === roomId) || ROOMS[0]) : ROOMS[0]; }
   function unitPrice(item, roomId) { return Math.round(item.price * roomOf(item, roomId).mult / 1000) * 1000; }
-  function quote(item, from, to, guests, roomId) {
+  function quote(item, from, to, guests, roomId, rooms = 1) {
     const t = TYPES[item.type];
     if (item.type === "transport") { const q = tripQuote(item.trip, roomId, guests); return { label: q.mode === "avto" ? `${q.name}, butun mashina` : `${som(q.unit)} × ${guests} ${t.noun}`, sum: q.sum }; }
     const p = unitPrice(item, roomId);
     if (item.type === "tour") return { label: `${som(p)} × ${guests} ${t.noun}`, sum: p * guests };
     const n = Math.max(1, daysBetween(from, to) + (item.type === "venue" ? 1 : 0));
     if (item.type === "hostel") return { label: `${som(p)} × ${n} ${t.noun} × ${guests} o'rin`, sum: p * n * guests };
+    if (item.type === "hotel" && rooms > 1) return { label: `${som(p)} × ${n} ${t.noun} × ${rooms} xona`, sum: p * n * rooms };
     return { label: `${som(p)} × ${n} ${t.noun}`, sum: p * n };
   }
 
@@ -295,6 +297,10 @@
     $("#fFromLabel").textContent = t.from;
     $("#fToLabel").textContent = t.to;
     $("#fGuestsLabel").textContent = t.guests;
+    $("#fGuestsBtn").hidden = type !== "hotel";
+    $("#fGuests").hidden = type === "hotel";
+    if (type !== "hotel") { state.kids = 0; state.rooms = 1; }
+    if (type === "hotel" && +$("#fGuests").value > 40) $("#fGuests").value = 2;
     $("#fToWrap").hidden = type === "tour";
     $("#fieldsMain").classList.toggle("no-to", type === "tour");
     if (type === "venue" && +$("#fGuests").value < 10) $("#fGuests").value = 50;
@@ -303,6 +309,7 @@
     if (state.favOnly && !LISTINGS.some((x) => x.type === type && favs.has(x.id))) { state.favOnly = false; $("#fFav").checked = false; }
     buildFilters();
     readSearch();
+    if (type === "hotel") guestsText();
     render();
   }
 
@@ -346,7 +353,7 @@
     const need = state.guests;
     let list = LISTINGS.filter((x) => x.type === state.type
       && inPlace(x.city, state.city)
-      && x.capacity + (x.type === "hotel" ? 2 : 0) >= need
+      && x.capacity + (x.type === "hotel" ? 2 : 0) >= (x.type === "hotel" ? Math.ceil(need / state.rooms) : need)
       && x.price <= cap
       && (!state.stars.size || state.stars.has(x.stars))
       && [...state.amen].every((a) => (x.amenities || []).includes(a))
@@ -559,6 +566,7 @@
     if (!x) return;
     state.current = x;
     state.room = "standart";
+    loadReviews(x);
     const t = TYPES[x.type];
     const ps = photosFor(x);
     $("#dArt").className = "gallery";
@@ -592,7 +600,7 @@
     const item = LISTINGS.find((x) => x.id === id) || tripItem(TRIPS.get(id));
     if (!item) return;
     state.current = item;
-    state.room = item.type === "transport" ? roomId || "" : roomId || (item.type === "hotel" ? (ROOMS.find((r) => item.capacity + r.extra >= state.guests) || ROOMS[ROOMS.length - 1]).id : "standart");
+    state.room = item.type === "transport" ? roomId || "" : roomId || (item.type === "hotel" ? (ROOMS.find((r) => item.capacity + r.extra >= Math.ceil(state.guests / (sameTypeOf(item) ? state.rooms : 1))) || ROOMS[ROOMS.length - 1]).id : "standart");
     const t = TYPES[item.type];
     $("#dlgTitle").textContent = item.name;
     $("#dlgCity").textContent = item.type === "transport" ? `${{ avia: "Aviareys", poyezd: "Poyezd", avto: "Haydovchili avtomobil" }[item.trip.mode]}${item.trip.dep ? " · jo'nash " + item.trip.dep : ""}` : `${t.kind} · ${item.city}`;
@@ -602,6 +610,9 @@
     $("#bToWrap").hidden = item.type === "tour" || item.type === "transport";
     const trainClasses = item.type === "transport" && item.trip.mode === "poyezd";
     $("#bRoomWrap").hidden = item.type !== "hotel" && !trainClasses;
+    $("#bRoomsWrap").hidden = item.type !== "hotel";
+    state.bRooms = item.type === "hotel" && sameTypeOf(item) ? state.rooms : 1;
+    $("#bRooms").value = state.bRooms;
     $("#bRoomLabel").textContent = trainClasses ? "Vagon klassi" : "Xona turi";
     $("#bRoom").innerHTML = item.type !== "hotel" && !trainClasses ? "" : trainClasses
       ? Object.entries(item.trip.classes).map(([c, pr]) => `<option value="${c}"${c === state.room ? " selected" : ""}>${c[0].toUpperCase() + c.slice(1)} · ${som(pr)}</option>`).join("")
@@ -623,18 +634,21 @@
     if (user) { if (!$("#bName").value) $("#bName").value = user.name; if (!$("#bPhone").value) $("#bPhone").value = user.phone; }
     setTimeout(() => (user ? $("#bFrom") : $("#bName")).focus(), 30);
   }
+  const sameTypeOf = (item) => state.type === item.type;
   function syncBookDates() {
     const item = state.current, f = $("#bFrom").value;
     const max = iso(addDays(new Date(), 365));
     $("#bFrom").max = max; $("#bTo").max = iso(addDays(new Date(), 425));
     $("#bTo").min = f ? (item && nightly(item) ? iso(addDays(day(f), 1)) : f) : todayIso();
   }
-  const capOf = (item) => item.capacity + (item.type === "hotel" ? roomOf(item, state.room).extra : 0);
+  const capOf = (item) => item.type === "hotel" ? (item.capacity + roomOf(item, state.room).extra) * state.bRooms : item.capacity;
+  const bookRooms = () => Math.min(10, Math.max(1, parseInt($("#bRooms").value, 10) || 1));
 
   function updateTotal() {
     const item = state.current;
     if (!item) return;
     state.room = $("#bRoom").value || (item.type === "transport" ? "" : "standart");
+    state.bRooms = item.type === "hotel" ? bookRooms() : 1;
     $("#bGuests").max = capOf(item);
     const from = $("#bFrom").value, to = $("#bTo").value;
     const guests = Math.max(1, parseInt($("#bGuests").value, 10) || 1);
@@ -643,7 +657,7 @@
     if (badDates) { $("#totalCalc").textContent = "Sanalarni tekshiring"; $("#totalSum").textContent = "—"; $("#bAvail").textContent = ""; return; }
     $("#bPolicy").textContent = item.type === "transport" ? "Chipta narxi namuna jadval asosida. Aniq narxni menejer tasdiqlaydi."
       : item.free ? "✓ Bepul bekor qilish mumkin. To'lov joyida yoki oldindan." : "Bekor qilish shartlarini menejer bron tasdiqlanganda aytadi.";
-    const q = quote(item, from, to || from, guests, state.room);
+    const q = quote(item, from, to || from, guests, state.room, state.bRooms);
     $("#totalCalc").textContent = q.label;
     $("#totalSum").textContent = som(q.sum);
     checkAvailability(item, from, to || from, guests);
@@ -658,7 +672,7 @@
     if (!API || item.type === "transport") return;
     availTimer = setTimeout(async () => {
       try {
-        const r = await fetch(`/api/availability?id=${encodeURIComponent(item.id)}&from=${from}&to=${to}&guests=${guests}`);
+        const r = await fetch(`/api/availability?id=${encodeURIComponent(item.id)}&from=${from}&to=${to}&guests=${guests}&rooms=${state.bRooms}`);
         const a = await r.json();
         if (state.current !== item) return;
         el.textContent = a.ok ? `✓ Bo'sh: ${item.type === "venue" ? "sana ochiq" : a.free + " ta joy"}` : a.reason || a.error || "";
@@ -697,18 +711,18 @@
       try {
         const r = item.type === "transport"
           ? await api("/api/transport-bookings", { tripId: item.id, cls: state.room, date: from, guests, client: name, phone, pay, note })
-          : await api("/api/bookings", { listingId: item.id, from, to, guests, client: name, phone, pay, note, room });
-        booking = { code: r.code, id: item.id, name: r.name, city: r.city, type: r.type, from: r.from, to: r.to, guests: r.guests, sum: r.sum, status: r.status, phone: normPhone(phone) };
+          : await api("/api/bookings", { listingId: item.id, from, to, guests, client: name, phone, pay, note, room, rooms: state.bRooms });
+        booking = { code: r.code, id: item.id, name: r.name, city: r.city, type: r.type, from: r.from, to: r.to, guests: r.guests, sum: r.sum, status: r.status, phone: normPhone(phone), tg: r.tg || "" };
       } catch (err) { msg.textContent = err.message; return; }
       finally { btn.disabled = false; }
     } else {
       const code = "BRN-" + Math.random().toString(36).slice(2, 8).toUpperCase();
-      booking = { code, id: item.id, name: item.name, city: item.city, type: item.type, from, to, guests, sum: quote(item, from, to, guests, item.type === "transport" ? state.room : room).sum, phone: normPhone(phone) };
+      booking = { code, id: item.id, name: item.name, city: item.city, type: item.type, from, to, guests, sum: quote(item, from, to, guests, item.type === "transport" ? state.room : room, state.bRooms).sum, phone: normPhone(phone) };
     }
     if (user) booking.owner = user.phone;
     booking.pay = pay;
     booking.created = new Date().toISOString();
-    if (item.type === "hotel") booking.room = roomOf(item, state.room).name;
+    if (item.type === "hotel") booking.room = roomOf(item, state.room).name + (state.bRooms > 1 ? ` × ${state.bRooms}` : "");
     else if (item.type === "transport" && state.room) booking.room = state.room;
     saveBookings([booking, ...memoryBookings]);
     if (API && user) serverBookings = [booking, ...serverBookings];
@@ -733,6 +747,8 @@
       ? (item && item.free ? "Menejer bronni tasdiqlab, siz bilan bog'lanadi. Bu joyda bronni bepul bekor qilish mumkin." : "Menejer bronni tasdiqlab, siz bilan bog'lanadi.")
       : "Sayt hozir namuna rejimida: bron faqat shu qurilmada saqlandi va joy egasiga yuborilmadi.";
     const text = `${T("Bron qabul qilindi")}: ${b.code} · ${b.name} · ${dates}`;
+    $("#doneTg").hidden = !b.tg;
+    if (b.tg) $("#doneTg").href = b.tg;
     $("#doneShare").href = `https://t.me/share/url?url=${encodeURIComponent(location.origin + location.pathname)}&text=${encodeURIComponent(text)}`;
     openDlg($("#doneDlg"));
     setTimeout(() => $("#doneCopy").focus(), 30);
@@ -768,6 +784,48 @@
     if (!memoryBookings.some((b) => !b.owner)) return;
     saveBookings(memoryBookings.map((b) => b.owner ? b : { ...b, owner: u.phone }));
   }
+  // ---------- verified reviews (server mode) ----------
+  const REVIEWED_KEY = "bronuz.reviewed";
+  let reviewed = new Set(store(REVIEWED_KEY, []));
+  const canReview = (b) => API && b.type !== "transport" && b.status !== "bekor qilindi" && (b.status === "yakunlandi" || (b.to || b.from) <= todayIso()) && !b.reviewed && !reviewed.has(b.code);
+  let reviewFor = null, reviewRate = 0;
+  function openReview(code) {
+    const b = myBookings().find((x) => x.code === code);
+    if (!b) return;
+    reviewFor = b; reviewRate = 0;
+    $("#rvTitle").textContent = b.name;
+    $("#rvText").value = ""; $("#rvMsg").textContent = "";
+    $$("#rvRate [data-rate]").forEach((x) => x.setAttribute("aria-checked", "false"));
+    openDlg($("#reviewDlg"));
+  }
+  async function submitReview(e) {
+    e.preventDefault();
+    const msg = $("#rvMsg"); msg.className = "form-msg err";
+    if (!reviewRate) { msg.textContent = "1 dan 10 gacha baho qo'ying."; return; }
+    try {
+      await api("/api/reviews", { code: reviewFor.code, phone: reviewFor.phone, rating: reviewRate, text: $("#rvText").value.trim() });
+    } catch (err) { if (!/allaqachon/.test(err.message)) { msg.textContent = err.message; return; } }
+    reviewed.add(reviewFor.code); keep(REVIEWED_KEY, [...reviewed]);
+    closeDlg($("#reviewDlg"));
+    renderMine();
+    toast("Rahmat! Sharhingiz qabul qilindi.");
+  }
+  async function loadReviews(item) {
+    const box = $("#dReviews");
+    box.hidden = true; box.innerHTML = "";
+    if (!API || !item || item.type === "transport") return;
+    try {
+      const r = await fetch(`/api/listings/${encodeURIComponent(item.id)}/reviews`);
+      const list = r.ok ? await r.json() : [];
+      if (state.current !== item) return;
+      const avg = list.length ? Math.round(list.reduce((n, x) => n + x.rating, 0) / list.length * 10) / 10 : 0;
+      box.innerHTML = `<h4>Tasdiqlangan mehmonlar sharhlari</h4>` + (list.length
+        ? `<p class="rv-sum"><b>${String(avg).replace(".", ",")}</b> <span>${list.length} ta sharh, faqat shu yerda yashagan mehmonlardan</span></p>` + list.slice(0, 6).map((x) => `<blockquote class="rv"><p><b>${esc(x.name)}</b> <span class="rv-score">${x.rating}/10</span> <small>${fmtDate(x.created.slice(0, 10))}</small></p>${x.text ? `<p>${esc(x.text)}</p>` : ""}</blockquote>`).join("")
+        : `<p class="muted small">Hali tasdiqlangan sharh yo'q. Bron qilib, yashab ketgan mehmonlar sharh qoldira oladi.</p>`);
+      box.hidden = false;
+    } catch (e) { /* offline */ }
+  }
+
   function renderMine() {
     const list = myBookings();
     $("#myCount").textContent = list.filter(isActive).length;
@@ -783,7 +841,8 @@
         <div class="grow"><b>${esc(b.name)}</b><span class="muted">${esc(b.city)} · ${dates} · ${b.guests} kishi${b.room ? " · " + esc(b.room) : ""}${b.pay ? " · " + esc(PAY_LABEL[b.pay] || b.pay) : ""}</span></div>
         <span class="sum">${som(b.sum)}</span>
         <span class="st st-${STATUS_CLASS[b.status || "yangi"] || "new"}">${esc(STATUS_LABEL[b.status || "yangi"] || b.status)}</span>
-        ${isActive(b) ? `<span class="b-acts"><button class="btn btn-line" type="button" data-ics="${esc(b.code)}" aria-label="Kalendarga qo'shish">📅</button><button class="btn btn-line" type="button" data-cancel="${esc(b.code)}">Bekor qilish</button></span>` : ""}
+        ${canReview(b) ? `<span class="b-acts"><button class="btn btn-gold" type="button" data-review="${esc(b.code)}">Sharh qoldirish</button></span>`
+          : isActive(b) ? `<span class="b-acts"><button class="btn btn-line" type="button" data-ics="${esc(b.code)}" aria-label="Kalendarga qo'shish">📅</button><button class="btn btn-line" type="button" data-cancel="${esc(b.code)}">Bekor qilish</button></span>` : ""}
       </div>`;
     }).join("");
   }
@@ -984,7 +1043,63 @@
     $(".hero .eyebrow").textContent = `${cities} shahar · ${LISTINGS.length} joy · narxlar so'mda`;
   }
 
+  // ---------- guests & rooms picker (hotels) ----------
+  function guestsText() {
+    const adults = Math.max(1, state.guests - state.kids);
+    $("#gpAdults").textContent = adults; $("#gpKids").textContent = state.kids; $("#gpRooms").textContent = state.rooms;
+    $("#fGuestsTxt").textContent = `${state.guests} kishi · ${state.rooms} xona`;
+    $$("#guestsPop [data-gp]").forEach((b) => {
+      const k = b.dataset.gp, d = +b.dataset.d, v = { adults, kids: state.kids, rooms: state.rooms }[k];
+      b.disabled = d < 0 ? v <= (k === "kids" ? 0 : 1) || (k === "adults" && v <= state.rooms) : (k === "rooms" ? v >= Math.min(10, adults) : k === "kids" ? v >= 10 : v >= 40);
+    });
+  }
+  function initGuestsPicker() {
+    const pop = $("#guestsPop"), btn = $("#fGuestsBtn");
+    document.body.appendChild(pop);
+    const place = () => {
+      if (matchMedia("(max-width: 640px)").matches) { pop.style.left = pop.style.top = ""; return; }
+      const r = btn.getBoundingClientRect();
+      pop.style.left = `${Math.max(8, Math.min(r.right - pop.offsetWidth, document.documentElement.clientWidth - pop.offsetWidth - 8))}px`;
+      const h = pop.offsetHeight;
+      pop.style.top = `${r.bottom + 8 + h > innerHeight && r.top - 8 - h > 0 ? r.top - 8 - h : Math.min(r.bottom + 8, Math.max(8, innerHeight - h - 8))}px`;
+    };
+    const show = (on) => { pop.hidden = !on; btn.setAttribute("aria-expanded", String(on)); if (on) { guestsText(); place(); const b = pop.querySelector("button:not([disabled])"); if (b) b.focus({ preventScroll: true }); } };
+    window.addEventListener("scroll", () => { if (!pop.hidden) place(); }, { passive: true });
+    btn.addEventListener("click", () => show(pop.hidden));
+    pop.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-gp]");
+      if (b) {
+        let adults = Math.max(1, state.guests - state.kids);
+        const d = +b.dataset.d;
+        if (b.dataset.gp === "adults") adults = Math.min(40, Math.max(state.rooms, adults + d));
+        if (b.dataset.gp === "kids") state.kids = Math.min(10, Math.max(0, state.kids + d));
+        if (b.dataset.gp === "rooms") state.rooms = Math.min(10, adults, Math.max(1, state.rooms + d));
+        $("#fGuests").value = adults + state.kids;
+        readSearch(); guestsText(); render();
+        return;
+      }
+      if (e.target.closest("#gpDone")) { show(false); btn.focus(); }
+    });
+    pop.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.preventDefault(); show(false); btn.focus(); } });
+    document.addEventListener("pointerdown", (e) => { if (!pop.hidden && !pop.contains(e.target) && !btn.contains(e.target)) show(false); });
+    guestsText();
+  }
+
+  // ---------- date pickers ----------
+  const spanText = (type, f, t) => { const n = daysBetween(f, t) + (type === "venue" ? 1 : 0); return `${fmtDate(f)} – ${fmtDate(t)} · ${n} ${TYPES[type].noun}`; };
+  function initDatePickers() {
+    if (!window.BRON_PICKER) return;
+    const hint = (type, end) => nightly({ type }) ? (end ? "Ketish sanasini tanlang" : "Kelish sanasini tanlang") : (end ? "Oxirgi kunni tanlang" : "Birinchi kunni tanlang");
+    BRON_PICKER.range({ from: $("#fFrom"), to: $("#fTo"), single: () => state.type === "tour", minSpan: () => nightly({ type: state.type }) ? 1 : 0,
+      span: (f, t) => spanText(state.type, f, t), fromHint: () => hint(state.type, false), toHint: () => hint(state.type, true) });
+    const it = () => state.current || { type: "hotel" };
+    BRON_PICKER.range({ from: $("#bFrom"), to: $("#bTo"), single: () => it().type === "tour" || it().type === "transport", minSpan: () => nightly(it()) ? 1 : 0,
+      span: (f, t) => spanText(it().type, f, t), fromHint: () => hint(it().type, false), toHint: () => hint(it().type, true) });
+    $("#fTo").addEventListener("change", readSearch);
+  }
+
   function init() {
+    initDatePickers();
     const start = addDays(new Date(), 7);
     $("#fFrom").value = iso(start);
     $("#fTo").value = iso(addDays(start, 2));
@@ -992,6 +1107,7 @@
 
     heroArt();
     heroPhoto();
+    initGuestsPicker();
     initAuth();
     initApp();
     renderCities();
@@ -1110,13 +1226,16 @@
       if (item && f && item.type === "venue" && t < f) $("#bTo").value = f;
       syncBookDates(); updateTotal();
     });
-    ["#bFrom", "#bTo", "#bGuests", "#bRoom"].forEach((s) => $(s).addEventListener("input", updateTotal));
+    ["#bFrom", "#bTo", "#bGuests", "#bRoom", "#bRooms"].forEach((s) => $(s).addEventListener("input", updateTotal));
     $("#bookForm").addEventListener("submit", submitBooking);
     $("#doneCopy").addEventListener("click", async () => { try { await navigator.clipboard.writeText(lastDone.code); } catch (e) { /* no clipboard */ } toast(T("Bron raqami nusxalandi") + ": " + lastDone.code); });
     $("#doneIcs").addEventListener("click", () => lastDone && downloadIcs(lastDone));
     $("#donePrint").addEventListener("click", () => window.print());
     $("#myList").addEventListener("click", (e) => { const b = e.target.closest("[data-ics]"); if (!b) return; const bk = myBookings().find((x) => x.code === b.dataset.ics); if (bk) downloadIcs(bk); });
     $("#miceForm").addEventListener("submit", submitMice);
+    $("#reviewForm").addEventListener("submit", submitReview);
+    $("#rvRate").addEventListener("click", (e) => { const b = e.target.closest("[data-rate]"); if (!b) return; reviewRate = +b.dataset.rate; $$("#rvRate [data-rate]").forEach((x) => x.setAttribute("aria-checked", String(x === b))); });
+    $("#myList").addEventListener("click", (e) => { const b = e.target.closest("[data-review]"); if (b) openReview(b.dataset.review); });
 
     buildFilters();
     readSearch();
@@ -1149,8 +1268,8 @@
     if (!r.ok) throw new Error(data.error || "Server javob bermadi.");
     return data;
   }
-  async function register(name, phone, pass) {
-    if (API) return authRequest("/api/auth/register", { name, phone, password: pass });
+  async function register(name, phone, pass, code) {
+    if (API) return authRequest("/api/auth/register", { name, phone, password: pass, code });
     const users = store(USERS_KEY, {});
     if (users[phone]) throw new Error("Bu raqam bilan hisob bor. \"Kirish\" ni tanlang.");
     const salt = Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -1194,16 +1313,35 @@
     setUser(u ? { name: u.name, phone } : null);
   }
 
+  // Modes: login, register, reset (new password by SMS code; only when the server sends SMS).
   function setAuthMode(mode) {
     authMode = mode;
     $$("#authDlg .seg-b").forEach((b) => { const on = b.dataset.mode === mode; b.classList.toggle("is-on", on); b.setAttribute("aria-selected", String(on)); });
-    const reg = mode === "register";
+    const reg = mode === "register", reset = mode === "reset";
     $("#aNameWrap").hidden = !reg;
-    $("#aPass2Wrap").hidden = !reg;
-    $("#authTitle").textContent = reg ? "Ro'yxatdan o'tish" : "Kirish";
-    $("#authSubmit").textContent = reg ? "Hisob yaratish" : "Kirish";
-    $("#aPass").autocomplete = reg ? "new-password" : "current-password";
+    $("#aPass2Wrap").hidden = !reg && !reset;
+    $("#aCodeWrap").hidden = !(API && CFG.sms && (reg || reset));
+    $("#aAgreeWrap").hidden = !reg;
+    $("#aForgot").hidden = !(API && CFG.sms && mode === "login");
+    $("#authTitle").textContent = reg ? "Ro'yxatdan o'tish" : reset ? "Parolni tiklash" : "Kirish";
+    $("#authSubmit").textContent = reg ? "Hisob yaratish" : reset ? "Yangi parolni saqlash" : "Kirish";
+    $("#aPassLabel").textContent = reset ? "Yangi parol" : "Parol";
+    $("#aPass").autocomplete = reg || reset ? "new-password" : "current-password";
     $("#authMsg").textContent = "";
+  }
+  async function sendCode() {
+    const msg = $("#authMsg"), phone = normPhone($("#aPhone").value.trim());
+    msg.className = "form-msg err";
+    if (!validPhone(phone)) { msg.textContent = "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing."; $("#aPhone").focus(); return; }
+    const btn = $("#aSendCode"); btn.disabled = true;
+    try {
+      await api("/api/auth/otp", { phone, purpose: authMode === "reset" ? "reset" : "register" });
+      msg.className = "form-msg ok"; msg.textContent = "Kod SMS orqali yuborildi. U 5 daqiqa amal qiladi.";
+      $("#aCode").focus();
+      let left = 60;
+      const tick = () => { btn.textContent = left > 0 ? `Qayta yuborish (${left})` : "Qayta yuborish"; if (left-- > 0) setTimeout(tick, 1000); else btn.disabled = false; };
+      tick();
+    } catch (err) { msg.textContent = err.message; btn.disabled = false; }
   }
   function openAuth(mode) {
     if (user) return openProfile();
@@ -1229,15 +1367,19 @@
     if (authMode === "register" && name.length < 3) { msg.textContent = "Ism familiyangizni kiriting."; return; }
     if (!validPhone(phone)) { msg.textContent = "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing."; return; }
     if (pass.length < 8) { msg.textContent = "Parol kamida 8 belgidan iborat bo'lsin."; return; }
-    if (authMode === "register" && pass !== $("#aPass2").value) { msg.textContent = "Parollar bir xil emas."; return; }
+    if ((authMode === "register" || authMode === "reset") && pass !== $("#aPass2").value) { msg.textContent = "Parollar bir xil emas."; return; }
+    const code = $("#aCode").value.trim();
+    if (!$("#aCodeWrap").hidden && !/^\d{6}$/.test(code)) { msg.textContent = "SMS orqali kelgan 6 xonali kodni kiriting."; $("#aCode").focus(); return; }
+    if (authMode === "register" && !$("#aAgree").checked) { msg.textContent = "Ro'yxatdan o'tish uchun oferta va maxfiylik siyosatiga rozilik bering."; return; }
     const btn = $("#authSubmit"); btn.disabled = true;
     try {
-      const u = authMode === "register" ? await register(name, phone, pass) : await login(phone, pass);
+      if (authMode === "reset") await api("/api/auth/reset", { phone, code, password: pass });
+      const u = authMode === "register" ? await register(name, phone, pass, code) : await login(phone, pass);
       claimGuestBookings(u);
       await setUser({ name: u.name, phone: u.phone });
       closeDlg($("#authDlg"));
       $("#authForm").reset();
-      toast(authMode === "register" ? `Xush kelibsiz, ${u.name.split(" ")[0]}! Hisob yaratildi.` : `Xush kelibsiz, ${u.name.split(" ")[0]}!`);
+      toast(authMode === "register" ? `Xush kelibsiz, ${u.name.split(" ")[0]}! Hisob yaratildi.` : authMode === "reset" ? "Parol yangilandi." : `Xush kelibsiz, ${u.name.split(" ")[0]}!`);
     } catch (err) { msg.textContent = err.message; }
     finally { btn.disabled = false; }
   }
@@ -1246,6 +1388,8 @@
     $("#tabProfile").addEventListener("click", () => openAuth());
     $$("#authDlg .seg-b").forEach((b) => b.addEventListener("click", () => setAuthMode(b.dataset.mode)));
     $("#authForm").addEventListener("submit", submitAuth);
+    $("#aSendCode").addEventListener("click", sendCode);
+    $("#aForgot").addEventListener("click", () => { setAuthMode("reset"); $("#aPhone").focus(); });
     $("#aEye").addEventListener("click", () => { const show = $("#aPass").type === "password"; $("#aPass").type = $("#aPass2").type = show ? "text" : "password"; $("#aEye").textContent = show ? "Yashirish" : "Ko'rsatish"; });
     $("#logoutBtn").addEventListener("click", () => { closeDlg($("#profileDlg")); logout(); });
     restoreUser();
@@ -1283,6 +1427,7 @@
       if (!Array.isArray(rows) || !rows.length) return;
       LISTINGS = rows;
       API = true;
+      fetch("/api/config").then((r) => r.ok ? r.json() : null).then((c) => { if (c) CFG = c; }).catch(() => {});
       restoreUser();
       $("#sampleNote").hidden = true;
       render(); renderDeals(); renderCities(); heroCount(); renderVenues(); renderPackages(); renderCats(); renderMapMarkers(); renderRecent();

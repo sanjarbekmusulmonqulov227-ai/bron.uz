@@ -36,6 +36,8 @@
     show("#pcMain");
     $("#pcOut").hidden = false;
     $("#pcName").textContent = me.user.name || me.user.phone;
+    $("#pcTg").hidden = !me.tg;
+    if (me.tg) $("#pcTgLink").href = me.tg;
     const none = !me.listings.length;
     $("#pcEmpty").hidden = !none;
     $("#pcTabs").hidden = none;

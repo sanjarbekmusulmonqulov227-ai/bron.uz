@@ -44,6 +44,13 @@
       <td>${statusSelect("requests", r.id, r.status)}</td></tr>`).join("") : `<tr><td colspan="6" class="muted">Guruh so'rovlari hali yo'q.</td></tr>`;
   }
 
+  async function loadReviews() {
+    const rows = await call("GET", "/api/admin/reviews");
+    $("#reviewsBody").innerHTML = rows.length ? rows.map((r) => `<tr${r.hidden ? ' class="muted"' : ""}>
+      <td class="num">${d(r.created)}</td><td>${esc(r.listing_name || r.listing_id)}</td><td>${esc(r.name)}</td><td class="num"><b>${r.rating}</b>/10</td><td>${esc(r.text)}</td><td class="num">${esc(r.booking_code)}</td>
+      <td><button class="btn line" data-rv="${r.id}" data-rv-hide="${r.hidden ? 0 : 1}">${r.hidden ? "Ko'rsatish" : "Yashirish"}</button></td></tr>`).join("") : `<tr><td colspan="7" class="muted">Sharhlar hali yo'q.</td></tr>`;
+  }
+
   async function loadPartners() {
     const rows = await call("GET", "/api/admin/partner-requests");
     $("#partnersBody").innerHTML = rows.length ? rows.map((r) => `<tr>
@@ -90,8 +97,8 @@
     try {
       if (t.dataset.tab) {
         document.querySelectorAll("nav button").forEach((b) => b.classList.toggle("on", b === t));
-        ["bookings", "requests", "listings", "partners"].forEach((k) => { $("#tab-" + k).hidden = k !== t.dataset.tab; });
-        ({ bookings: loadBookings, requests: loadRequests, listings: loadListings, partners: loadPartners })[t.dataset.tab]();
+        ["bookings", "requests", "listings", "partners", "reviews"].forEach((k) => { $("#tab-" + k).hidden = k !== t.dataset.tab; });
+        ({ bookings: loadBookings, requests: loadRequests, listings: loadListings, partners: loadPartners, reviews: loadReviews })[t.dataset.tab]();
       } else if (t.dataset.edit) { fillForm(listings.find((x) => x.id === t.dataset.edit)); window.scrollTo(0, 0); }
       else if (t.dataset.hide) { await call("DELETE", `/api/admin/listings/${t.dataset.hide}`); say("Joy saytdan yashirildi.", true); loadListings(); }
       else if (t.dataset.show) { const x = listings.find((y) => y.id === t.dataset.show); await call("PUT", `/api/admin/listings/${x.id}`, { ...x, active: true }); say("Joy saytga qaytarildi.", true); loadListings(); }
@@ -100,6 +107,7 @@
         const r = await call("POST", `/api/admin/listings/${encodeURIComponent(t.dataset.owner)}/owner`, { phone });
         say(r.owner ? `Joy ${r.owner} raqamiga biriktirildi.` : "Egasi olib tashlandi.", true); loadListings();
       }
+      else if (t.dataset.rv) { await call("PATCH", `/api/admin/reviews/${t.dataset.rv}`, { hidden: t.dataset.rvHide === "1" }); say("Saqlandi.", true); loadReviews(); }
       else if (t.id === "lCancel") fillForm(null);
     } catch (err) { say(err.message); }
   });

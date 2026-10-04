@@ -21,6 +21,12 @@ Sayt: http://localhost:3000, admin: http://localhost:3000/admin (login `admin`).
 | `ADMIN_USER` | Admin login (standart: `admin`) |
 | `TELEGRAM_BOT_TOKEN` | @BotFather bergan token |
 | `TELEGRAM_CHAT_ID` | Xabar boradigan chat ID (@userinfobot orqali bilib olasiz) |
+| `ESKIZ_EMAIL`, `ESKIZ_PASSWORD` | Eskiz.uz hisobi: ro'yxatdan o'tish va parol tiklashda SMS kod yuboriladi |
+| `ESKIZ_FROM` | SMS jo'natuvchi nomi (standart `4546`, Eskiz test nomi) |
+| `SMS_TEXT` | SMS matni, `{code}` o'rniga kod qo'yiladi. Shu matnni Eskiz kabinetida tasdiqlating |
+| `SMS_DEV` | `1` bo'lsa SMS yuborilmaydi, kod server logiga yoziladi (sinov uchun) |
+| `TELEGRAM_POLL` | `0` bo'lsa bot mijoz va hamkor xabarlarini o'qimaydi (faqat admin xabarlari qoladi) |
+| `SITE_URL` | `tools/build-pages.js` uchun sayt manzili (sitemap va canonical havolalar) |
 | `PORT` | Server porti (standart 3000) |
 | `DATA_DIR` | Baza papkasi (standart `./data`) |
 
@@ -28,6 +34,7 @@ Sayt: http://localhost:3000, admin: http://localhost:3000/admin (login `admin`).
 1. Telegram'da @BotFather → /newbot → token oling.
 2. Botingizga /start yozing. @userinfobot dan o'z ID raqamingizni oling.
 3. `TELEGRAM_BOT_TOKEN` va `TELEGRAM_CHAT_ID` ni o'rnating. Har yangi bron va guruh so'rovi Telegram'ga keladi.
+4. Shu bot mijozlarga ham ishlaydi: bron tasdiqlangach "Telegram'da kuzatish" havolasi chiqadi va bron holati o'zgarsa mijozga xabar boradi. Hamkor kabinetidagi "Telegram'ga ulash" havolasi hamkorga yangi bronlarni yuboradi. Bot buyruqlari: /bronlarim, /stop. Bot server orqali ishlaydi (long polling), webhook kerak emas; bitta tokenni faqat bitta server o'qishi mumkin.
 
 ## Internetga joylash
 Bazani saqlab qoladigan disk kerak, shuning uchun bepul "disksiz" hostinglar mos emas.
@@ -45,10 +52,22 @@ Keyin Caddy bilan HTTPS: `/etc/caddy/Caddyfile` ga `bron.uz { reverse_proxy loca
 ## Domen
 bron.uz ni .uz ro'yxatchisi orqali oling va DNS'da `A` yozuvini server IP manziliga yo'naltiring.
 
+## SMS tasdiqlash
+`ESKIZ_EMAIL` va `ESKIZ_PASSWORD` o'rnatilsa, ro'yxatdan o'tishda telefonga 6 xonali kod keladi (5 daqiqa amal qiladi, 5 urinish, raqamga 10 daqiqada 3 tagacha SMS). "Parolni unutdingizmi?" ham shu kod bilan ishlaydi. Sozlanmagan bo'lsa kod so'ralmaydi.
+
+## Sharhlar
+Sharhni faqat bron qilib, joyda bo'lib qaytgan mehmon qoldiradi (bron tugagan yoki holati "yakunlandi"), har bronga bitta. Ism "Ali V." ko'rinishida chiqadi. Admin panelning "Sharhlar" bo'limida sharhni yashirish mumkin. Joy kartasidagi namuna reyting alohida, haqiqiy mehmon bahosi `guestRating` bo'lib keladi.
+
+## Xonalar soni
+Mehmonxonada bir bronda 1–10 ta xona olinadi; narx va bo'sh xonalar soni shunga qarab hisoblanadi.
+
+## Statik sahifalar va huquqiy matnlar
+    SITE_URL=https://bron.uz node tools/build-pages.js
+Har joy (`public/joy/`), har shahar (`public/shahar/`), `shaharlar.html`, `oferta.html`, `qoidalar.html`, `maxfiylik.html`, `sitemap.xml`, `robots.txt` yaratiladi. Kompaniya rekvizitlarini `tools/company.example.json` dan nusxa olib `tools/company.json` ga yozing, keyin skriptni qayta ishga tushiring. Huquqiy matnlar namuna: e'lon qilishdan oldin yuristga ko'rsating. Joylar ro'yxati o'zgarsa, skriptni qayta ishga tushiring.
+
 ## Keyingi qadamlar
 - Click / Payme onlayn to'lovi (MChJ yoki YaTT va shartnoma kerak)
 - Joylar uchun haqiqiy rasmlar yuklash
-- Rus tili
 
 ## Mijoz hisoblari
 Server ishlaganda mijozlar telefon raqami va parol bilan ro'yxatdan o'tadi. Parol `scrypt` bilan shifrlanib saqlanadi, kirish HttpOnly cookie orqali 30 kun saqlanadi. API: `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`, `GET /api/my/bookings`.
