@@ -939,3 +939,12 @@ body { background: var(--bg); }
 .footer .logo .logo-svg { height: 44px; }
 .ph-top .ph-ic { width: 16px; height: 16px; border-radius: 4px; }
 @media (max-width: 640px) { .logo .logo-svg { height: 32px; } }
+.cpin i { font-style: normal; font-weight: 600; font-size: 11px; color: var(--gold); margin-left: -2px; }
+.hero-stats { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: -4px 0 14px; font-size: .92rem; color: var(--band-ink); opacity: .9; }
+.hero-stats b { color: var(--gold); font-weight: 700; }
+.hero-stats i { font-style: normal; }
+.d-views { display: inline-flex; align-items: center; gap: 6px; margin: -6px 0 10px; color: var(--muted); font-size: .9rem; }
+.d-views svg { width: 16px; height: 16px; fill: currentColor; }
+.d-views i { font-style: normal; }
+.cpin.sm { font-size: 10px; gap: 3px; padding: 2px 7px 2px 2px; border-width: 1.5px; }
+.cpin.sm b { min-width: 18px; height: 18px; font-size: 10px; }

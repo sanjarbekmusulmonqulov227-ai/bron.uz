@@ -63,6 +63,9 @@ db.exec(`
     phone TEXT NOT NULL, purpose TEXT NOT NULL, code_hash TEXT NOT NULL, expires INTEGER NOT NULL, tries INTEGER DEFAULT 0,
     PRIMARY KEY (phone, purpose)
   );
+  CREATE TABLE IF NOT EXISTS counters (k TEXT PRIMARY KEY, n INTEGER NOT NULL DEFAULT 0);
+  CREATE TABLE IF NOT EXISTS visitors (id TEXT PRIMARY KEY, first TEXT NOT NULL, last TEXT NOT NULL, visits INTEGER NOT NULL DEFAULT 1);
+  CREATE TABLE IF NOT EXISTS listing_views (listing_id TEXT PRIMARY KEY, n INTEGER NOT NULL DEFAULT 0);
 `);
 
 // Older databases limited listing types to hotel/venue/tour; rebuild without that CHECK so hostels fit.
@@ -250,6 +253,13 @@ const clientIp = (req) => (TRUST_PROXY && req.headers["x-forwarded-for"] ? Strin
 
 // Per-IP sliding-window limit, counted separately per bucket (bookings, login, admin...).
 const hits = new Map();
+const seen = new Map();
+setInterval(() => { const old = Date.now() - 3600000; for (const [k, t] of seen) if (t < old) seen.delete(k); }, 600000).unref();
+function siteStats() {
+  const c = (sql) => (db.prepare(sql).get() || {}).n || 0;
+  return { visits: c("SELECT n FROM counters WHERE k = 'visits'"), visitors: c("SELECT COUNT(*) AS n FROM visitors"), users: c("SELECT COUNT(*) AS n FROM users"), views: c("SELECT COALESCE(SUM(n), 0) AS n FROM listing_views") };
+}
+
 function limited(req, bucket = "post", max = 10, windowMs = 60000) {
   const key = bucket + "|" + clientIp(req);
   const now = Date.now();
@@ -462,6 +472,34 @@ async function handle(req, res) {
 
   // Public API
   // What this server can do, so the page shows only working features.
+  // Visit and view counters. A browser keeps a random id, so the same person counts once as a user;
+  // repeats within 30 minutes (visits) or an hour (views of one place) are not counted again.
+  if (p === "/api/visit" && M === "POST") {
+    const b = await readJson(req, 500);
+    const vid = /^[\w-]{8,40}$/.test(b.vid || "") ? b.vid : "";
+    const now = Date.now(), key = "v|" + (vid || clientIp(req));
+    if (vid && now - (seen.get(key) || 0) > 30 * 60000 && !limited(req, "visit", 20)) {
+      seen.set(key, now);
+      const at = new Date().toISOString();
+      db.prepare("INSERT INTO visitors (id, first, last) VALUES (?, ?, ?) ON CONFLICT(id) DO UPDATE SET last = excluded.last, visits = visits + 1").run(vid, at, at);
+      db.prepare("INSERT INTO counters (k, n) VALUES ('visits', 1) ON CONFLICT(k) DO UPDATE SET n = n + 1").run();
+    }
+    return send(res, 200, siteStats());
+  }
+  if (p === "/api/stats" && M === "GET") return send(res, 200, siteStats());
+  const m0 = /^\/api\/listings\/([\w-]{1,40})\/view$/.exec(p);
+  if (m0 && M === "POST") {
+    const id = m0[1];
+    if (!db.prepare("SELECT 1 FROM listings WHERE id = ?").get(id)) return fail(res, 404, "Bu joy topilmadi.");
+    const now = Date.now(), key = "l|" + clientIp(req) + "|" + id;
+    if (now - (seen.get(key) || 0) > 3600000 && !limited(req, "view", 60)) {
+      seen.set(key, now);
+      db.prepare("INSERT INTO listing_views (listing_id, n) VALUES (?, 1) ON CONFLICT(listing_id) DO UPDATE SET n = n + 1").run(id);
+    }
+    const r = db.prepare("SELECT n FROM listing_views WHERE listing_id = ?").get(id);
+    return send(res, 200, { views: r ? r.n : 0 });
+  }
+
   if (p === "/api/config" && M === "GET") return send(res, 200, { sms: sms.enabled, telegram: tg.username ? `https://t.me/${tg.username}` : "", reviews: true });
 
   // One-time SMS code for registration and password reset (only when SMS is configured).
@@ -547,8 +585,10 @@ async function handle(req, res) {
   if (p === "/api/listings" && M === "GET") {
     // Verified guest reviews are counted separately from the listing's own (sample) rating.
     const stats = Object.fromEntries(db.prepare("SELECT listing_id, COUNT(*) AS n, AVG(rating) AS avg FROM reviews WHERE hidden = 0 GROUP BY listing_id").all().map((r) => [r.listing_id, r]));
+    const views = Object.fromEntries(db.prepare("SELECT listing_id, n FROM listing_views").all().map((r) => [r.listing_id, r.n]));
     const rows = db.prepare("SELECT * FROM listings WHERE active = 1").all().map(rowToListing)
-      .map((x) => stats[x.id] ? { ...x, guestReviews: stats[x.id].n, guestRating: Math.round(stats[x.id].avg * 10) / 10 } : x);
+      .map((x) => stats[x.id] ? { ...x, guestReviews: stats[x.id].n, guestRating: Math.round(stats[x.id].avg * 10) / 10 } : x)
+      .map((x) => ({ ...x, views: views[x.id] || 0 }));
     return send(res, 200, rows);
   }
 

@@ -26,6 +26,7 @@
     const fresh = rows.filter((r) => r.status === "yangi").length;
     const total = active.reduce((a, r) => a + r.sum, 0);
     $("#stats").innerHTML = `<div class="stat"><b>${fresh}</b><span>yangi bron</span></div><div class="stat"><b>${active.length}</b><span>faol bronlar</span></div><div class="stat"><b>${som(total)}</b><span>faol bronlar summasi</span></div>`;
+    call("GET", "/api/stats").then((s) => { $("#stats").insertAdjacentHTML("beforeend", `<div class="stat"><b>${s.visitors}</b><span>foydalanuvchi (qurilma)</span></div><div class="stat"><b>${s.visits}</b><span>tashrif</span></div><div class="stat"><b>${s.views}</b><span>joy ko'rishlari</span></div><div class="stat"><b>${s.users}</b><span>ro'yxatdan o'tgan</span></div>`); }).catch(() => {});
     $("#bookingsBody").innerHTML = rows.length ? rows.map((r) => `<tr>
       <td><b>${esc(r.code)}</b><div class="muted">${d(r.created)}</div></td>
       <td>${esc(r.listing_name)}<div class="muted">${esc(r.city)}</div></td>

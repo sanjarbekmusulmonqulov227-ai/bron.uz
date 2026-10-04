@@ -108,3 +108,6 @@ Transport: 11 aeroport (Toshkentdan har biriga ertalabki va kechki reys, qolgan 
 Shahar suratlari: `BRON_PHOTOS` da surati yo'q shaharlar uchun brauzer Vikipediya maqolasidagi Commons suratlarini oladi (`wiki` maydoni) va 14 kun saqlaydi.
 
 Haqiqiy mehmonxonalarni qo'shish: admin → Joylar → **Ommaviy yuklash**. CSV ustunlari `id,type,name,city,district,stars,price,capacity,rating,reviews,amenities,photos,desc,lat,lng` (qulayliklar `wifi;pool`, suratlar `https://...|https://...`), yoki JSON massiv. API: `POST /api/admin/listings/import` `{ "items": [...] }`, bir martada 2000 tagacha; mavjud `id` yangilanadi.
+
+## Statistika
+Server ishlaganda bosh sahifada foydalanuvchilar (noyob qurilmalar), tashriflar, joy ko'rishlari va ro'yxatdan o'tganlar soni chiqadi; joy oynasida "N marta ko'rilgan". Bir qurilmaning 30 daqiqa ichidagi qayta kirishi va bir joyni bir soat ichida qayta ochish qayta sanalmaydi. API: `POST /api/visit`, `GET /api/stats`, `POST /api/listings/:id/view`. Admin panel bosh sahifasida ham ko'rinadi. GitHub Pages'da server yo'qligi uchun bu raqamlar chiqmaydi.

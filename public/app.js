@@ -567,6 +567,7 @@
     state.current = x;
     state.room = "standart";
     loadReviews(x);
+    countView(x);
     const t = TYPES[x.type];
     const ps = photosFor(x);
     $("#dArt").className = "gallery";
@@ -963,16 +964,21 @@
     if (map.getZoom() < 9) {
       const by = {};
       mapList().forEach((x) => { (by[x.city] = by[x.city] || []).push(x); });
-      // Cities close together (Toshkent and Chimyon) would cover each other: lift the later one.
-      const placed = [];
+      // Pins stay exactly on their city. Cities whose labels would overlap at this zoom join one pin
+      // (biggest city's name, "+N" for the rest); clicking it zooms to those cities.
+      const groups = [], small = map.getSize().x < 560, gx = small ? 78 : 120, gy = small ? 24 : 32;
       Object.entries(by).sort((a, b) => b[1].length - a[1].length).forEach(([city, xs]) => {
         const c = GEO[city]; if (!c) return;
         const pt = map.latLngToContainerPoint([c[0], c[1]]);
-        let dy = 0;
-        while (placed.some((q) => Math.abs(q.x - pt.x) < 130 && Math.abs(q.y - (pt.y + dy)) < 34)) dy -= 36;
-        placed.push({ x: pt.x, y: pt.y + dy });
-        const icon = L.divIcon({ className: "pin-wrap", html: `<span class="cpin"${dy ? ` style="transform:translateY(${dy}px)"` : ""}><b>${xs.length}</b>${esc(city)}</span>`, iconSize: null });
-        cityPins.push(L.marker([c[0], c[1]], { icon, title: city }).addTo(map).on("click", () => map.setView([c[0], c[1]], 12)));
+        const g = groups.find((q) => Math.abs(q.x - pt.x) < gx && Math.abs(q.y - pt.y) < gy);
+        if (g) { g.n += xs.length; g.cities.push(city); g.pts.push([c[0], c[1]]); }
+        else groups.push({ x: pt.x, y: pt.y, n: xs.length, cities: [city], pts: [[c[0], c[1]]], at: [c[0], c[1]] });
+      });
+      groups.forEach((g) => {
+        const more = g.cities.length - 1;
+        const icon = L.divIcon({ className: "pin-wrap", html: `<span class="cpin${small ? " sm" : ""}"><b>${g.n}</b>${esc(g.cities[0])}${more ? `<i>+${more}</i>` : ""}</span>`, iconSize: null });
+        cityPins.push(L.marker(g.at, { icon, title: g.cities.join(", ") }).addTo(map)
+          .on("click", () => (more ? map.fitBounds(g.pts, { padding: [60, 60], maxZoom: 12 }) : map.setView(g.at, 12))));
       });
       renderMapSide();
       return;
@@ -995,9 +1001,12 @@
     if (map) return;
     try { await loadLeaflet(); } catch (e) { $("#map").innerHTML = `<p class="map-load">Xaritani yuklab bo'lmadi. Internetni tekshiring.</p>`; return; }
     $("#map").innerHTML = "";
-    map = L.map("map", { scrollWheelZoom: false, zoomControl: true });
-    const pts = Object.values(GEO).map((g) => [g[0], g[1]]);
-    if (pts.length) map.fitBounds(pts, { padding: [24, 24] }); else map.setView([40.6, 66.2], 6);
+    map = L.map("map", { scrollWheelZoom: false, zoomControl: true, maxBoundsViscosity: 1 });
+    // The map stays on Uzbekistan: it opens on the country and cannot be dragged far outside it.
+    const UZ = [[37.1, 55.9], [45.6, 73.2]];
+    map.fitBounds(UZ, { padding: [10, 10] });
+    map.setMinZoom(Math.max(4, map.getZoom()));
+    map.setMaxBounds(L.latLngBounds(UZ).pad(0.15));
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' }).addTo(map);
     map.on("moveend", renderMapSide);
     let wasNear = false;
@@ -1038,6 +1047,32 @@
   }
 
   // ---------- wiring ----------
+  // ---------- visit and view counters (server only) ----------
+  const fmtN = (n) => Number(n || 0).toLocaleString("ru-RU").replace(/\u00a0/g, " ");
+  const EYE = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5C6.5 5 2.7 9.4 1.5 12c1.2 2.6 5 7 10.5 7s9.3-4.4 10.5-7C21.3 9.4 17.5 5 12 5zm0 11a4 4 0 110-8 4 4 0 010 8z"/></svg>`;
+  function showStats(s) {
+    if (!s) return;
+    const el = $("#heroStats");
+    el.innerHTML = `<span><b>${fmtN(s.visitors)}</b> <i>foydalanuvchi</i></span><span><b>${fmtN(s.visits)}</b> <i>tashrif</i></span><span><b>${fmtN(s.views)}</b> <i>ko'rish</i></span><span><b>${fmtN(s.users)}</b> <i>ro'yxatdan o'tgan</i></span>`;
+    el.hidden = false;
+  }
+  function countVisit() {
+    let vid = "";
+    try { vid = localStorage.getItem("bronuz.vid") || ""; if (!vid) { vid = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now()); localStorage.setItem("bronuz.vid", vid); } } catch (e) { /* private mode: counted by address */ }
+    api("/api/visit", { vid }).then(showStats).catch(() => {});
+  }
+  function countView(x) {
+    const el = $("#dViews");
+    el.hidden = true;
+    if (!API) return;
+    api(`/api/listings/${encodeURIComponent(x.id)}/view`, {}).then((r) => {
+      x.views = r.views;
+      if (state.current !== x) return;
+      el.innerHTML = `${EYE}<span><b>${fmtN(r.views)}</b> <i>marta ko'rilgan</i></span>`;
+      el.hidden = false;
+    }).catch(() => {});
+  }
+
   function heroCount() {
     const cities = new Set(LISTINGS.map((x) => x.city)).size;
     $(".hero .eyebrow").textContent = `${cities} shahar · ${LISTINGS.length} joy · narxlar so'mda`;
@@ -1428,6 +1463,7 @@
       LISTINGS = rows;
       API = true;
       fetch("/api/config").then((r) => r.ok ? r.json() : null).then((c) => { if (c) CFG = c; }).catch(() => {});
+      countVisit();
       restoreUser();
       $("#sampleNote").hidden = true;
       render(); renderDeals(); renderCities(); heroCount(); renderVenues(); renderPackages(); renderCats(); renderMapMarkers(); renderRecent();
