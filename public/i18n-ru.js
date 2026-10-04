@@ -797,7 +797,7 @@ window.BRON_I18N_DICT.ru = {"\"Ilovani o'rnatish\" tugmasini bosing yoki menyu �
 "Tozalash":"Очистить",
 "Transfer":"Трансфер",
 "Transport":"Транспорт",
-"Transport turi":"Тип транспорта",
+"Transport turi":"Вид транспорта",
 "Trening va seminarlar uchun: flipchart, videoaloqa uskunasi, yorug' deraza va tushlik keyteringi.":"Для тренингов и семинаров: флипчарт, оборудование для видеосвязи, светлое окно и кейтеринг на обед.",
 "Tugash":"Окончание",
 "Tugash sanasi boshlanish sanasidan oldin bo'lmasin.":"Дата окончания не может быть раньше даты начала.",

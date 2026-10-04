@@ -833,3 +833,14 @@ body { background: var(--bg); }
 /* Package cards: buttons sit on one line across a row. */
 .p-body { display: flex; flex-direction: column; }
 .fields input, .fields select, .tr-form input, .tr-form select { height: 48px; }
+.fields.tr-q { grid-template-columns: 1fr 1fr 1fr 1fr .7fr auto; }
+@media (max-width: 900px) { .fields.tr-q { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 420px) { .fields.tr-q { grid-template-columns: 1fr; } }
+@media (max-width: 480px) { .tabs .tab { font-size: .92rem; } }
+/* Long Russian labels must not push the page sideways on phones. */
+.cat, .cat-tx { min-width: 0; }
+.cat-tx b, .cat-tx small { overflow-wrap: anywhere; }
+.sort { min-width: 0; max-width: 100%; }
+.sort select { min-width: 0; max-width: 100%; }
+.tr-mode { min-width: 0; text-align: center; }
+@media (max-width: 600px) { .res-tools .sort { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 6px; } .tr-mode svg { display: none; } }

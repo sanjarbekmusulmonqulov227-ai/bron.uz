@@ -66,8 +66,22 @@
           <button type="button" role="tab" class="tab" data-type="hostel" aria-selected="false">Hostel</button>
           <button type="button" role="tab" class="tab" data-type="venue" aria-selected="false">Konferens-zal</button>
           <button type="button" role="tab" class="tab" data-type="tour" aria-selected="false">Tur paketi</button>
+          <button type="button" role="tab" class="tab" data-type="transport" aria-selected="false">Transport</button>
         </div>
-        <div class="fields">
+        <div class="fields tr-q" id="fieldsTr" hidden>
+          <label class="field"><span>Transport turi</span>
+            <select id="qMode"><option value="avia">Aviachipta</option><option value="poyezd">Poyezd</option><option value="avto">Avto va transfer</option></select>
+          </label>
+          <label class="field"><span>Qayerdan</span><select id="qFrom"></select></label>
+          <label class="field"><span>Qayerga</span><select id="qTo"></select></label>
+          <label class="field"><span>Sana</span><input type="date" id="qDate"></label>
+          <label class="field"><span>Yo'lovchilar</span><input type="number" id="qPax" min="1" max="45" value="1" inputmode="numeric"></label>
+          <button class="btn btn-gold search-btn" type="submit">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+            Qidirish
+          </button>
+        </div>
+        <div class="fields" id="fieldsMain">
           <label class="field">
             <span>Shahar</span>
             <select id="fCity"><option value="">Barcha shaharlar</option></select>
@@ -303,10 +317,10 @@
         <div class="row2">
           <label class="field"><span>Tadbir turi</span>
             <select id="mKind">
-              <option>Konferensiya</option>
-              <option>Seminar / trening</option>
-              <option>Insentiv safar</option>
-              <option>Ko'rgazma</option>
+              <option value="Konferensiya">Konferensiya</option>
+              <option value="Seminar / trening">Seminar / trening</option>
+              <option value="Insentiv safar">Insentiv safar</option>
+              <option value="Ko'rgazma">Ko'rgazma</option>
             </select>
           </label>
           <label class="field"><span>Qatnashchilar</span><input id="mPeople" type="number" min="10" value="80" inputmode="numeric"></label>

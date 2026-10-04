@@ -221,7 +221,41 @@
   const priceCap = () => state.maxPct >= 100 ? Infinity : Math.round(maxPriceFor(state.type) * state.maxPct / 100);
 
   // ---------- search & filters ----------
+  // The "Transport" search tab is a shortcut to the transport section below.
+  function fillQuickPlaces() {
+    const mode = $("#qMode").value, pl = placesFor(mode);
+    const from = pl.includes($("#qFrom").value) ? $("#qFrom").value : pl.includes("Toshkent") ? "Toshkent" : pl[0];
+    let to = pl.includes($("#qTo").value) && $("#qTo").value !== from ? $("#qTo").value : "";
+    if (!to) to = ((TRANSPORT[mode] || []).find((t) => t.from === from && t.to !== from) || {}).to || pl.find((c) => c !== from) || from;
+    const opts = (sel, skip) => pl.filter((c) => c !== skip || mode === "avto").map((c) => `<option value="${esc(c)}"${c === sel ? " selected" : ""}>${esc(c)}</option>`).join("");
+    $("#qFrom").innerHTML = opts(from);
+    $("#qTo").innerHTML = opts(to, from);
+  }
+  function showQuickTransport(on) {
+    $("#fieldsTr").hidden = !on;
+    $("#fieldsMain").hidden = on;
+    $$(".tab").forEach((b) => { const sel = on ? b.dataset.type === "transport" : b.dataset.type === state.type; b.classList.toggle("is-on", sel); b.setAttribute("aria-selected", String(sel)); });
+    const cur = $(".tabs .tab.is-on"), strip = cur && cur.parentNode;
+    if (strip && strip.scrollWidth > strip.clientWidth) strip.scrollLeft = Math.max(0, cur.offsetLeft - strip.offsetLeft - 16);
+    if (on) { if (!$("#qDate").value) $("#qDate").value = $("#trDate").value || $("#fFrom").value; $("#qDate").min = todayIso(); fillQuickPlaces(); }
+  }
+  function searchQuickTransport() {
+    const msg = $("#searchMsg"); msg.className = "form-msg"; msg.textContent = "";
+    if (!$("#qDate").value || $("#qDate").value < todayIso()) { msg.textContent = "Bugungi yoki keyingi sanani tanlang."; msg.classList.add("err"); return; }
+    state.trMode = $("#qMode").value;
+    fillTrPlaces(false);
+    $("#trFrom").value = $("#qFrom").value;
+    fillTrPlaces(true);
+    if ([...$("#trTo").options].some((o) => o.value === $("#qTo").value)) $("#trTo").value = $("#qTo").value;
+    $("#trDate").value = $("#qDate").value;
+    $("#trPax").value = Math.min(45, Math.max(1, parseInt($("#qPax").value, 10) || 1));
+    renderTransport();
+    $("#transport").scrollIntoView({ block: "start" });
+  }
+
   function setType(type) {
+    if (type === "transport") return showQuickTransport(true);
+    showQuickTransport(false);
     state.type = type;
     $$(".tab").forEach((b) => { const on = b.dataset.type === type; b.classList.toggle("is-on", on); b.setAttribute("aria-selected", String(on)); });
     const t = TYPES[type];
@@ -229,7 +263,7 @@
     $("#fToLabel").textContent = t.to;
     $("#fGuestsLabel").textContent = t.guests;
     $("#fToWrap").hidden = type === "tour";
-    $(".fields").classList.toggle("no-to", type === "tour");
+    $("#fieldsMain").classList.toggle("no-to", type === "tour");
     if (type === "venue" && +$("#fGuests").value < 10) $("#fGuests").value = 50;
     if (type !== "venue" && +$("#fGuests").value > 40) $("#fGuests").value = 2;
     state.stars.clear(); state.amen.clear(); state.maxPct = 100;
@@ -415,7 +449,7 @@
 
   function renderCities() {
     const cur = $("#fCity").value;
-    $("#fCity").innerHTML = `<option value="">Barcha shaharlar</option>` + CITIES.map((c) => `<option${c.name === cur ? " selected" : ""}>${esc(c.name)}</option>`).join("");
+    $("#fCity").innerHTML = `<option value="">Barcha shaharlar</option>` + CITIES.map((c) => `<option value="${esc(c.name)}"${c.name === cur ? " selected" : ""}>${esc(c.name)}</option>`).join("");
     $("#cities").innerHTML = CITIES.map((c) => {
       const n = LISTINGS.filter((x) => x.city === c.name).length;
       return `<button class="city${state.city === c.name ? " is-on" : ""}" type="button" data-city="${esc(c.name)}" aria-pressed="${state.city === c.name}"><span class="arch">${art(c.art, c.hue, "city" + c.name)}${imgTag((PHOTOS[c.name] || [])[0], 640)}<span class="c-txt"><span class="c-count">${n} ta joy</span><b>${esc(c.name)}</b><small>${esc(c.note)}</small></span></span></button>`;
@@ -746,7 +780,7 @@
   }
   function fillTrPlaces(keep) {
     const pl = placesFor(state.trMode);
-    const opts = (sel) => pl.map((c) => `<option${c === sel ? " selected" : ""}>${esc(c)}</option>`).join("");
+    const opts = (sel) => pl.map((c) => `<option value="${esc(c)}"${c === sel ? " selected" : ""}>${esc(c)}</option>`).join("");
     const from = keep && pl.includes($("#trFrom").value) ? $("#trFrom").value : pl.includes("Toshkent") ? "Toshkent" : pl[0];
     let to = keep && pl.includes($("#trTo").value) ? $("#trTo").value : "";
     if (!to || to === from) to = (TRANSPORT[state.trMode].find((t) => t.from === from && t.to !== from) || {}).to || pl[1];
@@ -927,8 +961,12 @@
 
     $$(".tab").forEach((b) => b.addEventListener("click", () => setType(b.dataset.type)));
     $$("[data-nav]").forEach((a) => a.addEventListener("click", () => setType(a.dataset.nav)));
+    $("#qMode").addEventListener("change", fillQuickPlaces);
+    $("#qFrom").addEventListener("change", fillQuickPlaces);
     $("#searchForm").addEventListener("submit", (e) => {
-      e.preventDefault(); readSearch();
+      e.preventDefault();
+      if (!$("#fieldsTr").hidden) return searchQuickTransport();
+      readSearch();
       if (!validateSearch()) return;
       render(); $("#natijalar").scrollIntoView({ block: "start" });
     });
@@ -960,7 +998,7 @@
     $("#mapSide").addEventListener("click", (e) => { const b = e.target.closest("[data-mapgo]"); if (b) showOnMap(b.dataset.mapgo, true); });
     $("#dMap").addEventListener("click", () => { const id = state.current.id; closeDlg($("#detailDlg")); showOnMap(id); });
     // partners
-    $("#pfCity").innerHTML = CITIES.map((c) => `<option>${esc(c.name)}</option>`).join("");
+    $("#pfCity").innerHTML = CITIES.map((c) => `<option value="${esc(c.name)}">${esc(c.name)}</option>`).join("");
     $("#partnerForm").addEventListener("submit", submitPartner);
     $("#vFormats").addEventListener("click", (e) => { const b = e.target.closest("[data-vf]"); if (!b) return; state.vFormat = b.dataset.vf; state.vLimit = 6; renderVenues(); });
     $("#vMore").addEventListener("click", () => { state.vLimit = 99; renderVenues(); });
