@@ -32,6 +32,7 @@
       <a href="#xarita">Xarita</a>
     </nav>
     <div class="top-actions">
+      <div class="lang-sw" role="group" aria-label="Til"><button type="button" data-lang="uz" lang="uz">UZ</button><button type="button" data-lang="ru" lang="ru">RU</button><button type="button" data-lang="en" lang="en">EN</button></div>
       <button class="icon-btn" type="button" id="favBtn" aria-label="Sevimlilar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2.1 0 3.6 1.1 5.2 3 1.6-1.9 3.1-3 5.2-3 3.8 0 5.9 3.9 4.4 7.3C19.5 16.4 12 21 12 21z"/></svg><b id="favCount">0</b></button>
       <button class="my-btn install-btn" type="button" id="installTop" hidden>Ilovani o'rnatish</button>
       <button class="my-btn" type="button" id="authBtn"><span class="avatar" id="authAvatar" hidden></span><span id="authLabel">Kirish</span></button>
@@ -59,7 +60,7 @@
         </div>
       </div>
 
-      <form class="search" id="searchForm" autocomplete="off">
+      <form class="search" id="searchForm" autocomplete="off" novalidate>
         <div class="tabs" role="tablist" aria-label="Bron turi">
           <button type="button" role="tab" class="tab is-on" data-type="hotel" aria-selected="true">Mehmonxona</button>
           <button type="button" role="tab" class="tab" data-type="hostel" aria-selected="false">Hostel</button>
@@ -81,7 +82,7 @@
           </label>
           <label class="field">
             <span id="fGuestsLabel">Mehmonlar</span>
-            <input type="number" id="fGuests" min="1" max="1000" value="2" inputmode="numeric">
+            <input type="number" id="fGuests" min="1" max="5000" value="2" inputmode="numeric">
           </label>
           <button class="btn btn-gold search-btn" type="submit">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
@@ -119,6 +120,11 @@
     <div class="cities" id="cities"></div>
   </section>
 
+  <section class="wrap section recent-sec" id="yaqinda" hidden>
+    <div class="sec-head"><div><p class="eyebrow">Siz uchun</p><h2>Yaqinda ko'rilganlar</h2></div><button class="btn btn-line" type="button" id="recentClear">Tozalash</button></div>
+    <div class="deals" id="recent"></div>
+  </section>
+
   <section class="wrap section" id="takliflar">
     <div class="sec-head">
       <div>
@@ -134,7 +140,7 @@
       <div>
         <p class="eyebrow" id="resEyebrow">Mehmonxonalar</p>
         <h2 id="resTitle">Barcha shaharlar</h2>
-        <p class="muted" id="resCount"></p>
+        <p class="muted" id="resCount" aria-live="polite"></p>
       </div>
       <div class="res-tools">
         <button class="btn btn-line filter-toggle" type="button" id="filterToggle" aria-expanded="false" aria-controls="filters">Filtrlar</button>
@@ -454,7 +460,7 @@
       <label class="field" id="bToWrap"><span id="bToLabel">Ketish</span><input type="date" id="bTo" required></label>
     </div>
     <div class="row2">
-      <label class="field"><span>Ism familiya</span><input id="bName" required placeholder="Aziza Karimova" autocomplete="name"></label>
+      <label class="field"><span>Ism familiya</span><input id="bName" required placeholder="Ism Familiya" autocomplete="name"></label>
       <label class="field"><span>Telefon</span><input id="bPhone" type="tel" required placeholder="+998 90 123 45 67" autocomplete="tel"></label>
     </div>
     <div class="row2">
@@ -473,10 +479,29 @@
       <span id="totalCalc"></span>
       <b id="totalSum"></b>
     </div>
+    <p class="muted small policy" id="bPolicy"></p>
     <p class="avail" id="bAvail" role="status"></p>
     <p class="form-msg" id="bookMsg" role="status"></p>
     <button class="btn btn-gold wide" type="submit">Bronni tasdiqlash</button>
   </form>
+</dialog>
+
+<dialog id="doneDlg" class="dlg" aria-labelledby="doneTitle">
+  <div class="dlg-in done">
+    <div class="dlg-head">
+      <div><p class="eyebrow">Bron qabul qilindi</p><h3 id="doneTitle"></h3></div>
+      <button type="button" class="x" data-close aria-label="Yopish">×</button>
+    </div>
+    <div class="done-code"><span>Bron raqami</span><b id="doneCode"></b><button class="btn btn-line" type="button" id="doneCopy">Nusxa olish</button></div>
+    <dl class="done-list" id="doneList"></dl>
+    <p class="muted small" id="doneNote"></p>
+    <div class="done-acts">
+      <button class="btn btn-line" type="button" id="doneIcs">Kalendarga qo'shish</button>
+      <a class="btn btn-line" id="doneShare" target="_blank" rel="noopener">Telegram'da ulashish</a>
+      <button class="btn btn-line" type="button" id="donePrint">Chop etish</button>
+      <a class="btn btn-gold" href="#bronlarim" data-close>Bronlarim</a>
+    </div>
+  </div>
 </dialog>
 
 <dialog id="authDlg" class="dlg" aria-labelledby="authTitle">
@@ -489,7 +514,7 @@
       <button type="button" role="tab" class="seg-b is-on" data-mode="login" aria-selected="true">Kirish</button>
       <button type="button" role="tab" class="seg-b" data-mode="register" aria-selected="false">Ro'yxatdan o'tish</button>
     </div>
-    <label class="field" id="aNameWrap" hidden><span>Ism familiya</span><input id="aName" autocomplete="name" placeholder="Aziza Karimova"></label>
+    <label class="field" id="aNameWrap" hidden><span>Ism familiya</span><input id="aName" autocomplete="name" placeholder="Ism Familiya"></label>
     <label class="field"><span>Telefon</span><input id="aPhone" type="tel" autocomplete="tel" placeholder="+998 90 123 45 67"></label>
     <label class="field"><span>Parol</span>
       <span class="pass"><input id="aPass" type="password" autocomplete="current-password" placeholder="Kamida 8 belgi"><button type="button" class="pass-eye" id="aEye" aria-label="Parolni ko'rsatish">Ko'rsatish</button></span>
@@ -515,15 +540,16 @@
 </dialog>
 
 <nav class="tabbar" aria-label="Ilova menyusi">
-  <a href="#top"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Bosh sahifa</span></a>
-  <a href="#natijalar"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span>Qidiruv</span></a>
-  <button type="button" id="tabFav"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2.1 0 3.6 1.1 5.2 3 1.6-1.9 3.1-3 5.2-3 3.8 0 5.9 3.9 4.4 7.3C19.5 16.4 12 21 12 21z"/></svg><span>Sevimlilar</span></button>
-  <a href="#bronlarim"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 9h16M9 5v4"/></svg><span>Bronlarim</span></a>
-  <button type="button" id="tabProfile"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span id="tabProfileLbl">Kirish</span></button>
+  <a href="#top"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Bosh sahifa</span></a>
+  <a href="#natijalar"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span>Qidiruv</span></a>
+  <button type="button" id="tabFav"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2.1 0 3.6 1.1 5.2 3 1.6-1.9 3.1-3 5.2-3 3.8 0 5.9 3.9 4.4 7.3C19.5 16.4 12 21 12 21z"/></svg><span>Sevimlilar</span></button>
+  <a href="#bronlarim"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM4 9h16M9 5v4"/></svg><span>Bronlarim</span></a>
+  <button type="button" id="tabProfile"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span id="tabProfileLbl">Kirish</span></button>
 </nav>
 
 <div class="toast" id="toast" role="status" hidden></div>
 <!--BODY-END-->
+<script src="i18n.js"></script>
 <script src="data.js"></script>
 <script src="app.js"></script>
 </body>

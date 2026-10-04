@@ -1,6 +1,7 @@
 (function () {
   "use strict";
   const $ = (s) => document.querySelector(s);
+  const T = (s) => (window.BRON_I18N ? window.BRON_I18N.t(s) : s);
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const som = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " so'm";
   const d = (s) => s ? s.slice(0, 10).split("-").reverse().join(".") : "";
@@ -98,7 +99,7 @@
     try {
       if (t.dataset.pc) await tab(t.dataset.pc);
       else if (t.dataset.st) {
-        if (t.dataset.st === "bekor qilindi" && !confirm("Bronni bekor qilasizmi? Mijozga o'zingiz qo'ng'iroq qilib xabar bering.")) return;
+        if (t.dataset.st === "bekor qilindi" && !confirm(T("Bronni bekor qilasizmi? Mijozga o'zingiz qo'ng'iroq qilib xabar bering."))) return;
         await call("PATCH", `api/partner/bookings/${t.dataset.code}`, { status: t.dataset.st }); say("Holat saqlandi.", true); await loadBookings();
       } else if (t.dataset.day) {
         await call("POST", `api/partner/listings/${encodeURIComponent($("#pcCalListing").value)}/blocks`, { date: t.dataset.day, blocked: t.dataset.blocked !== "1" });

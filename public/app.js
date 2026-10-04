@@ -57,6 +57,7 @@
 
   const STORE_KEY = "bronuz.bookings";
   const FAV_KEY = "bronuz.favs";
+  const T = (s) => (window.BRON_I18N ? window.BRON_I18N.t(s) : s);
   const $ = (s) => document.querySelector(s);
   const $$ = (s) => Array.from(document.querySelectorAll(s));
   const state = { type: "hotel", city: "", from: "", to: "", guests: 2, sort: "rec", maxPct: 100, stars: new Set(), amen: new Set(), free: false, deals: false, favOnly: false, current: null, room: "standart", limit: 9, vFormat: "", vLimit: 6, pk: "multi", trMode: "avia", mapType: "" };
@@ -159,7 +160,13 @@
   const srcOf = (p, w) => p.url || photoUrl(p.file, w);
   const imgTag = (p, w) => p ? `<img class="ph" data-ph loading="lazy" decoding="async" alt="" src="${esc(srcOf(p, w))}">` : "";
   document.addEventListener("load", (e) => { if (e.target.matches && e.target.matches("img[data-ph]")) e.target.classList.add("ready"); }, true);
-  document.addEventListener("error", (e) => { if (e.target.matches && e.target.matches("img[data-ph]")) e.target.remove(); }, true);
+  document.addEventListener("error", (e) => {
+    if (!(e.target.matches && e.target.matches("img[data-ph]"))) return;
+    const host = e.target.parentNode;
+    e.target.remove();
+    // Without the photo its caption would label the drawing, so drop it too.
+    if (host) host.querySelectorAll(":scope > .place, :scope > .g-cap").forEach((c) => c.remove());
+  }, true);
 
   function heroPhoto() {
     const p = (PHOTOS["Samarqand"] || [])[1];
@@ -226,6 +233,7 @@
     if (type === "venue" && +$("#fGuests").value < 10) $("#fGuests").value = 50;
     if (type !== "venue" && +$("#fGuests").value > 40) $("#fGuests").value = 2;
     state.stars.clear(); state.amen.clear(); state.maxPct = 100;
+    if (state.favOnly && !LISTINGS.some((x) => x.type === type && favs.has(x.id))) { state.favOnly = false; $("#fFav").checked = false; }
     buildFilters();
     readSearch();
     render();
@@ -235,6 +243,9 @@
     $("#starsGroup").hidden = state.type !== "hotel";
     $("#fStars").innerHTML = [5, 4, 3, 2].map((n) => `<button type="button" class="chip" data-star="${n}" aria-pressed="${state.stars.has(n)}">${n} ★</button>`).join("");
     $("#fAmen").innerHTML = AMEN_FILTER[state.type].map((k) => `<label class="check"><input type="checkbox" data-amen="${k}"${state.amen.has(k) ? " checked" : ""}> <span>${AMEN[k][0]}</span></label>`).join("");
+    const prices = LISTINGS.filter((x) => x.type === state.type).map((x) => x.price);
+    $("#fPrice").min = prices.length ? Math.max(1, Math.ceil(Math.min(...prices) / maxPriceFor(state.type) * 100)) : 1;
+    state.maxPct = Math.max(state.maxPct, +$("#fPrice").min);
     $("#fPrice").value = state.maxPct;
     $("#priceUnit").textContent = `${TYPES[state.type].unit} uchun`;
     updatePriceOut();
@@ -245,7 +256,8 @@
     state.city = $("#fCity").value;
     state.from = $("#fFrom").value;
     state.to = $("#fTo").value;
-    state.guests = Math.max(1, parseInt($("#fGuests").value, 10) || 1);
+    state.guests = Math.min(5000, Math.max(1, parseInt($("#fGuests").value, 10) || 1));
+    if (String(state.guests) !== $("#fGuests").value) $("#fGuests").value = state.guests;
     state.sort = $("#fSort").value;
     state.limit = 9;
   }
@@ -287,7 +299,7 @@
     <article class="item">
       <div style="position:relative">
         <button class="thumb" type="button" data-open="${esc(x.id)}" aria-label="${esc(x.name)}: batafsil">${art(x.art, x.hue, x.id)}${imgTag(photosFor(x)[0], 640)}<span class="kind">${t.kind} · ${esc(x.city)}</span>${off ? `<span class="badge">−${off}%</span>` : ""}${photosFor(x)[0] ? `<span class="place">${esc(photosFor(x)[0].title)}</span>` : ""}</button>
-        <button class="fav" type="button" data-fav="${esc(x.id)}" aria-pressed="${favs.has(x.id)}" aria-label="Sevimlilarga qo'shish">${heart}</button>
+        <button class="fav" type="button" data-fav="${esc(x.id)}" aria-pressed="${favs.has(x.id)}" aria-label="${favs.has(x.id) ? "Sevimlilardan olib tashlash" : "Sevimlilarga qo'shish"}">${heart}</button>
       </div>
       <div class="item-body">
         <div class="item-top">
@@ -311,7 +323,7 @@
     $("#resEyebrow").textContent = t.title;
     $("#resTitle").textContent = state.city ? state.city : "Barcha shaharlar";
     $("#resCount").textContent = `${list.length} ta variant`;
-    $$(".city").forEach((c) => c.classList.toggle("is-on", c.dataset.city === state.city));
+    $$(".city").forEach((c) => { c.classList.toggle("is-on", c.dataset.city === state.city); c.setAttribute("aria-pressed", String(c.dataset.city === state.city)); });
     const shown = list.slice(0, state.limit);
     $("#moreBtn").hidden = list.length <= state.limit;
     $("#moreBtn").textContent = `Yana ko'rsatish (${list.length - shown.length})`;
@@ -339,7 +351,7 @@
     <article class="vcard">
       <div class="v-photo-wrap">
         <button class="v-photo" type="button" data-open="${esc(x.id)}" aria-label="${esc(x.name)}: batafsil">${art(x.art, x.hue, "v" + x.id)}${imgTag(p, 800)}<span class="kind">${esc(x.kind || "Zal")}</span>${off ? `<span class="badge">−${off}%</span>` : ""}</button>
-        <button class="fav" type="button" data-fav="${esc(x.id)}" aria-pressed="${favs.has(x.id)}" aria-label="Sevimlilarga qo'shish">${heart}</button>
+        <button class="fav" type="button" data-fav="${esc(x.id)}" aria-pressed="${favs.has(x.id)}" aria-label="${favs.has(x.id) ? "Sevimlilardan olib tashlash" : "Sevimlilarga qo'shish"}">${heart}</button>
       </div>
       <div class="v-body">
         <div class="item-top">
@@ -374,7 +386,7 @@
     <article class="pcard">
       <div class="v-photo-wrap">
         <button class="p-photo" type="button" data-open="${esc(x.id)}" aria-label="${esc(x.name)}: dastur">${art(x.art, x.hue, "p" + x.id)}${imgTag(p, 700)}<span class="dur">${esc(durOf(x))}</span>${off ? `<span class="badge">−${off}%</span>` : ""}</button>
-        <button class="fav" type="button" data-fav="${esc(x.id)}" aria-pressed="${favs.has(x.id)}" aria-label="Sevimlilarga qo'shish">${heart}</button>
+        <button class="fav" type="button" data-fav="${esc(x.id)}" aria-pressed="${favs.has(x.id)}" aria-label="${favs.has(x.id) ? "Sevimlilardan olib tashlash" : "Sevimlilarga qo'shish"}">${heart}</button>
       </div>
       <div class="p-body">
         <p class="p-route">${routeHtml(x)}</p>
@@ -406,7 +418,7 @@
     $("#fCity").innerHTML = `<option value="">Barcha shaharlar</option>` + CITIES.map((c) => `<option${c.name === cur ? " selected" : ""}>${esc(c.name)}</option>`).join("");
     $("#cities").innerHTML = CITIES.map((c) => {
       const n = LISTINGS.filter((x) => x.city === c.name).length;
-      return `<button class="city" type="button" data-city="${esc(c.name)}"><span class="arch">${art(c.art, c.hue, "city" + c.name)}${imgTag((PHOTOS[c.name] || [])[0], 640)}<span class="c-txt"><span class="c-count">${n} ta joy</span><b>${esc(c.name)}</b><small>${esc(c.note)}</small></span></span></button>`;
+      return `<button class="city${state.city === c.name ? " is-on" : ""}" type="button" data-city="${esc(c.name)}" aria-pressed="${state.city === c.name}"><span class="arch">${art(c.art, c.hue, "city" + c.name)}${imgTag((PHOTOS[c.name] || [])[0], 640)}<span class="c-txt"><span class="c-count">${n} ta joy</span><b>${esc(c.name)}</b><small>${esc(c.note)}</small></span></span></button>`;
     }).join("");
   }
 
@@ -419,17 +431,50 @@
     }).join("");
   }
 
+  // ---------- recently viewed ----------
+  const RECENT_KEY = "bronuz.recent";
+  let recent = store(RECENT_KEY, []);
+  function rememberViewed(id) {
+    recent = [id, ...recent.filter((x) => x !== id)].slice(0, 8);
+    keep(RECENT_KEY, recent);
+    renderRecent();
+  }
+  function renderRecent() {
+    const list = recent.map((id) => LISTINGS.find((x) => x.id === id)).filter(Boolean);
+    $("#yaqinda").hidden = !list.length;
+    $("#recent").innerHTML = list.map((x) => `<button class="deal" type="button" data-open="${esc(x.id)}"><div class="d-thumb">${art(x.art, x.hue, "r" + x.id)}${imgTag(photosFor(x)[0], 320)}</div><div><b>${esc(x.name)}</b><span class="muted small">${esc(x.city)} · ${TYPES[x.type].kind}</span><span class="price"><b>${som(x.price)}</b></span></div></button>`).join("");
+  }
+
+  // ---------- shareable links: #joy=<id> opens a listing, Back closes it ----------
+  function setHash(h) {
+    if (location.hash === "#" + h) return;
+    try { history.pushState({ bron: h }, "", "#" + h); } catch (e) { /* sandboxed preview */ }
+  }
+  function clearHash() {
+    if (!/^#joy=/.test(location.hash)) return;
+    try { history.replaceState(null, "", location.pathname + location.search); } catch (e) { /* ignore */ }
+  }
+  function openFromHash() {
+    const m = /^#joy=([\w-]{1,40})$/.exec(location.hash);
+    const d = $("#detailDlg");
+    if (m && LISTINGS.some((x) => x.id === m[1])) { if (!(d.open && state.current && state.current.id === m[1])) openDetail(m[1]); }
+    else if (d.open) closeDlg(d);
+  }
+
   // ---------- favourites ----------
   function toggleFav(id) {
     favs.has(id) ? favs.delete(id) : favs.add(id);
     keep(FAV_KEY, [...favs]);
     $("#favCount").textContent = favs.size;
-    $$(`[data-fav="${CSS.escape(id)}"]`).forEach((b) => b.setAttribute("aria-pressed", String(favs.has(id))));
+    $$(`[data-fav="${CSS.escape(id)}"]`).forEach((b) => { b.setAttribute("aria-pressed", String(favs.has(id))); b.setAttribute("aria-label", favs.has(id) ? "Sevimlilardan olib tashlash" : "Sevimlilarga qo'shish"); });
     if (state.favOnly) render();
   }
 
   // ---------- dialogs ----------
-  const openDlg = (d) => { if (typeof d.showModal === "function") d.showModal(); else d.setAttribute("open", ""); };
+  const openDlg = (d) => {
+    if (!d.open) d._back = document.activeElement;
+    if (typeof d.showModal === "function") { if (!d.open) d.showModal(); } else d.setAttribute("open", "");
+  };
   const closeDlg = (d) => { if (typeof d.close === "function") d.close(); else d.removeAttribute("open"); };
 
   function openDetail(id) {
@@ -440,7 +485,11 @@
     const t = TYPES[x.type];
     const ps = photosFor(x);
     $("#dArt").className = "gallery";
-    $("#dArt").innerHTML = art(x.art, x.hue, x.id + "big") + (ps.length ? `<div class="g-track" id="gTrack">${ps.map((p) => `<div class="g-slide"><img data-ph class="ph" alt="${esc(p.title)}" src="${esc(srcOf(p, 1200))}"><span class="g-cap">${esc(p.title)}${p.file ? `<a href="${filePage(p.file)}" target="_blank" rel="noopener">© Wikimedia Commons</a>` : ""}</span></div>`).join("")}</div>${ps.length > 1 ? `<button class="g-nav g-prev" type="button" data-g="-1" aria-label="Oldingi surat">‹</button><button class="g-nav g-next" type="button" data-g="1" aria-label="Keyingi surat">›</button>` : ""}` : "");
+    $("#dArt").innerHTML = art(x.art, x.hue, x.id + "big") + (ps.length ? `<div class="g-track" id="gTrack">${ps.map((p) => `<div class="g-slide"><img data-ph class="ph" alt="${esc(p.title)}" src="${esc(srcOf(p, 1200))}"><span class="g-cap">${esc(p.title)}${p.file ? `<a href="${filePage(p.file)}" target="_blank" rel="noopener">© Wikimedia Commons</a>` : ""}</span></div>`).join("")}</div>${ps.length > 1 ? `<button class="g-nav g-prev" type="button" data-g="-1" aria-label="Oldingi surat">‹</button><button class="g-nav g-next" type="button" data-g="1" aria-label="Keyingi surat">›</button><span class="g-count" id="gCount" aria-live="polite">1 / ${ps.length}</span>` : ""}` : "");
+    const track = $("#gTrack");
+    if (track && ps.length > 1) track.addEventListener("scroll", () => { const c = $("#gCount"); if (c) c.textContent = `${Math.round(track.scrollLeft / Math.max(1, track.clientWidth)) + 1} / ${ps.length}`; }, { passive: true });
+    rememberViewed(x.id);
+    setHash("joy=" + x.id);
     $("#dKind").textContent = `${x.kind || (x.type === "tour" && x.days > 1 ? "Tur paketi" : t.kind)} · ${x.city}`;
     $("#dTitle").textContent = x.name;
     $("#dMeta").textContent = `${x.stars ? starStr(x.stars) + " · " : ""}${x.type === "tour" ? durOf(x) : x.district || x.city} · ${Number(x.rating).toFixed(1)} ${ratingWord(x.rating)} (${x.reviews} sharh)`;
@@ -454,6 +503,8 @@
     $("#dRooms").innerHTML = x.type === "hotel" ? `<div class="rooms" role="radiogroup" aria-label="Xona turi">${ROOMS.map((r, i) => `<label class="room"><input type="radio" name="room" value="${r.id}"${i === 0 ? " checked" : ""}><span><b>${r.name}</b> · ${x.capacity + r.extra} kishigacha</span><b>${som(unitPrice(x, r.id))}</b><small>${r.note}</small></label>`).join("")}</div>` : "";
     updateDetailPrice();
     openDlg($("#detailDlg"));
+    $("#detailDlg").scrollTop = 0;
+    setTimeout(() => { const c = $("#detailDlg .x-float"); if (c) c.focus({ preventScroll: true }); }, 30);
   }
   function updateDetailPrice() {
     const x = state.current;
@@ -475,20 +526,31 @@
     const trainClasses = item.type === "transport" && item.trip.mode === "poyezd";
     $("#bRoomWrap").hidden = item.type !== "hotel" && !trainClasses;
     $("#bRoomLabel").textContent = trainClasses ? "Vagon klassi" : "Xona turi";
-    $("#bRoom").innerHTML = trainClasses
+    $("#bRoom").innerHTML = item.type !== "hotel" && !trainClasses ? "" : trainClasses
       ? Object.entries(item.trip.classes).map(([c, pr]) => `<option value="${c}"${c === state.room ? " selected" : ""}>${c[0].toUpperCase() + c.slice(1)} · ${som(pr)}</option>`).join("")
       : ROOMS.map((r) => `<option value="${r.id}"${r.id === state.room ? " selected" : ""}>${r.name} · ${som(unitPrice(item, r.id))}</option>`).join("");
-    $("#bFrom").value = item.type === "transport" ? $("#trDate").value || state.from : state.from;
-    $("#bTo").value = state.to;
-    $("#bGuests").value = Math.min(state.guests, capOf(item));
+    const from0 = item.type === "transport" ? $("#trDate").value || state.from : state.from;
+    const sameType = state.type === item.type;
+    $("#bFrom").value = from0;
+    $("#bTo").value = nightly(item) ? (state.to > from0 && (sameType || nightly({ type: state.type })) ? state.to : iso(addDays(day(from0), 1)))
+      : item.type === "venue" ? (sameType && state.to >= from0 ? state.to : from0) : from0;
+    syncBookDates();
+    const guests0 = sameType ? state.guests : item.type === "venue" ? Math.min(50, capOf(item)) : item.type === "tour" ? 2 : Math.min(state.guests, 40);
+    $("#bGuests").value = Math.min(guests0, capOf(item));
     $("#bGuests").max = capOf(item);
     $("#bookMsg").textContent = ""; $("#bookMsg").className = "form-msg";
     if (item.type === "transport") $("#bGuests").value = Math.min(Math.max(1, +$("#trPax").value || 1), capOf(item));
-    else if (state.guests > capOf(item)) $("#bookMsg").textContent = `Bu tanlov ${capOf(item)} kishigacha. ${state.guests} kishilik guruh uchun bir nechta xona bron qiling yoki pastdagi guruh so'rovini yuboring.`;
+    else if (sameType && state.guests > capOf(item)) $("#bookMsg").textContent = `Bu tanlov ${capOf(item)} kishigacha. ${state.guests} kishilik guruh uchun bir nechta xona bron qiling yoki pastdagi guruh so'rovini yuboring.`;
     updateTotal();
     openDlg($("#bookDlg"));
     if (user) { if (!$("#bName").value) $("#bName").value = user.name; if (!$("#bPhone").value) $("#bPhone").value = user.phone; }
     setTimeout(() => (user ? $("#bFrom") : $("#bName")).focus(), 30);
+  }
+  function syncBookDates() {
+    const item = state.current, f = $("#bFrom").value;
+    const max = iso(addDays(new Date(), 365));
+    $("#bFrom").max = max; $("#bTo").max = iso(addDays(new Date(), 425));
+    $("#bTo").min = f ? (item && nightly(item) ? iso(addDays(day(f), 1)) : f) : todayIso();
   }
   const capOf = (item) => item.capacity + (item.type === "hotel" ? roomOf(item, state.room).extra : 0);
 
@@ -499,8 +561,11 @@
     $("#bGuests").max = capOf(item);
     const from = $("#bFrom").value, to = $("#bTo").value;
     const guests = Math.max(1, parseInt($("#bGuests").value, 10) || 1);
-    const badDates = !from || (nightly(item) && !(to > from)) || (item.type === "venue" && to && to < from);
+    const span = to ? daysBetween(from, to) : 0;
+    const badDates = !from || from < todayIso() || span > 60 || (nightly(item) && !(to > from)) || (item.type === "venue" && to && to < from);
     if (badDates) { $("#totalCalc").textContent = "Sanalarni tekshiring"; $("#totalSum").textContent = "—"; $("#bAvail").textContent = ""; return; }
+    $("#bPolicy").textContent = item.type === "transport" ? "Chipta narxi namuna jadval asosida. Aniq narxni menejer tasdiqlaydi."
+      : item.free ? "✓ Bepul bekor qilish mumkin. To'lov joyida yoki oldindan." : "Bekor qilish shartlarini menejer bron tasdiqlanganda aytadi.";
     const q = quote(item, from, to || from, guests, state.room);
     $("#totalCalc").textContent = q.label;
     $("#totalSum").textContent = som(q.sum);
@@ -536,14 +601,16 @@
     const to = item.type === "transport" ? from : item.type === "tour" ? iso(addDays(day(from || todayIso()), (item.days || 1) - 1)) : $("#bTo").value;
     const guests = parseInt($("#bGuests").value, 10) || 0;
     const room = item.type === "hotel" ? state.room : undefined;
-    ["#bName", "#bPhone"].forEach((s) => $(s).removeAttribute("aria-invalid"));
+    ["#bName", "#bPhone", "#bGuests"].forEach((s) => $(s).removeAttribute("aria-invalid"));
 
-    if (name.length < 3) { $("#bName").setAttribute("aria-invalid", "true"); msg.textContent = "Ism familiyangizni kiriting."; return; }
-    if (!validPhone(phone)) { $("#bPhone").setAttribute("aria-invalid", "true"); msg.textContent = "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing."; return; }
+    if (name.length < 3) { $("#bName").setAttribute("aria-invalid", "true"); $("#bName").focus(); msg.textContent = "Ism familiyangizni kiriting."; return; }
+    if (!validPhone(phone)) { $("#bPhone").setAttribute("aria-invalid", "true"); $("#bPhone").focus(); msg.textContent = "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing."; return; }
     if (!from || from < todayIso()) { msg.textContent = "Bugungi yoki keyingi sanani tanlang."; return; }
     if (nightly(item) && !(to > from)) { msg.textContent = "Ketish sanasi kelish sanasidan keyin bo'lishi kerak."; return; }
     if (item.type === "venue" && to < from) { msg.textContent = "Tugash sanasi boshlanish sanasidan oldin bo'lmasin."; return; }
-    if (guests < 1 || guests > capOf(item)) { msg.textContent = `Bu tanlov ${capOf(item)} kishigacha qabul qiladi.`; return; }
+    if (daysBetween(from, to) > 60) { msg.textContent = "Bir bron 60 kundan oshmasin."; return; }
+    if (guests < 1) { $("#bGuests").setAttribute("aria-invalid", "true"); msg.textContent = "Kamida 1 kishi bo'lishi kerak."; return; }
+    if (guests > capOf(item)) { msg.textContent = `Bu tanlov ${capOf(item)} kishigacha qabul qiladi.`; return; }
 
     const pay = $("#bPay").value, note = $("#bNote").value.trim();
     let booking;
@@ -562,21 +629,67 @@
       booking = { code, id: item.id, name: item.name, city: item.city, type: item.type, from, to, guests, sum: quote(item, from, to, guests, item.type === "transport" ? state.room : room).sum, phone: normPhone(phone) };
     }
     if (user) booking.owner = user.phone;
+    booking.pay = pay;
+    booking.created = new Date().toISOString();
+    if (item.type === "hotel") booking.room = roomOf(item, state.room).name;
+    else if (item.type === "transport" && state.room) booking.room = state.room;
     saveBookings([booking, ...memoryBookings]);
     if (API && user) serverBookings = [booking, ...serverBookings];
     closeDlg($("#bookDlg"));
     $("#bookForm").reset();
     renderMine();
-    toast(`Bron qabul qilindi. Raqamingiz: ${booking.code}`);
+    showDone(booking, item);
+  }
+
+  // ---------- booking confirmation ----------
+  let lastDone = null;
+  function showDone(b, item) {
+    lastDone = b;
+    const dates = !b.to || b.from === b.to ? fmtDate(b.from) : `${fmtDate(b.from)} – ${fmtDate(b.to)}`;
+    $("#doneTitle").textContent = b.name;
+    $("#doneCode").textContent = b.code;
+    const rows = [["Joy", `${TYPES[b.type] ? TYPES[b.type].kind : ""} · ${b.city}`], ["Sana", dates], [TYPES[b.type] ? TYPES[b.type].guests : "Kishilar", String(b.guests)]];
+    if (b.room) rows.push([b.type === "transport" ? "Vagon klassi" : "Xona turi", b.room]);
+    rows.push(["To'lov", PAY_LABEL[b.pay] || b.pay || ""], ["Jami", som(b.sum)]);
+    $("#doneList").innerHTML = rows.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("");
+    $("#doneNote").textContent = API
+      ? (item && item.free ? "Menejer bronni tasdiqlab, siz bilan bog'lanadi. Bu joyda bronni bepul bekor qilish mumkin." : "Menejer bronni tasdiqlab, siz bilan bog'lanadi.")
+      : "Sayt hozir namuna rejimida: bron faqat shu qurilmada saqlandi va joy egasiga yuborilmadi.";
+    const text = `${T("Bron qabul qilindi")}: ${b.code} · ${b.name} · ${dates}`;
+    $("#doneShare").href = `https://t.me/share/url?url=${encodeURIComponent(location.origin + location.pathname)}&text=${encodeURIComponent(text)}`;
+    openDlg($("#doneDlg"));
+    setTimeout(() => $("#doneCopy").focus(), 30);
+  }
+  function icsFor(b) {
+    const d = (s) => s.replace(/-/g, "");
+    const end = iso(addDays(day(b.to || b.from), 1));
+    const stamp = new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z";
+    const clean = (s) => String(s).replace(/[\\,;]/g, (c) => "\\" + c).replace(/\n/g, " ");
+    return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//bron.uz//UZ", "BEGIN:VEVENT", `UID:${b.code}@bron.uz`, `DTSTAMP:${stamp}`,
+      `DTSTART;VALUE=DATE:${d(b.from)}`, `DTEND;VALUE=DATE:${d(end)}`, `SUMMARY:${clean(b.name + " (" + b.code + ")")}`, `LOCATION:${clean(b.city)}`,
+      `DESCRIPTION:${clean(T("Bron raqami") + ": " + b.code + ", " + som(b.sum))}`, "END:VEVENT", "END:VCALENDAR"].join("\r\n");
+  }
+  function downloadIcs(b) {
+    const url = URL.createObjectURL(new Blob([icsFor(b)], { type: "text/calendar" }));
+    const a = document.createElement("a"); a.href = url; a.download = `${b.code}.ics`; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
   }
 
   // ---------- my bookings ----------
   const STATUS_LABEL = { "yangi": "Kutilmoqda", "tasdiqlandi": "Tasdiqlandi", "bekor qilindi": "Bekor qilingan", "yakunlandi": "Yakunlangan" };
+  const PAY_LABEL = { joyida: "Joyida to'lov", click: "Click", payme: "Payme", uzum: "Uzum Bank", naqd: "Naqd" };
   const STATUS_CLASS = { "yangi": "new", "tasdiqlandi": "ok", "bekor qilindi": "off", "yakunlandi": "done" };
   const isActive = (b) => !b.status || b.status === "yangi" || b.status === "tasdiqlandi";
   function myBookings() {
-    if (API && user) return serverBookings;
-    return memoryBookings.filter((b) => !b.owner || (user && b.owner === user.phone));
+    const local = memoryBookings.filter((b) => user ? b.owner === user.phone : !b.owner);
+    if (!(API && user)) return local;
+    const codes = new Set(serverBookings.map((b) => b.code));
+    return [...serverBookings, ...local.filter((b) => !codes.has(b.code))];
+  }
+  // Bookings made on this device before signing in move to the account that signs in.
+  function claimGuestBookings(u) {
+    if (!memoryBookings.some((b) => !b.owner)) return;
+    saveBookings(memoryBookings.map((b) => b.owner ? b : { ...b, owner: u.phone }));
   }
   function renderMine() {
     const list = myBookings();
@@ -590,10 +703,10 @@
       return `
       <div class="booking">
         <span class="code">${esc(b.code)}</span>
-        <div class="grow"><b>${esc(b.name)}</b><span class="muted">${esc(b.city)} · ${dates} · ${b.guests} kishi</span></div>
+        <div class="grow"><b>${esc(b.name)}</b><span class="muted">${esc(b.city)} · ${dates} · ${b.guests} kishi${b.room ? " · " + esc(b.room) : ""}${b.pay ? " · " + esc(PAY_LABEL[b.pay] || b.pay) : ""}</span></div>
         <span class="sum">${som(b.sum)}</span>
         <span class="st st-${STATUS_CLASS[b.status || "yangi"] || "new"}">${esc(STATUS_LABEL[b.status || "yangi"] || b.status)}</span>
-        ${isActive(b) ? `<button class="btn btn-line" type="button" data-cancel="${esc(b.code)}">Bekor qilish</button>` : ""}
+        ${isActive(b) ? `<span class="b-acts"><button class="btn btn-line" type="button" data-ics="${esc(b.code)}" aria-label="Kalendarga qo'shish">📅</button><button class="btn btn-line" type="button" data-cancel="${esc(b.code)}">Bekor qilish</button></span>` : ""}
       </div>`;
     }).join("");
   }
@@ -605,6 +718,7 @@
     msg.className = "form-msg err";
     if ($("#mCompany").value.trim().length < 2) { msg.textContent = "Kompaniya nomini kiriting."; return; }
     if ((parseInt($("#mPeople").value, 10) || 0) < 10) { msg.textContent = "Guruh so'rovi 10 kishidan boshlanadi."; return; }
+    if ((parseInt($("#mPeople").value, 10) || 0) > 5000) { msg.textContent = "Guruh so'rovi 5000 kishigacha qabul qilinadi."; return; }
     if (!validPhone($("#mPhone").value)) { msg.textContent = "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing."; return; }
     if (!API) { msg.textContent = "Sayt hozir namuna rejimida ishlayapti, so'rov serverga yuborilmadi. Server ishga tushgach so'rovlar admin panelga keladi."; return; }
     {
@@ -713,9 +827,15 @@
     if (map.getZoom() < 9) {
       const by = {};
       mapList().forEach((x) => { (by[x.city] = by[x.city] || []).push(x); });
-      Object.entries(by).forEach(([city, xs]) => {
+      // Cities close together (Toshkent and Chimyon) would cover each other: lift the later one.
+      const placed = [];
+      Object.entries(by).sort((a, b) => b[1].length - a[1].length).forEach(([city, xs]) => {
         const c = GEO[city]; if (!c) return;
-        const icon = L.divIcon({ className: "pin-wrap", html: `<span class="cpin"><b>${xs.length}</b>${esc(city)}</span>`, iconSize: null });
+        const pt = map.latLngToContainerPoint([c[0], c[1]]);
+        let dy = 0;
+        while (placed.some((q) => Math.abs(q.x - pt.x) < 130 && Math.abs(q.y - (pt.y + dy)) < 34)) dy -= 36;
+        placed.push({ x: pt.x, y: pt.y + dy });
+        const icon = L.divIcon({ className: "pin-wrap", html: `<span class="cpin"${dy ? ` style="transform:translateY(${dy}px)"` : ""}><b>${xs.length}</b>${esc(city)}</span>`, iconSize: null });
         cityPins.push(L.marker([c[0], c[1]], { icon, title: city }).addTo(map).on("click", () => map.setView([c[0], c[1]], 12)));
       });
       renderMapSide();
@@ -739,11 +859,13 @@
     if (map) return;
     try { await loadLeaflet(); } catch (e) { $("#map").innerHTML = `<p class="map-load">Xaritani yuklab bo'lmadi. Internetni tekshiring.</p>`; return; }
     $("#map").innerHTML = "";
-    map = L.map("map", { scrollWheelZoom: false, zoomControl: true }).setView([40.6, 66.2], 6);
+    map = L.map("map", { scrollWheelZoom: false, zoomControl: true });
+    const pts = Object.values(GEO).map((g) => [g[0], g[1]]);
+    if (pts.length) map.fitBounds(pts, { padding: [24, 24] }); else map.setView([40.6, 66.2], 6);
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' }).addTo(map);
     map.on("moveend", renderMapSide);
     let wasNear = false;
-    map.on("zoomend", () => { const near = map.getZoom() >= 9; if (near !== wasNear) { wasNear = near; renderMapMarkers(); } });
+    map.on("zoomend", () => { const near = map.getZoom() >= 9; if (near !== wasNear || !near) { wasNear = near; renderMapMarkers(); } });
     renderMapMarkers();
   }
   function showOnMap(id, stay) {
@@ -767,6 +889,9 @@
     msg.className = "form-msg err";
     const body = { property: $("#pfName").value.trim(), type: $("#pfType").value, city: $("#pfCity").value, units: $("#pfUnits").value, contact: $("#pfContact").value.trim(), phone: $("#pfPhone").value };
     if (body.property.length < 2) { msg.textContent = "Joy nomini kiriting."; return; }
+    const units = parseInt(body.units, 10);
+    if (body.units && !(units >= 1 && units <= 2000)) { msg.textContent = "Xona yoki o'rinlar soni 1 dan 2000 gacha bo'lsin."; return; }
+    if (body.contact.length < 2) { msg.textContent = "Mas'ul shaxs ismini kiriting."; return; }
     if (!validPhone(body.phone)) { msg.textContent = "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing."; return; }
     if (!API) { msg.textContent = "Sayt hozir namuna rejimida ishlayapti, ariza serverga yuborilmadi. Server ishga tushgach arizalar admin panelga keladi."; return; }
     try { await api("/api/partner-requests", body); }
@@ -858,7 +983,22 @@
       const g = t.closest("[data-g]"); if (g) { const tr = $("#gTrack"); if (tr) tr.scrollBy({ left: tr.clientWidth * +g.dataset.g, behavior: "smooth" }); return; }
       const close = t.closest("[data-close]"); if (close) closeDlg(close.closest("dialog"));
     });
-    $$("dialog").forEach((d) => d.addEventListener("click", (e) => { if (e.target === d) closeDlg(d); }));
+    $$("dialog").forEach((d) => {
+      d.addEventListener("click", (e) => { if (e.target === d) closeDlg(d); });
+      d.addEventListener("close", () => {
+        if (d.id === "detailDlg") clearHash();
+        const b = d._back; d._back = null;
+        if (b && b.isConnected && !document.querySelector("dialog[open]")) b.focus({ preventScroll: true });
+      });
+    });
+    window.addEventListener("popstate", openFromHash);
+    $("#recentClear").addEventListener("click", () => { recent = []; keep(RECENT_KEY, recent); renderRecent(); });
+    // Detail: start keyboard focus on the close button; arrows move the gallery.
+    $("#detailDlg").addEventListener("keydown", (e) => {
+      if ((e.key === "ArrowRight" || e.key === "ArrowLeft") && !/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) {
+        const tr = $("#gTrack"); if (tr) { e.preventDefault(); tr.scrollBy({ left: tr.clientWidth * (e.key === "ArrowRight" ? 1 : -1), behavior: "smooth" }); }
+      }
+    });
 
     $("#dRooms").addEventListener("change", (e) => { if (e.target.name === "room") { state.room = e.target.value; updateDetailPrice(); } });
     $("#dBook").addEventListener("click", () => { const id = state.current.id, room = state.room; closeDlg($("#detailDlg")); openBooking(id, room); });
@@ -869,25 +1009,38 @@
       const code = b.dataset.cancel;
       const bk = myBookings().find((x) => x.code === code);
       if (!bk) return;
+      if (!confirm(T("Bronni bekor qilasizmi? Bu amalni qaytarib bo'lmaydi."))) return;
       if (API) {
         b.disabled = true;
         try { await api(`/api/bookings/${encodeURIComponent(code)}/cancel`, { phone: bk.phone }); }
         catch (err) { b.disabled = false; toast(err.message); return; }
         serverBookings = serverBookings.map((x) => x.code === code ? { ...x, status: "bekor qilindi" } : x);
       }
-      saveBookings(memoryBookings.filter((x) => x.code !== code));
+      saveBookings(memoryBookings.map((x) => x.code === code ? { ...x, status: "bekor qilindi" } : x));
       renderMine();
       toast("Bron bekor qilindi.");
     });
 
+    $("#bFrom").addEventListener("change", () => {
+      const item = state.current, f = $("#bFrom").value, t = $("#bTo").value;
+      if (item && f && nightly(item) && !(t > f)) $("#bTo").value = iso(addDays(day(f), Math.max(1, daysBetween(state.from || f, state.to || f) || 1)));
+      if (item && f && item.type === "venue" && t < f) $("#bTo").value = f;
+      syncBookDates(); updateTotal();
+    });
     ["#bFrom", "#bTo", "#bGuests", "#bRoom"].forEach((s) => $(s).addEventListener("input", updateTotal));
     $("#bookForm").addEventListener("submit", submitBooking);
+    $("#doneCopy").addEventListener("click", async () => { try { await navigator.clipboard.writeText(lastDone.code); } catch (e) { /* no clipboard */ } toast(T("Bron raqami nusxalandi") + ": " + lastDone.code); });
+    $("#doneIcs").addEventListener("click", () => lastDone && downloadIcs(lastDone));
+    $("#donePrint").addEventListener("click", () => window.print());
+    $("#myList").addEventListener("click", (e) => { const b = e.target.closest("[data-ics]"); if (!b) return; const bk = myBookings().find((x) => x.code === b.dataset.ics); if (bk) downloadIcs(bk); });
     $("#miceForm").addEventListener("submit", submitMice);
 
     buildFilters();
     readSearch();
     render();
     renderMine();
+    renderRecent();
+    openFromHash();
     loadListings();
   }
 
@@ -959,7 +1112,7 @@
 
   function setAuthMode(mode) {
     authMode = mode;
-    $$(".seg-b").forEach((b) => { const on = b.dataset.mode === mode; b.classList.toggle("is-on", on); b.setAttribute("aria-selected", String(on)); });
+    $$("#authDlg .seg-b").forEach((b) => { const on = b.dataset.mode === mode; b.classList.toggle("is-on", on); b.setAttribute("aria-selected", String(on)); });
     const reg = mode === "register";
     $("#aNameWrap").hidden = !reg;
     $("#aPass2Wrap").hidden = !reg;
@@ -996,6 +1149,7 @@
     const btn = $("#authSubmit"); btn.disabled = true;
     try {
       const u = authMode === "register" ? await register(name, phone, pass) : await login(phone, pass);
+      claimGuestBookings(u);
       await setUser({ name: u.name, phone: u.phone });
       closeDlg($("#authDlg"));
       $("#authForm").reset();
@@ -1006,7 +1160,7 @@
   function initAuth() {
     $("#authBtn").addEventListener("click", () => openAuth());
     $("#tabProfile").addEventListener("click", () => openAuth());
-    $$(".seg-b").forEach((b) => b.addEventListener("click", () => setAuthMode(b.dataset.mode)));
+    $$("#authDlg .seg-b").forEach((b) => b.addEventListener("click", () => setAuthMode(b.dataset.mode)));
     $("#authForm").addEventListener("submit", submitAuth);
     $("#aEye").addEventListener("click", () => { const show = $("#aPass").type === "password"; $("#aPass").type = $("#aPass2").type = show ? "text" : "password"; $("#aEye").textContent = show ? "Yashirish" : "Ko'rsatish"; });
     $("#logoutBtn").addEventListener("click", () => { closeDlg($("#profileDlg")); logout(); });
@@ -1047,7 +1201,7 @@
       API = true;
       restoreUser();
       $("#sampleNote").hidden = true;
-      render(); renderDeals(); renderCities(); heroCount(); renderVenues(); renderPackages(); renderCats(); renderMapMarkers();
+      render(); renderDeals(); renderCities(); heroCount(); renderVenues(); renderPackages(); renderCats(); renderMapMarkers(); renderRecent();
     } catch (e) { /* static hosting: keep sample data */ }
   }
 

@@ -497,8 +497,9 @@ async function handle(req, res) {
   if (p === "/api/partner-requests" && M === "POST") {
     if (limited(req)) return fail(res, 429, "Juda ko'p so'rov. Bir daqiqadan keyin urinib ko'ring.");
     const b = await readJson(req);
-    const r = { property: str(b.property, 120), type: ["hotel", "hostel", "venue", "tour"].includes(b.type) ? b.type : "hotel", city: str(b.city, 40), units: Math.max(0, parseInt(b.units, 10) || 0), contact: str(b.contact, 80), phone: normPhone(b.phone) };
+    const r = { property: str(b.property, 120), type: ["hotel", "hostel", "venue", "tour"].includes(b.type) ? b.type : "hotel", city: str(b.city, 40), units: Math.min(2000, Math.max(0, parseInt(b.units, 10) || 0)), contact: str(b.contact, 80), phone: normPhone(b.phone) };
     if (r.property.length < 2) return fail(res, 400, "Joy nomini kiriting.");
+    if (r.contact.length < 2) return fail(res, 400, "Mas'ul shaxs ismini kiriting.");
     if (!validPhone(r.phone)) return fail(res, 400, "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing.");
     db.prepare("INSERT INTO partner_requests (property,type,city,units,contact,phone,created) VALUES (?,?,?,?,?,?,?)").run(r.property, r.type, r.city, r.units, r.contact, r.phone, new Date().toISOString());
     notify(`🤝 Yangi hamkor arizasi: ${r.property} (${r.type}, ${r.city}), ${r.units} ta joy\n${r.contact} ${r.phone}`);
@@ -537,7 +538,7 @@ async function handle(req, res) {
     if (!validPhone(phone)) return fail(res, 400, "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing.");
     if (!isDate(from) || from < today()) return fail(res, 400, "Bugungi yoki keyingi sanani tanlang.");
     if (!isDate(to)) return fail(res, 400, "Sanani tekshiring.");
-    if (item.type === "hotel" && !(to > from)) return fail(res, 400, "Ketish sanasi kelish sanasidan keyin bo'lishi kerak.");
+    if ((item.type === "hotel" || item.type === "hostel") && !(to > from)) return fail(res, 400, "Ketish sanasi kelish sanasidan keyin bo'lishi kerak.");
     if (item.type === "venue" && to < from) return fail(res, 400, "Tugash sanasi boshlanish sanasidan oldin bo'lmasin.");
     if (days(from, to) > 60) return fail(res, 400, "Bir bron 60 kundan oshmasin.");
     if (guests < 1) return fail(res, 400, "Mehmonlar sonini kiriting.");
@@ -578,6 +579,7 @@ async function handle(req, res) {
     const company = str(b.company, 120), kind = str(b.kind, 60), people = parseInt(b.people, 10) || 0, phone = normPhone(b.phone);
     if (company.length < 2) return fail(res, 400, "Kompaniya nomini kiriting.");
     if (people < 10) return fail(res, 400, "Guruh so'rovi 10 kishidan boshlanadi.");
+    if (people > 5000) return fail(res, 400, "Guruh so'rovi 5000 kishigacha qabul qilinadi.");
     if (!validPhone(phone)) return fail(res, 400, "Telefon raqamini +998 90 123 45 67 ko'rinishida yozing.");
     db.prepare("INSERT INTO group_requests (company,kind,people,phone,created) VALUES (?,?,?,?,?)").run(company, kind, people, phone, new Date().toISOString());
     notify(`🏢 Guruh so'rovi: ${company}\n${kind}, ${people} kishi\nTelefon: ${phone}`);

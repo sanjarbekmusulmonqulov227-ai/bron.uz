@@ -73,3 +73,9 @@ Xavfsizlik holati va tavsiyalar: [SECURITY.md](SECURITY.md).
 - Bo'sh joy kunma-kun hisoblanadi (mehmonxona: xonalar soni, hostel: o'rinlar, zal: kuniga bitta tadbir). Joy qolmasa, bron qabul qilinmaydi.
 - Transport (avia, poyezd, avto) jadvali va narxlari `public/data.js` ichidagi namuna ma'lumot. Haqiqiy chipta sotish uchun Uzbekistan Airways va O'zbekiston temir yo'llari bilan shartnoma va API kerak.
 - Xarita OpenStreetMap va Leaflet (`public/vendor/leaflet`, BSD-2 litsenziya) orqali ishlaydi.
+
+## Tillar
+
+- Sayt o'zbek, rus va ingliz tilida. Tilni yuqoridagi UZ / RU / EN tugmalari yoki `?lang=ru` havolasi bilan tanlash mumkin.
+- Asosiy matn o'zbekcha yoziladi. Tarjimalar `public/i18n-ru.js` va `public/i18n-en.js` fayllarida: chapda o'zbekcha matn, o'ngda tarjima. Sonlar `{n}` bilan yoziladi.
+- Yangi matn qo'shsangiz va tarjimasini yozmasangiz, u o'zbekcha ko'rinadi.

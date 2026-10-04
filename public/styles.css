@@ -735,3 +735,101 @@ body { background: var(--bg); }
   .pc-seg { width: 100%; }
   .pc-title { display: none; }
 }
+
+/* ---------- language switch ---------- */
+.i18n-wait body { opacity: 0; }
+.lang-sw { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 2px; background: var(--surface); }
+.lang-sw button { font: inherit; font-size: .78rem; font-weight: 700; letter-spacing: .04em; border: 0; background: none; color: var(--muted); padding: 5px 9px; border-radius: 999px; cursor: pointer; }
+.lang-sw button.is-on { background: var(--band); color: var(--band-ink); }
+
+/* ---------- v7: fixes and polish ---------- */
+/* Contrast: darker turquoise text on cream (AA), lighter controls in dark mode. */
+:root { --turq-ink: #0b6f6c; }
+.eyebrow { color: var(--turq-ink); }
+.eyebrow.light { color: #9fe3dc; }
+.eyebrow.gold { color: var(--gold); }
+:root[data-theme="dark"] { --turq-ink: #45c7bf; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --turq-ink: #45c7bf; } }
+:root[data-theme="dark"] .btn-ink { background: var(--lapis); color: #0c1226; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn-ink { background: var(--lapis); color: #0c1226; } }
+:root[data-theme="dark"] #vFormats .chip[aria-pressed="true"], :root[data-theme="dark"] #vFormats .chip.is-on { background: var(--gold); color: var(--gold-ink); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) #vFormats .chip[aria-pressed="true"], :root:not([data-theme="light"]) #vFormats .chip.is-on { background: var(--gold); color: var(--gold-ink); } }
+
+/* Result cards: the button never overflows; price and button wrap instead. */
+.item { display: flex; flex-direction: column; }
+.item-body { flex: 1; }
+.item-foot { flex-wrap: wrap; margin-top: auto; }
+.item-foot .price { min-width: 0; }
+.item-foot .btn { flex: 1 0 auto; max-width: 100%; }
+/* Venue and package cards line their buttons up. */
+.vcard .v-body { display: flex; flex-direction: column; }
+.vcard .v-foot { margin-top: auto; }
+/* Field labels line up across a row. */
+.fields { align-items: end; }
+.field > span { min-height: 1.3em; display: flex; align-items: end; }
+.tr-form { align-items: end; }
+
+/* Mobile: search first, illustration out of the way. */
+@media (max-width: 600px) {
+  .hero-visual { display: none; }
+  .hero .lead { font-size: .95rem; }
+  .tr-modes { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .tr-mode { justify-content: center; padding: 10px 6px; font-size: .9rem; }
+  .res-tools { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .res-tools > * { width: 100%; }
+}
+/* Dialogs on phones: full-height sheet, total and button always visible. */
+@media (max-width: 600px) {
+  .dlg { width: 100%; max-width: 100%; max-height: 100%; height: 100%; margin: 0; border-radius: 0; }
+  #bookForm { min-height: 100%; align-content: start; }
+  #bookForm .total, #bookForm button[type=submit] { position: sticky; z-index: 2; }
+  #bookForm .total { bottom: 64px; background: var(--surface); box-shadow: 0 -10px 16px -12px rgba(0,0,0,.35); }
+  #bookForm button[type=submit] { bottom: 12px; }
+  #detailDlg .d-foot { position: sticky; bottom: 0; background: var(--surface); padding: 12px 0; box-shadow: 0 -10px 16px -12px rgba(0,0,0,.35); z-index: 2; }
+}
+#bRoom { text-overflow: ellipsis; }
+
+/* Gallery counter */
+.g-count { position: absolute; right: 14px; bottom: 12px; z-index: 2; background: rgba(6,12,24,.62); color: #fff; font-size: .78rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+
+/* Booking policy line */
+.policy { margin: -4px 0 0; }
+
+/* Confirmation */
+.done-code { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; background: var(--surface-2); border: 1px dashed color-mix(in srgb, var(--gold) 70%, var(--line)); border-radius: 14px; padding: 14px 16px; }
+.done-code span { font-size: .76rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; width: 100%; }
+.done-code b { font-size: 1.6rem; letter-spacing: .06em; font-variant-numeric: tabular-nums; flex: 1; }
+.done-code .btn { padding: 8px 14px; }
+.done-list { margin: 0; display: grid; gap: 0; }
+.done-list div { display: flex; justify-content: space-between; gap: 14px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.done-list dt { color: var(--muted); }
+.done-list dd { margin: 0; font-weight: 600; text-align: right; }
+.done-list div:last-child dd { font-size: 1.15rem; }
+.done-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.done-acts .btn { flex: 1 1 auto; padding: 10px 14px; }
+.b-acts { display: inline-flex; gap: 6px; }
+.b-acts .btn { padding: 8px 12px; }
+
+/* Recently viewed */
+.recent-sec .sec-head { align-items: end; }
+.recent-sec .btn { padding: 8px 14px; }
+
+/* Language switch on small screens */
+@media (max-width: 480px) { .lang-sw button { padding: 5px 7px; } .install-btn { display: none !important; } }
+
+/* Print: only the confirmation */
+@media print {
+  body > *:not(#doneDlg) { display: none !important; }
+  #doneDlg { position: static; display: block; box-shadow: none; width: 100%; max-height: none; }
+  #doneDlg .x, .done-acts { display: none !important; }
+}
+/* Top bar: nav never wraps; with long Russian labels it gets smaller, then hides. */
+.topbar-in { gap: 18px; }
+.nav { gap: 16px; min-width: 0; }
+.nav a { white-space: nowrap; font-size: .95rem; }
+.top-actions { flex: none; gap: 8px; }
+@media (max-width: 1240px) { .nav { gap: 12px; } .nav a { font-size: .88rem; } }
+@media (max-width: 1100px) { .nav { display: none; } .top-actions { margin-left: auto; } }
+/* Package cards: buttons sit on one line across a row. */
+.p-body { display: flex; flex-direction: column; }
+.fields input, .fields select, .tr-form input, .tr-form select { height: 48px; }
