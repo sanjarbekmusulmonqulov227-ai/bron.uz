@@ -9,7 +9,7 @@
   --muted: #6c6354;
   --line: #e5d9bf;
   --lapis: #1d3f94;
-  --turq: #0e8784;
+  --turq: #0e8784; --chip-on: #0b6e6b;
   --gold: #e0a21c;
   --gold-ink: #241500;
   --anor: #b3263a;
@@ -32,7 +32,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0c1226; --surface: #141c36; --surface-2: #1b2544; --ink: #efe9dc; --muted: #a8a294; --line: #2a3557;
-    --lapis: #9db4ff; --turq: #45c7bf; --gold: #f2b636; --gold-ink: #1d1100; --anor: #ff7f8c;
+    --lapis: #9db4ff; --turq: #45c7bf; --chip-on: #45c7bf; --gold: #f2b636; --gold-ink: #1d1100; --anor: #ff7f8c;
     --band: #102461; --band-2: #09153a; --band-ink: #f4f0e6; --sale: #ff7f8c; --ok: #4fc285; --err: #ff7f8c; --orn: rgba(242, 182, 54, .06);
     --shadow: 0 18px 40px -22px rgba(0, 0, 0, .7); --shadow-sm: 0 6px 16px -10px rgba(0, 0, 0, .7);
     color-scheme: dark;
@@ -40,7 +40,7 @@
 }
 :root[data-theme="dark"] {
   --bg: #0c1226; --surface: #141c36; --surface-2: #1b2544; --ink: #efe9dc; --muted: #a8a294; --line: #2a3557;
-  --lapis: #9db4ff; --turq: #45c7bf; --gold: #f2b636; --gold-ink: #1d1100; --anor: #ff7f8c;
+  --lapis: #9db4ff; --turq: #45c7bf; --chip-on: #45c7bf; --gold: #f2b636; --gold-ink: #1d1100; --anor: #ff7f8c;
   --band: #102461; --band-2: #09153a; --band-ink: #f4f0e6; --sale: #ff7f8c; --ok: #4fc285; --err: #ff7f8c; --orn: rgba(242, 182, 54, .06);
   --shadow: 0 18px 40px -22px rgba(0, 0, 0, .7); --shadow-sm: 0 6px 16px -10px rgba(0, 0, 0, .7);
   color-scheme: dark;
@@ -167,7 +167,7 @@ input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--turq); p
 .f-row output { font-weight: 700; font-variant-numeric: tabular-nums; font-size: .9rem; }
 .chips { display: flex; gap: 6px; flex-wrap: wrap; }
 .chip { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 5px 11px; cursor: pointer; font-weight: 600; font-size: .85rem; }
-.chip[aria-pressed="true"] { background: var(--turq); border-color: var(--turq); color: var(--surface); }
+.chip[aria-pressed="true"] { background: var(--chip-on); border-color: var(--chip-on); color: var(--surface); }
 .checks { display: grid; gap: 8px; }
 .check { display: flex; gap: 10px; align-items: center; cursor: pointer; font-size: .93rem; }
 @media (max-width: 960px) {
@@ -969,3 +969,14 @@ body { background: var(--bg); }
 .osm-note { font-size: .78rem; color: var(--muted); margin: 8px 0 0; }
 .osm-pop a { color: inherit; }
 .s-a .btn { white-space: nowrap; padding: 8px 14px; }
+
+/* v14: skip link, currency, totals, share */
+.skip { position: absolute; left: 12px; top: -60px; z-index: 1000; background: var(--gold); color: var(--gold-ink); padding: 10px 16px; border-radius: 10px; font-weight: 700; text-decoration: none; }
+.skip:focus { top: 10px; }
+.f-bottom a { text-decoration: underline; }
+.cur-sel { flex: none; width: auto; font: inherit; font-size: .78rem; font-weight: 700; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--muted); padding: 5px 8px; cursor: pointer; }
+.price .alt-cur { display: block; font-size: .78rem; color: var(--muted); font-weight: 600; }
+.price .tot { display: block; font-size: .8rem; color: var(--ink); font-weight: 600; margin-top: 2px; }
+.total .alt-cur { display: block; font-size: .8rem; color: var(--muted); text-align: right; }
+@media (max-width: 480px) { .cur-sel { padding: 5px 4px; font-size: .72rem; } }
+.sp-404 { text-align: center; padding: 48px 20px; } .sp-404 .sp-links { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }

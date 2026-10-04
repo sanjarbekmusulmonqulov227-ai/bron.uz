@@ -122,3 +122,8 @@ Haqiqiy mehmonxonalarni qo'shish: admin → Joylar → **Ommaviy yuklash**. CSV 
 
 ## Statistika
 Server ishlaganda bosh sahifada foydalanuvchilar (noyob qurilmalar), tashriflar, joy ko'rishlari va ro'yxatdan o'tganlar soni chiqadi; joy oynasida "N marta ko'rilgan". Bir qurilmaning 30 daqiqa ichidagi qayta kirishi va bir joyni bir soat ichida qayta ochish qayta sanalmaydi. API: `POST /api/visit`, `GET /api/stats`, `POST /api/listings/:id/view`. Admin panel bosh sahifasida ham ko'rinadi. GitHub Pages'da server yo'qligi uchun bu raqamlar chiqmaydi.
+
+## Valyuta, bandlik va tezlik
+- Narx yonida taxminiy USD/EUR/RUB va boshqa valyutadagi qiymat ko'rsatiladi (O'zbekiston Markaziy banki kursi, `GET /api/rates`, 6 soat keshlanadi). Bron va to'lov har doim so'mda.
+- Qidiruvda sana tanlansa, kartada jami narx chiqadi; serverda `GET /api/availability/all` orqali shu sanalarda band joylar natijadan yashiriladi.
+- Server statik fayllarni brotli/gzip bilan siqib, ETag bilan beradi; topilmagan sahifa uchun `404.html`.

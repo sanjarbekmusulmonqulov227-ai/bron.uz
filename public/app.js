@@ -78,6 +78,13 @@
 
   // ---------- helpers ----------
   const som = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " so'm";
+  // Other currencies are shown next to so'm as an approximate guide (Central Bank rate); bookings stay in so'm.
+  let CUR = store("bron.cur", "UZS"), RATES = null;
+  const alt = (n) => {
+    if (CUR === "UZS" || !RATES || !RATES[CUR] || !n) return "";
+    try { return "≈ " + new Intl.NumberFormat("en-US", { style: "currency", currency: CUR, minimumFractionDigits: 0, maximumFractionDigits: n / RATES[CUR] < 10 ? 1 : 0 }).format(n / RATES[CUR]); } catch (e) { return ""; }
+  };
+  const altTag = (n) => { const a = alt(n); return a ? `<small class="alt-cur" translate="no">${a}</small>` : ""; };
   const short = (n) => n >= 1e6 ? (Math.round(n / 1e5) / 10).toString().replace(".", ",") + " mln" : Math.round(n / 1000) + " ming";
   const pad = (n) => String(n).padStart(2, "0");
   // Dates are handled in the visitor's local calendar (Tashkent), not UTC.
@@ -336,6 +343,7 @@
     if (String(state.guests) !== $("#fGuests").value) $("#fGuests").value = state.guests;
     state.sort = $("#fSort").value;
     state.limit = 9;
+    if (busy.key && busy.key !== [state.type, state.from, state.type === "tour" ? state.from : state.to, state.guests, state.rooms].join("|")) { busy.key = ""; busy.ids = new Set(); }
   }
 
   function validateSearch() {
@@ -350,6 +358,21 @@
     return true;
   }
 
+  // Sold-out places for the searched dates (server mode): hidden from results, counted in the header.
+  const busy = { key: "", ids: new Set(), n: 0 };
+  async function loadBusy() {
+    if (!API || !state.from || state.type === "transport") return;
+    const to = state.type === "tour" ? state.from : state.to;
+    const key = [state.type, state.from, to, state.guests, state.rooms].join("|");
+    if (key === busy.key) return;
+    try {
+      const r = await fetch(`/api/availability/all?type=${state.type}&from=${state.from}&to=${to}&guests=${state.guests}&rooms=${state.rooms}`);
+      if (!r.ok) return;
+      const a = await r.json();
+      busy.key = key; busy.ids = new Set(a.busy || []);
+      render();
+    } catch (e) { /* offline */ }
+  }
   function results() {
     const cap = priceCap();
     const need = state.guests;
@@ -361,11 +384,21 @@
       && [...state.amen].every((a) => (x.amenities || []).includes(a))
       && (!state.free || x.free)
       && (!state.deals || x.old)
-      && (!state.favOnly || favs.has(x.id)));
+      && (!state.favOnly || favs.has(x.id))
+      && !busy.ids.has(x.id));
     const by = { cheap: (a, b) => a.price - b.price, exp: (a, b) => b.price - a.price, rate: (a, b) => b.rating - a.rating, rec: (a, b) => b.rating * Math.log(b.reviews + 2) - a.rating * Math.log(a.reviews + 2) };
     return list.sort(by[state.sort]);
   }
 
+  // Price for the searched dates, as on big booking sites ("3 nights, total …").
+  function totalLine(x) {
+    if (!state.from || (nightly(x) && !(state.to > state.from))) return "";
+    const rooms = x.type === "hotel" ? state.rooms : 1;
+    const q = quote(x, state.from, state.to || state.from, x.type === "hostel" ? state.guests : 1, "standart", rooms);
+    const n = Math.max(1, daysBetween(state.from, state.to || state.from));
+    const head = x.type === "hotel" && rooms > 1 ? `${n} kecha · ${rooms} xona` : x.type === "hostel" && state.guests > 1 ? `${n} kecha · ${state.guests} o'rin` : `${n} kecha`;
+    return `<span class="tot">${head} · jami ${som(q.sum)}</span>`;
+  }
   function card(x) {
     const t = TYPES[x.type];
     const cap = x.type === "hotel" ? `${x.capacity} kishigacha` : x.type === "hostel" ? `${x.beds || x.capacity} o'rinli` : x.type === "venue" ? `${x.capacity} o'rin` : `Guruh ${x.capacity} kishigacha`;
@@ -387,7 +420,7 @@
         ${x.free ? `<p class="free">✓ Bepul bekor qilish</p>` : ""}
       </div>
       <div class="item-foot">
-        <p class="price">${x.old ? `<s>${som(x.old)}</s>` : ""}<b>${som(x.price)}</b><small>${t.unit}${x.type === "hotel" ? " dan" : ""}</small></p>
+        <p class="price">${x.old ? `<s>${som(x.old)}</s>` : ""}<b>${som(x.price)}</b><small>${t.unit}${x.type === "hotel" ? " dan" : ""}</small>${altTag(x.price)}${totalLine(x)}</p>
         <button class="btn btn-gold" type="button" data-book="${esc(x.id)}">Bron qilish</button>
       </div>
     </article>`;
@@ -398,7 +431,8 @@
     const list = results();
     $("#resEyebrow").textContent = t.title;
     $("#resTitle").textContent = state.city ? state.city.replace(/^@/, "") : "Barcha shaharlar";
-    $("#resCount").textContent = `${list.length} ta variant`;
+    const hid = LISTINGS.filter((x) => x.type === state.type && busy.ids.has(x.id) && inPlace(x.city, state.city)).length;
+    $("#resCount").textContent = `${list.length} ta variant` + (hid ? ` · ${hid} ta joy bu sanalarda band` : "");
     $$(".city").forEach((c) => { c.classList.toggle("is-on", c.dataset.city === state.city); c.setAttribute("aria-pressed", String(c.dataset.city === state.city)); });
     const shown = list.slice(0, state.limit);
     $("#moreBtn").hidden = list.length <= state.limit;
@@ -437,7 +471,7 @@
         ${layoutList(x, "v-lay")}
         <div class="amen">${(x.amenities || []).slice(0, 4).map((k) => AMEN[k] ? `<span>${icon(k)}${AMEN[k][0]}</span>` : "").join("")}</div>
         <div class="v-foot">
-          <p class="price">${x.old ? `<s>${som(x.old)}</s>` : ""}<b>${som(x.price)}</b><small>1 kun</small></p>
+          <p class="price">${x.old ? `<s>${som(x.old)}</s>` : ""}<b>${som(x.price)}</b><small>1 kun</small>${altTag(x.price)}</p>
           <div class="v-acts"><button class="btn btn-line" type="button" data-open="${esc(x.id)}">Batafsil</button><button class="btn btn-gold" type="button" data-book="${esc(x.id)}">Bron qilish</button></div>
         </div>
       </div>
@@ -470,7 +504,7 @@
         <p class="meta"><span class="p-rate">★ ${Number(x.rating).toFixed(1)}</span> · ${x.reviews} sharh · guruh ${x.capacity} kishigacha</p>
         <div class="p-inc">${(x.amenities || []).map((k) => AMEN[k] ? `<span title="${AMEN[k][0]}">${icon(k)}${AMEN[k][0]}</span>` : "").join("")}</div>
         <div class="v-foot">
-          <p class="price">${x.old ? `<s>${som(x.old)}</s>` : ""}<b>${som(x.price)}</b><small>1 kishi uchun</small></p>
+          <p class="price">${x.old ? `<s>${som(x.old)}</s>` : ""}<b>${som(x.price)}</b><small>1 kishi uchun</small>${altTag(x.price)}</p>
           <div class="v-acts"><button class="btn btn-line" type="button" data-open="${esc(x.id)}">Dastur</button><button class="btn btn-gold" type="button" data-book="${esc(x.id)}">Bron qilish</button></div>
         </div>
       </div>
@@ -597,7 +631,7 @@
   }
   function updateDetailPrice() {
     const x = state.current;
-    $("#dPrice").innerHTML = `${x.old && state.room === "standart" ? `<s>${som(x.old)}</s>` : ""}<b>${som(unitPrice(x, state.room))}</b><small>${TYPES[x.type].unit}</small>`;
+    $("#dPrice").innerHTML = `${x.old && state.room === "standart" ? `<s>${som(x.old)}</s>` : ""}<b>${som(unitPrice(x, state.room))}</b><small>${TYPES[x.type].unit}</small>${altTag(unitPrice(x, state.room))}`;
   }
 
   function openBooking(id, roomId) {
@@ -658,13 +692,15 @@
     const guests = Math.max(1, parseInt($("#bGuests").value, 10) || 1);
     const span = to ? daysBetween(from, to) : 0;
     const badDates = !from || from < todayIso() || span > 60 || (nightly(item) && !(to > from)) || (item.type === "venue" && to && to < from);
-    if (badDates) { $("#totalCalc").textContent = "Sanalarni tekshiring"; $("#totalSum").textContent = "—"; $("#bAvail").textContent = ""; return; }
+    if (badDates) { $("#totalCalc").textContent = "Sanalarni tekshiring"; $("#totalSum").textContent = "—"; $("#totalAlt").textContent = ""; $("#bAvail").textContent = ""; return; }
     $("#bPolicy").textContent = item.type === "transport" ? "Chipta narxi namuna jadval asosida. Aniq narxni menejer tasdiqlaydi."
       : item.free ? "✓ Kelish kunidan oldin saytning o'zida bepul bekor qilish mumkin." : "Bekor qilish shartlarini menejer bron tasdiqlanganda aytadi.";
     $("#bSample").hidden = !item.sample;
     const q = quote(item, from, to || from, guests, state.room, state.bRooms);
     $("#totalCalc").textContent = q.label;
     $("#totalSum").textContent = som(q.sum);
+    $("#totalAlt").textContent = alt(q.sum);
+    $("#curNote").hidden = !alt(q.sum);
     checkAvailability(item, from, to || from, guests);
   }
 
@@ -1141,6 +1177,28 @@
   }
 
   // ---------- visit and view counters (server only) ----------
+  // ---------- currency ----------
+  function applyRates(d) {
+    if (!d || !d.rates || !d.rates.USD) return false;
+    RATES = d.rates;
+    const sel = $("#curSel");
+    sel.innerHTML = ["UZS", ...Object.keys(RATES)].map((c) => `<option value="${c}"${c === CUR ? " selected" : ""}>${c}</option>`).join("");
+    if (!RATES[CUR]) CUR = "UZS";
+    sel.value = CUR; sel.hidden = false;
+    sel.title = d.date ? `O'zbekiston Markaziy banki kursi, ${d.date}` : "O'zbekiston Markaziy banki kursi";
+    return true;
+  }
+  async function loadRates() {
+    const cached = store("bron.rates", null);
+    if (cached && Date.now() - cached.at < 6 * 3600e3 && applyRates(cached)) return rerenderPrices();
+    const pick = (list) => { const r = {}; for (const x of list) if (["USD", "EUR", "RUB", "GBP", "KZT", "CNY", "TRY"].includes(x.Ccy)) r[x.Ccy] = Number(x.Rate) / (Number(x.Nominal) || 1); return { date: list[0] && list[0].Date, rates: r }; };
+    let d = null;
+    try { if (API) { const r = await fetch("/api/rates"); if (r.ok) d = await r.json(); } } catch (e) { /* no server */ }
+    if (!d || !d.rates) try { const r = await fetch("https://cbu.uz/uz/arkhiv-kursov-valyut/json/"); if (r.ok) d = pick(await r.json()); } catch (e) { /* blocked: so'm only */ }
+    if (d && applyRates(d)) { keep("bron.rates", { ...d, at: Date.now() }); rerenderPrices(); }
+  }
+  function rerenderPrices() { render(); renderVenues(); renderPackages(); if (state.current && $("#detailDlg").open) updateDetailPrice(); if ($("#bookDlg").open) updateTotal(); }
+
   const fmtN = (n) => Number(n || 0).toLocaleString("ru-RU").replace(/\u00a0/g, " ");
   const EYE = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5C6.5 5 2.7 9.4 1.5 12c1.2 2.6 5 7 10.5 7s9.3-4.4 10.5-7C21.3 9.4 17.5 5 12 5zm0 11a4 4 0 110-8 4 4 0 010 8z"/></svg>`;
   // Small numbers on a young site would only put visitors off; the admin panel always shows them.
@@ -1227,7 +1285,19 @@
     $("#fTo").addEventListener("change", readSearch);
   }
 
+  function initExtras() {
+    $("#curSel").addEventListener("change", (e) => { CUR = e.target.value; keep("bron.cur", CUR); rerenderPrices(); });
+    $("#dShare").addEventListener("click", async () => {
+      const x = state.current; if (!x) return;
+      const url = location.href.split("#")[0] + "#joy=" + x.id;
+      try {
+        if (navigator.share) await navigator.share({ title: x.name, text: `${x.name}, ${x.city} · bron.uz`, url });
+        else { await navigator.clipboard.writeText(url); toast("Havola nusxalandi."); }
+      } catch (e) { /* cancelled */ }
+    });
+  }
   function init() {
+    initExtras();
     initDatePickers();
     const start = addDays(new Date(), 7);
     $("#fFrom").value = iso(start);
@@ -1257,7 +1327,7 @@
       if (!$("#fieldsTr").hidden) return searchQuickTransport();
       readSearch();
       if (!validateSearch()) return;
-      render(); $("#natijalar").scrollIntoView({ block: "start" });
+      render(); loadBusy(); $("#natijalar").scrollIntoView({ block: "start" });
     });
     $("#fSort").addEventListener("change", () => { readSearch(); render(); });
     $("#fCity").addEventListener("change", () => { readSearch(); render(); });
@@ -1375,7 +1445,7 @@
     renderMine();
     renderRecent();
     openFromHash();
-    loadListings();
+    loadListings().finally(loadRates);
     wikiPhotos(() => { renderCities(); render(); renderDeals(); renderRecent(); renderVenues(); });
   }
 

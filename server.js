@@ -6,6 +6,7 @@ const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
+const zlib = require("node:zlib");
 const { DatabaseSync } = require("node:sqlite");
 
 const PORT = Number(process.env.PORT) || 3000;
@@ -190,6 +191,23 @@ function tripQuote(t, cls, guests) {
   return { sum: t.price * guests, label: `${t.no}: ${t.from} → ${t.to}`, cap: 9 };
 }
 
+// ---------- exchange rates (Central Bank of Uzbekistan, display only: bookings stay in so'm) ----------
+let rateCache = { at: 0, data: null };
+async function rates() {
+  if (rateCache.data && Date.now() - rateCache.at < 6 * 3600e3) return rateCache.data;
+  try {
+    const r = await fetch("https://cbu.uz/uz/arkhiv-kursov-valyut/json/", { signal: AbortSignal.timeout(5000) });
+    const list = await r.json();
+    const pick = {};
+    for (const x of list) if (["USD", "EUR", "RUB", "GBP", "KZT", "CNY", "TRY"].includes(x.Ccy)) pick[x.Ccy] = Number(x.Rate) / (Number(x.Nominal) || 1);
+    if (!pick.USD) throw new Error("no USD");
+    rateCache = { at: Date.now(), data: { date: list[0] && list[0].Date, source: "cbu.uz", rates: pick } };
+  } catch (e) {
+    if (!rateCache.data) return { rates: null };
+  }
+  return rateCache.data;
+}
+
 // ---------- telegram ----------
 async function notify(text) {
   if (!TG_TOKEN || !TG_CHAT) return;
@@ -210,7 +228,7 @@ async function notify(text) {
 const CSP = [
   "default-src 'self'", "script-src 'self'", "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src https://fonts.gstatic.com", "img-src 'self' data: https:",
-  "connect-src 'self' https://overpass-api.de https://en.wikipedia.org https://commons.wikimedia.org https://upload.wikimedia.org https://fonts.googleapis.com https://fonts.gstatic.com",
+  "connect-src 'self' https://cbu.uz https://overpass-api.de https://en.wikipedia.org https://commons.wikimedia.org https://upload.wikimedia.org https://fonts.googleapis.com https://fonts.gstatic.com",
   "manifest-src 'self'", "worker-src 'self'", "frame-ancestors 'none'", "base-uri 'self'", "form-action 'self'", "object-src 'none'"
 ].join("; ");
 const SECURITY_HEADERS = {
@@ -330,11 +348,36 @@ function isAdmin(req) {
 }
 const askAuth = (res) => send(res, 401, "Kirish uchun login va parol kerak.", { "www-authenticate": 'Basic realm="bron.uz admin", charset="UTF-8"' });
 
-const MIME = { ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".ico": "image/x-icon", ".webp": "image/webp" };
-function serveFile(res, file) {
-  fs.readFile(file, (err, data) => {
-    if (err) return send(res, 404, "Sahifa topilmadi.");
-    send(res, 200, data, { "content-type": MIME[path.extname(file)] || "application/octet-stream", "cache-control": "no-cache" });
+const MIME = { ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".ico": "image/x-icon", ".webp": "image/webp", ".webmanifest": "application/manifest+json", ".xml": "application/xml; charset=utf-8", ".txt": "text/plain; charset=utf-8" };
+// Static files: compressed once per file version (text types only), revalidated with an ETag.
+const packed = new Map();
+function serveFile(res, file, status = 200) {
+  fs.stat(file, (err, st) => {
+    if (err || !st.isFile()) return status === 200 && path.extname(file) !== ".html" && path.extname(file) ? send(res, 404, "Topilmadi.")
+      : status === 200 ? serveFile(res, path.join(PUBLIC_DIR, "404.html"), 404) : send(res, 404, "Sahifa topilmadi.");
+    const ext = path.extname(file), type = MIME[ext] || "application/octet-stream";
+    const etag = `"${st.size.toString(36)}-${Math.round(st.mtimeMs).toString(36)}"`;
+    const headers = { "content-type": type, etag, vary: "accept-encoding",
+      "cache-control": ext === ".png" || ext === ".jpg" || ext === ".webp" || ext === ".ico" ? "public, max-age=604800" : "no-cache" };
+    const req = res.req;
+    if (status === 200 && req && req.headers["if-none-match"] === etag) { res.writeHead(304, { etag, "cache-control": headers["cache-control"] }); return res.end(); }
+    fs.readFile(file, (e2, data) => {
+      if (e2) return send(res, 404, "Topilmadi.");
+      // The static 404 page is built for GitHub Pages (<base href="/repo/">); here the site lives at the root.
+      if (status === 404) data = Buffer.from(String(data).replace(/<base href="[^"]*">/, '<base href="/">'));
+      const enc = String(req && req.headers["accept-encoding"] || "");
+      const text = /^(text\/|application\/(json|manifest)|image\/svg)/.test(type) && data.length > 1024;
+      const kind = text && /\bbr\b/.test(enc) ? "br" : text && /\bgzip\b/.test(enc) ? "gzip" : "";
+      if (!kind) return send(res, status, req && req.method === "HEAD" ? "" : data, headers);
+      const key = file + kind + etag;
+      let body = packed.get(key);
+      if (!body) {
+        body = kind === "br" ? zlib.brotliCompressSync(data, { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 9 } }) : zlib.gzipSync(data, { level: 9 });
+        if (packed.size > 400) packed.clear();
+        packed.set(key, body);
+      }
+      send(res, status, req && req.method === "HEAD" ? "" : body, { ...headers, "content-encoding": kind });
+    });
   });
 }
 
@@ -652,6 +695,18 @@ async function handle(req, res) {
     if (owner) tg.toPartner(owner.user_id, `⭐ Yangi sharh: ${row.listing_name}, ${rating}/10\n${name}: ${text}`);
     return send(res, 201, { ok: true });
   }
+  if (p === "/api/availability/all" && M === "GET") {
+    // Which listings of one type are full on these dates (used to hide them from search results).
+    const type = str(url.searchParams.get("type"), 10), from = url.searchParams.get("from");
+    const to = type === "tour" ? from : url.searchParams.get("to") || from;
+    if (!isDate(from) || !isDate(to) || to < from || days(from, to) > 60) return fail(res, 400, "Sanani tekshiring.");
+    const guests = Math.max(1, parseInt(url.searchParams.get("guests"), 10) || 1);
+    const rooms = Math.min(10, Math.max(1, parseInt(url.searchParams.get("rooms"), 10) || 1));
+    const busy = db.prepare("SELECT * FROM listings WHERE active = 1 AND type = ?").all(type).map(rowToListing)
+      .filter((x) => !availability(x, from, to, guests, undefined, x.type === "hotel" ? rooms : 1).ok).map((x) => x.id);
+    return send(res, 200, { busy });
+  }
+  if (p === "/api/rates" && M === "GET") return send(res, 200, await rates());
   if (p === "/api/availability" && M === "GET") {
     const row = db.prepare("SELECT * FROM listings WHERE id = ? AND active = 1").get(str(url.searchParams.get("id"), 40));
     if (!row) return fail(res, 404, "Bu joy topilmadi.");
