@@ -556,7 +556,7 @@
     if (all) list = CITIES;
     $("#cities").innerHTML = list.map((c) => {
       const n = count(c.name);
-      return `<button class="city${state.city === c.name ? " is-on" : ""}" type="button" data-city="${esc(c.name)}" aria-pressed="${state.city === c.name}"><span class="arch">${art(c.art, c.hue, "city" + c.name)}${imgTag((PHOTOS[c.name] || [])[0], 640)}<span class="c-txt"><span class="c-count">${n} ta joy</span><b>${esc(c.name)}</b><small>${esc(c.note)}</small></span></span></button>`;
+      return `<button class="city${state.city === c.name ? " is-on" : ""}" type="button" data-city="${esc(c.name)}" aria-pressed="${state.city === c.name}"><span class="arch">${art(c.art, c.hue, "city" + c.name)}${imgTag((PHOTOS[c.name] || [])[0], 640)}<span class="c-txt"><span class="c-count">${n} ta joy</span>${cityWx(c.name)}<b>${esc(c.name)}</b><small>${esc(c.note)}</small></span></span></button>`;
     }).join("");
     $("#allCities").hidden = !!state.region || all;
     $("#allCities").textContent = `Barcha ${CITIES.length} ta shahar`;
@@ -1266,6 +1266,140 @@
     } catch (e) { /* offline or blocked */ }
   }
 
+  // ---------- "Hozir O'zbekistonda": Tashkent clock, world clocks, city weather ----------
+  const WORLD = [["London", "Europe/London"], ["Berlin", "Europe/Berlin"], ["Moskva", "Europe/Moscow"], ["Istanbul", "Europe/Istanbul"], ["Dubay", "Asia/Dubai"], ["Dehli", "Asia/Kolkata"], ["Pekin", "Asia/Shanghai"], ["Seul", "Asia/Seoul"], ["Tokio", "Asia/Tokyo"], ["Nyu-York", "America/New_York"]];
+  const UZ_TZ = "Asia/Tashkent";
+  const LOC = LANG === "ru" ? "ru-RU" : LANG === "en" ? "en-GB" : "uz-Latn-UZ";
+  // Minutes east of UTC for a time zone right now (handles daylight saving).
+  function offMin(tz, d = new Date()) {
+    try {
+      const p = new Intl.DateTimeFormat("en-US", { timeZone: tz, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).formatToParts(d);
+      const g = (t) => +p.find((x) => x.type === t).value;
+      return Math.round((Date.UTC(g("year"), g("month") - 1, g("day"), g("hour"), g("minute")) - Math.floor(d.getTime() / 60000) * 60000) / 60000);
+    } catch (e) { return null; }
+  }
+  // Browsers often lack Uzbek calendar names, so Uzbek dates are spelled out here.
+  const UZ_WD = ["yakshanba", "dushanba", "seshanba", "chorshanba", "payshanba", "juma", "shanba"];
+  const UZ_MON = ["yanvar", "fevral", "mart", "aprel", "may", "iyun", "iyul", "avgust", "sentabr", "oktabr", "noyabr", "dekabr"];
+  const longDate = (tz, d) => {
+    if (LANG !== "uz") return new Intl.DateTimeFormat(LOC, { timeZone: tz, weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(d);
+    const [y, m, dd] = ymd(tz, d).split("-").map(Number), wd = new Date(Date.UTC(y, m - 1, dd)).getUTCDay();
+    return `${dd}-${UZ_MON[m - 1]} ${y}, ${UZ_WD[wd]}`;
+  };
+  const shortWd = (t) => LANG === "uz" ? UZ_WD[new Date(t + "T12:00").getDay()].slice(0, 2).replace(/^./, (c) => c.toUpperCase()) : new Intl.DateTimeFormat(LOC, { weekday: "short" }).format(new Date(t + "T12:00"));
+  const hhmm = (tz, d, sec) => new Intl.DateTimeFormat("ru-RU", { timeZone: tz, hour: "2-digit", minute: "2-digit", ...(sec ? { second: "2-digit" } : {}) }).format(d);
+  const ymd = (tz, d) => new Intl.DateTimeFormat("en-CA", { timeZone: tz }).format(d);
+  function diffText(min) {
+    if (!min) return "Toshkent bilan bir xil";
+    const h = String(Math.abs(min) / 60).replace(".", ",");
+    return min > 0 ? `Toshkentdan ${h} soat oldinda` : `Toshkentdan ${h} soat orqada`;
+  }
+  let lastMinute = 0;
+  function tickClocks() {
+    const d = new Date();
+    $("#uzClock").textContent = hhmm(UZ_TZ, d, true);
+    const uzDay = ymd(UZ_TZ, d);
+    let dateTxt = "";
+    try { dateTxt = longDate(UZ_TZ, d); } catch (e) { dateTxt = fmtDate(uzDay); }
+    $("#uzDate").textContent = dateTxt;
+    const uzOff = offMin(UZ_TZ, d) ?? 300;
+    // Clocks change only once a minute; rebuild them then (or the first time).
+    // Background tabs tick irregularly, so rebuild whenever the minute has changed.
+    const minute = Math.floor(d.getTime() / 60000);
+    if (minute !== lastMinute) {
+      lastMinute = minute;
+      const mine = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const myOff = offMin(mine, d);
+      const yt = $("#yourTime");
+      if (mine && myOff != null && myOff !== uzOff) {
+        yt.hidden = false;
+        yt.textContent = `Sizning vaqtingiz: ${hhmm(mine, d)} · ${diffText(myOff - uzOff)}`;
+      } else yt.hidden = true;
+      $("#worldClocks").innerHTML = WORLD.map(([name, tz]) => {
+        const off = offMin(tz, d);
+        if (off == null) return "";
+        const day = ymd(tz, d), dd = day > uzDay ? " · keyingi kun" : day < uzDay ? " · oldingi kun" : "";
+        const hour = +hhmm(tz, d).slice(0, 2), night = hour < 6 || hour >= 21;
+        return `<div class="wc${night ? " night" : ""}" role="listitem"><span class="wc-n">${name}</span><b translate="no">${hhmm(tz, d)}</b><small>${diffText(off - uzOff)}${dd}</small></div>`;
+      }).join("");
+    }
+  }
+  let WX = null, wxSel = "Toshkent", wxUnit = store("bron.unit", /^en-US/.test(navigator.language || "") ? "f" : "c");
+  const WX_CITIES = ["Toshkent", "Samarqand", "Buxoro", "Xiva", "Nukus", "Farg'ona", "Termiz", "Chimyon", "Shahrisabz", "Namangan", "Andijon", "Qarshi"];
+  const deg = (c) => wxUnit === "f" ? `${Math.round(c * 9 / 5 + 32)}°F` : `${Math.round(c)}°`;
+  const wxKind = (c) => c === 0 ? "sun" : c <= 2 ? "part" : c === 3 ? "cloud" : c <= 48 ? "fog" : c <= 67 || (c >= 80 && c <= 82) ? "rain" : c <= 77 || c === 85 || c === 86 ? "snow" : "storm";
+  const wxIcon = (c) => `<span class="wx-ic k-${wxKind(c)}" aria-hidden="true">${WMO(c)[0]}</span>`;
+  async function loadWeather() {
+    const cached = store("bron.wx", null);
+    if (cached && Date.now() - cached.at < 30 * 60e3 && cached.data) { WX = cached.data; return showWeather(); }
+    const names = Object.keys(GEO);
+    if (!names.length) return;
+    try {
+      const q = (i) => names.map((n) => GEO[n][i].toFixed(3)).join(",");
+      const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${q(0)}&longitude=${q(1)}&current=temperature_2m,weather_code,wind_speed_10m,relative_humidity_2m,apparent_temperature&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset&forecast_days=7&timezone=Asia%2FTashkent`);
+      if (!r.ok) throw new Error(r.status);
+      const j = await r.json();
+      const list = Array.isArray(j) ? j : [j];
+      WX = {};
+      list.forEach((x, i) => { if (x && x.current) WX[names[i]] = { cur: x.current, daily: x.daily }; });
+      keep("bron.wx", { at: Date.now(), data: WX });
+      showWeather();
+    } catch (e) { $("#wxCities").innerHTML = `<p class="muted small">Ob-havo ma'lumotini hozir yuklab bo'lmadi.</p>`; }
+  }
+  function showWeather() {
+    if (!WX) return;
+    $("#wxCities").innerHTML = WX_CITIES.filter((n) => WX[n]).map((n) => {
+      const c = WX[n].cur;
+      return `<button type="button" class="wx-city${n === wxSel ? " is-on" : ""}" data-wx="${esc(n)}" aria-pressed="${n === wxSel}">${wxIcon(c.weather_code)}<span class="wx-n">${esc(n)}</span><b>${deg(c.temperature_2m)}</b></button>`;
+    }).join("");
+    const w = WX[wxSel];
+    if (w && w.daily) {
+      const d = w.daily, c = w.cur;
+      $("#wxWeek").innerHTML = `<div class="wx-now">${wxIcon(c.weather_code)}<div><b class="wx-big">${deg(c.temperature_2m)}</b><span>${esc(wxSel)} · ${WMO(c.weather_code)[1]}</span><small>His qilinadi ${deg(c.apparent_temperature)} · shamol ${Math.round(c.wind_speed_10m)} km/soat · namlik ${Math.round(c.relative_humidity_2m)}%</small></div></div>
+        <div class="wx-days">${d.time.map((t, i) => { let wd = ""; try { wd = shortWd(t); } catch (e) { wd = fmtDate(t).slice(0, 5); } return `<div class="wx-day" title="${WMO(d.weather_code[i])[1]}"><small>${i ? esc(wd) : "Bugun"}</small>${wxIcon(d.weather_code[i])}<b>${deg(d.temperature_2m_max[i])}</b><small>${deg(d.temperature_2m_min[i])}</small></div>`; }).join("")}</div>`;
+    }
+    const t = WX.Toshkent && WX.Toshkent.daily;
+    if (t && t.sunrise && t.sunrise[0]) { $("#uzSun").hidden = false; $("#uzSun").innerHTML = `<span><i aria-hidden="true">🌅</i> Quyosh chiqishi <b translate="no">${t.sunrise[0].slice(11)}</b></span><span><i aria-hidden="true">🌇</i> Quyosh botishi <b translate="no">${t.sunset[0].slice(11)}</b></span>`; }
+    renderCities();
+  }
+  const cityWx = (name) => WX && WX[name] ? `<span class="c-wx">${WMO(WX[name].cur.weather_code)[0]} ${deg(WX[name].cur.temperature_2m)}</span>` : "";
+  function initNow() {
+    tickClocks();
+    setInterval(tickClocks, 1000);
+    $("#wxCities").addEventListener("click", (e) => { const b = e.target.closest("[data-wx]"); if (b) { wxSel = b.dataset.wx; showWeather(); } });
+    $$("[data-unit]").forEach((b) => { b.setAttribute("aria-pressed", String(b.dataset.unit === wxUnit)); b.addEventListener("click", () => { wxUnit = b.dataset.unit; keep("bron.unit", wxUnit); $$("[data-unit]").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.unit === wxUnit))); showWeather(); }); });
+    // Weather loads when the section comes near the screen (saves a request for visitors who never scroll there).
+    const sec = $("#hozir");
+    if ("IntersectionObserver" in window) { const io = new IntersectionObserver((es) => { if (es.some((x) => x.isIntersecting)) { io.disconnect(); loadWeather(); } }, { rootMargin: "400px" }); io.observe(sec); io.observe($("#shaharlar")); }
+    else loadWeather();
+  }
+
+  // ---------- motion: scroll reveal, card tilt, hero parallax (off when the visitor prefers reduced motion) ----------
+  function initMotion() {
+    if (!window.matchMedia || matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return;
+    document.documentElement.classList.add("motion");
+    const secs = $$("main > section:not(.hero)");
+    const io = new IntersectionObserver((es) => es.forEach((x) => { if (x.isIntersecting) { x.target.classList.add("reveal-in"); io.unobserve(x.target); } }), { rootMargin: "0px 0px -8% 0px" });
+    secs.forEach((x) => { const r = x.getBoundingClientRect(); if (r.top < innerHeight) x.classList.add("reveal-in"); else { x.classList.add("reveal-wait"); io.observe(x); } });
+    if (matchMedia("(hover: hover) and (pointer: fine)").matches) {
+      document.addEventListener("pointermove", (e) => {
+        const c = e.target.closest && e.target.closest(".city, .sight, .pcard");
+        $$(".tilt").forEach((x) => { if (x !== c) { x.classList.remove("tilt"); x.style.removeProperty("--rx"); x.style.removeProperty("--ry"); } });
+        if (!c) return;
+        const r = c.getBoundingClientRect();
+        c.classList.add("tilt");
+        c.style.setProperty("--ry", ((e.clientX - r.left) / r.width - .5) * 8 + "deg");
+        c.style.setProperty("--rx", -((e.clientY - r.top) / r.height - .5) * 8 + "deg");
+      }, { passive: true });
+      const art = $("#heroArt"), vis = $(".hero-visual");
+      let tick = false;
+      addEventListener("scroll", () => {
+        if (tick) return; tick = true;
+        requestAnimationFrame(() => { tick = false; const y = Math.min(scrollY, 900); if (art) art.style.transform = `translateY(${y * .18}px)`; if (vis) vis.style.transform = `translateY(${y * -.06}px)`; });
+      }, { passive: true });
+    }
+  }
+
   // ---------- house rules ----------
   function detailRules(x) {
     const rows = [];
@@ -1386,6 +1520,8 @@
   }
 
   function initExtras() {
+    initNow();
+    initMotion();
     document.addEventListener("change", (e) => { const c = e.target.closest("[data-cmp]"); if (c) toggleCmp(c); });
     $("#curSel").addEventListener("change", (e) => { CUR = e.target.value; keep("bron.cur", CUR); rerenderPrices(); });
     $("#dShare").addEventListener("click", async () => {

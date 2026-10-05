@@ -25,7 +25,7 @@ const TYPE = { hotel: ["Mehmonxona", "Mehmonxonalar", "1 kecha"], hostel: ["Host
 const LD = { hotel: "Hotel", hostel: "Hostel", venue: "EventVenue", tour: "TouristTrip" };
 const AMEN = { wifi: "Wi-Fi", breakfast: "Nonushta", pool: "Basseyn", spa: "Spa", gym: "Fitnes", parking: "Avtoturargoh", restaurant: "Restoran", transfer: "Transfer", ac: "Konditsioner", family: "Oilalar uchun",
   translation: "Sinxron tarjima", screen: "LED ekran", coffee: "Kofe-breyk", stage: "Sahna", guide: "Gid", tickets: "Chiptalar kiradi", meal: "Ovqat kiradi", hotel: "Mehmonxona", train: "Poyezd chiptasi", kitchen: "Umumiy oshxona", laundry: "Kir yuvish", transport: "Transport" };
-const CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'";
+const CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.open-meteo.com; object-src 'none'; base-uri 'self'; form-action 'self'";
 
 function page({ file, title, desc, body, ld, depth = 0, index = true, base = "" }) {
   const up = "../".repeat(depth);
@@ -46,6 +46,7 @@ function page({ file, title, desc, body, ld, depth = 0, index = true, base = "" 
   <link rel="stylesheet" href="${up}styles.css">
   <link rel="icon" href="${up}icons/icon.svg" type="image/svg+xml">
   <script src="${up}i18n.js"></script>
+  <script src="${up}cityinfo.js" defer></script>
   ${ld ? `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, "\\u003c")}</script>` : ""}
 </head>
 <body class="sp">
@@ -119,6 +120,7 @@ for (const c of cities) {
   <p>${esc(c.note)}.</p>
   <a class="btn btn-gold" href="../#natijalar">Saytda qidirish</a>
 </section>
+${W.BRON_GEO && W.BRON_GEO[c.name] ? `<section class="sp-card city-now" data-lat="${W.BRON_GEO[c.name][0]}" data-lng="${W.BRON_GEO[c.name][1]}"><div><p class="now-lbl">Mahalliy vaqt <span class="tz">UTC+5</span></p><p class="big-clock cn-clock" translate="no">--:--</p><p class="muted cn-diff"></p></div><div class="cn-wx"><p class="now-lbl">Ob-havo</p><div class="cn-body"><p class="muted small">Ob-havo yuklanmoqda…</p></div></div></section>` : ""}
 ${groups.map(([k, l]) => `<h2 class="sp-h2">${esc(TYPE[k][1])}</h2><ul class="sp-list">${l.map((x) => `<li><a href="../joy/${encodeURIComponent(x.id)}.html">${esc(x.name)}</a> <span class="muted">${som(x.price)} · ${esc(TYPE[k][2])}</span></li>`).join("")}</ul>`).join("")}
 ${sightsOf(c.name)}
 <h2 class="sp-h2">Qanday borish mumkin</h2>

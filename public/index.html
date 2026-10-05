@@ -138,6 +138,32 @@
     <a class="cat" href="#mice"><span class="cat-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7a3 3 0 1 0 0-.01M16 7a3 3 0 1 0 0-.01M2 20v-2a5 5 0 0 1 10 0v2M12 20v-2a5 5 0 0 1 10 0v2"/></svg></span><span class="cat-tx"><b>Korporativ tadbirlar</b><small>Guruh so'rovi</small></span></a>
   </section>
 
+  <section class="wrap section now-sec" id="hozir">
+    <div class="sec-head">
+      <div>
+        <p class="eyebrow">Hozir O'zbekistonda</p>
+        <h2>Vaqt va ob-havo</h2>
+      </div>
+      <p class="muted">Toshkent vaqti, dunyo shaharlari bilan farq va shaharlar bo'yicha 7 kunlik prognoz.</p>
+    </div>
+    <div class="now-grid">
+      <div class="now-card clock-card">
+        <p class="now-lbl">Toshkent vaqti <span class="tz" translate="no">UTC+5</span></p>
+        <p class="big-clock" id="uzClock" translate="no" aria-live="off">--:--</p>
+        <p class="muted" id="uzDate"></p>
+        <p class="your-time" id="yourTime" hidden></p>
+        <div class="sun" id="uzSun" hidden></div>
+        <div class="world" id="worldClocks" role="list" aria-label="Dunyo vaqtlari" tabindex="0"></div>
+      </div>
+      <div class="now-card wx-card">
+        <div class="wx-head"><p class="now-lbl">Ob-havo</p><div class="unit-sw" role="group" aria-label="Harorat birligi"><button type="button" data-unit="c" aria-pressed="true" translate="no">°C</button><button type="button" data-unit="f" aria-pressed="false" translate="no">°F</button></div></div>
+        <div class="wx-cities" id="wxCities"><p class="muted small">Ob-havo yuklanmoqda…</p></div>
+        <div class="wx-week" id="wxWeek"></div>
+        <p class="muted small">Prognoz: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a></p>
+      </div>
+    </div>
+  </section>
+
   <section class="wrap section" id="shaharlar">
     <div class="sec-head">
       <div>

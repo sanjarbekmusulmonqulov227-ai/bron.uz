@@ -119,6 +119,7 @@
   const root = document.documentElement;
   const go = () => {
     DICT = (window.BRON_I18N_DICT || {})[lang] || {};
+    cache.clear(); // lookups made before the dictionary arrived must not stick
     if (document.body) start(); else document.addEventListener("DOMContentLoaded", start);
     root.classList.remove("i18n-wait");
   };

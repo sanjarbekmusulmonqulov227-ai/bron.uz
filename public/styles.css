@@ -1004,3 +1004,88 @@ body { background: var(--bg); }
 .wx { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
 .wx-d { display: grid; justify-items: center; gap: 2px; min-width: 70px; padding: 8px 6px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
 .wx-d span[aria-hidden] { font-size: 1.4rem; }
+
+/* v16: time and weather, motion */
+.now-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 18px; }
+@media (max-width: 900px) { .now-grid { grid-template-columns: 1fr; } }
+.now-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r, 18px); padding: 20px; box-shadow: var(--shadow-sm); min-width: 0; }
+.clock-card { background: linear-gradient(160deg, #15306f, #0c1a45); color: #fff4d6; border-color: transparent; }
+.clock-card .muted { color: rgba(255,244,214,.75); }
+.now-lbl { margin: 0; font-size: .76rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--turq); }
+.clock-card .now-lbl { color: #f2b636; }
+.tz { margin-left: 6px; padding: 1px 7px; border-radius: 999px; background: rgba(255,255,255,.14); font-size: .7rem; letter-spacing: .04em; }
+.big-clock { font-family: 'Golos Text', 'DejaVu Sans', sans-serif; font-variant-numeric: tabular-nums; font-size: clamp(2.6rem, 7vw, 3.8rem); font-weight: 700; margin: 6px 0 2px; letter-spacing: -.02em; }
+.your-time { margin: 8px 0 0; font-size: .88rem; padding: 6px 10px; border-radius: 10px; background: rgba(255,255,255,.1); display: inline-block; }
+.sun { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; font-size: .85rem; opacity: .9; }
+.world { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; margin-top: 16px; }
+.wc { display: grid; gap: 1px; padding: 8px 10px; border-radius: 12px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1); }
+.wc.night { background: rgba(0,0,0,.18); }
+.wc-n { font-size: .78rem; opacity: .8; }
+.wc b { font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.wc small { font-size: .7rem; color: rgba(255,244,214,.82); line-height: 1.25; }
+@media (max-width: 600px) { .world { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; } .wc { flex: 0 0 132px; scroll-snap-align: start; } }
+.wx-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
+.unit-sw { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 2px; }
+.unit-sw button { font: inherit; font-size: .78rem; font-weight: 700; border: 0; background: none; color: var(--muted); padding: 4px 10px; border-radius: 999px; cursor: pointer; }
+.unit-sw button[aria-pressed="true"] { background: var(--band); color: var(--band-ink); }
+.wx-cities { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+.wx-city { font: inherit; display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 8px; align-items: center; text-align: left; padding: 8px 10px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg, transparent); color: var(--ink); cursor: pointer; transition: border-color .2s, transform .2s, background .2s; }
+.wx-city .wx-ic { grid-row: span 2; font-size: 1.5rem; }
+.wx-city .wx-n { font-size: .78rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wx-city b { font-size: 1.05rem; }
+.wx-city:hover { transform: translateY(-2px); }
+.wx-city.is-on { border-color: var(--chip-on); background: color-mix(in srgb, var(--chip-on) 10%, var(--surface)); }
+.wx-week { margin-top: 14px; }
+.wx-now { display: flex; align-items: center; gap: 14px; padding: 12px 4px; }
+.wx-now .wx-ic { font-size: 3rem; }
+.wx-now div { display: grid; gap: 2px; }
+.wx-big { font-size: 2rem; line-height: 1; }
+.wx-now small { color: var(--muted); }
+.wx-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.wx-day { display: grid; justify-items: center; gap: 2px; padding: 8px 2px; border-radius: 12px; background: color-mix(in srgb, var(--line) 35%, transparent); font-size: .85rem; }
+.wx-day .wx-ic { font-size: 1.35rem; }
+.wx-day small { color: var(--muted); font-size: .72rem; }
+.c-wx { position: absolute; top: 10px; left: 10px; background: rgba(12,26,69,.72); color: #fff; font-weight: 700; font-size: .75rem; padding: 3px 9px; border-radius: 999px; backdrop-filter: blur(4px); }
+.city .c-txt .c-wx { position: static; display: inline-block; margin: 4px 0 0 6px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .wx-ic { display: inline-block; }
+  .wx-ic.k-sun { animation: wx-spin 18s linear infinite; }
+  .wx-ic.k-part, .wx-ic.k-cloud, .wx-ic.k-fog { animation: wx-drift 5s ease-in-out infinite alternate; }
+  .wx-ic.k-rain, .wx-ic.k-snow, .wx-ic.k-storm { animation: wx-bob 2.2s ease-in-out infinite; }
+  @keyframes wx-spin { to { transform: rotate(360deg); } }
+  @keyframes wx-drift { from { transform: translateX(-3px); } to { transform: translateX(3px); } }
+  @keyframes wx-bob { 50% { transform: translateY(3px); } }
+  .big-clock { transition: color .3s; }
+
+  /* Scroll reveal: sections below the fold rise in; cards inside follow one after another. */
+  .motion main > section.reveal-wait { opacity: 0; transform: translateY(26px); }
+  .motion main > section.reveal-in { opacity: 1; transform: none; transition: opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1); }
+  .motion .reveal-in :is(.cities, .sights, #grid, .vgrid, #vgrid, #pgrid, .world, .wx-cities, .cats) > * { animation: rise .55s cubic-bezier(.2,.7,.2,1) both; }
+  .motion .reveal-in :is(.cities, .sights, #grid, #vgrid, #pgrid, .world, .wx-cities) > :nth-child(2) { animation-delay: .05s; }
+  .motion .reveal-in :is(.cities, .sights, #grid, #vgrid, #pgrid, .world, .wx-cities) > :nth-child(3) { animation-delay: .1s; }
+  .motion .reveal-in :is(.cities, .sights, #grid, #vgrid, #pgrid, .world, .wx-cities) > :nth-child(4) { animation-delay: .15s; }
+  .motion .reveal-in :is(.cities, .sights, #grid, #vgrid, #pgrid, .world, .wx-cities) > :nth-child(5) { animation-delay: .2s; }
+  .motion .reveal-in :is(.cities, .sights, #grid, #vgrid, #pgrid, .world, .wx-cities) > :nth-child(6) { animation-delay: .25s; }
+  .motion .reveal-in :is(.cities, .sights, #grid, #vgrid, #pgrid, .world, .wx-cities) > :nth-child(n+7) { animation-delay: .3s; }
+  @keyframes rise { from { opacity: 0; transform: translateY(16px) scale(.98); } to { opacity: 1; transform: none; } }
+
+  /* Card tilt under the pointer (desktop). */
+  .motion :is(.city, .sight, .pcard) { transition: transform .25s ease, box-shadow .25s ease; transform-style: preserve-3d; }
+  .motion :is(.city, .sight, .pcard).tilt { transform: perspective(800px) rotateX(var(--rx, 0)) rotateY(var(--ry, 0)) translateY(-4px); }
+  .hero-art, .hero-visual { will-change: transform; }
+
+  /* Dialogs open with a soft zoom; buttons give a small press. */
+  dialog[open] { animation: dlg-in .26s cubic-bezier(.2,.8,.2,1); }
+  dialog[open]::backdrop { animation: fade-in .26s ease; }
+  @keyframes dlg-in { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
+  @keyframes fade-in { from { opacity: 0; } }
+  .btn { transition: transform .12s ease, box-shadow .2s, background .2s; }
+  .btn:active { transform: scale(.97); }
+  .cmp-bar:not([hidden]) { animation: bar-in .3s cubic-bezier(.2,.8,.2,1); }
+  @keyframes bar-in { from { opacity: 0; translate: 0 20px; } }
+}
+.city-now { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 20px; align-items: start; }
+@media (max-width: 700px) { .city-now { grid-template-columns: 1fr; } }
+.city-now .big-clock { font-size: 2.4rem; }
+.cn-now { font-size: 1.05rem; margin: 6px 0 10px; } .cn-now .wx-ic { font-size: 1.8rem; vertical-align: middle; }
