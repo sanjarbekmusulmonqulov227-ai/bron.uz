@@ -230,7 +230,7 @@ async function notify(text) {
 const CSP = [
   "default-src 'self'", "script-src 'self'", "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src https://fonts.gstatic.com", "img-src 'self' data: https:",
-  "connect-src 'self' https://cbu.uz https://api.open-meteo.com https://overpass-api.de https://en.wikipedia.org https://commons.wikimedia.org https://upload.wikimedia.org https://fonts.googleapis.com https://fonts.gstatic.com",
+  "connect-src 'self' https://cbu.uz https://api.open-meteo.com https://archive-api.open-meteo.com https://overpass-api.de https://en.wikipedia.org https://commons.wikimedia.org https://upload.wikimedia.org https://fonts.googleapis.com https://fonts.gstatic.com",
   "manifest-src 'self'", "worker-src 'self'", "frame-ancestors 'none'", "base-uri 'self'", "form-action 'self'", "object-src 'none'"
 ].join("; ");
 const SECURITY_HEADERS = {

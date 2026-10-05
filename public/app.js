@@ -1241,29 +1241,46 @@
   // ---------- weather for the trip dates (Open-Meteo, free, no key; up to 16 days ahead) ----------
   const WMO = (c) => c === 0 ? ["☀️", "Ochiq"] : c <= 2 ? ["🌤️", "Qisman bulutli"] : c === 3 ? ["☁️", "Bulutli"] : c <= 48 ? ["🌫️", "Tuman"] : c <= 67 || (c >= 80 && c <= 82) ? ["🌧️", "Yomg'ir"] : c <= 77 || c === 85 || c === 86 ? ["🌨️", "Qor"] : ["⛈️", "Momaqaldiroq"];
   const wxCache = new Map();
+  // Open-Meteo calls: a timeout, and API errors ({error, reason}) treated as failures.
+  const OM = "https://api.open-meteo.com/v1/forecast", OM_ARCHIVE = "https://archive-api.open-meteo.com/v1/archive";
+  async function omFetch(url, ms = 10000) {
+    const ctl = typeof AbortController === "function" ? new AbortController() : null;
+    const t = ctl && setTimeout(() => ctl.abort(), ms);
+    try {
+      const r = await fetch(url, ctl ? { signal: ctl.signal } : {});
+      const j = await r.json().catch(() => null);
+      if (!r.ok || !j || j.error) throw new Error((j && j.reason) || "HTTP " + r.status);
+      return j;
+    } finally { if (t) clearTimeout(t); }
+  }
+  const yearBack = (s) => { const d = day(s); d.setFullYear(d.getFullYear() - 1); return iso(d); };
   async function detailWeather(x) {
     const box = $("#dWeather");
     box.hidden = true; box.innerHTML = "";
     const c = GEO[x.city];
+    if (!c) return;
     const from = state.from && state.from >= todayIso() ? state.from : todayIso();
-    const lim = iso(addDays(new Date(), 15));
-    if (!c || from > lim) return;
     let to = state.to && state.to > from ? state.to : iso(addDays(day(from), 2));
-    if (to > lim) to = lim;
     if (daysBetween(from, to) > 6) to = iso(addDays(day(from), 6));
-    const lat = Number.isFinite(x.lat) ? x.lat : c[0], lng = Number.isFinite(x.lng) ? x.lng : c[1];
+    const lim = iso(addDays(new Date(), 15));
+    // Within 16 days: the forecast. Further ahead: last year's weather on the same dates, as a guide.
+    const past = from > lim;
+    if (!past && to > lim) to = lim;
+    const lat = (Number.isFinite(x.lat) ? x.lat : c[0]).toFixed(3), lng = (Number.isFinite(x.lng) ? x.lng : c[1]).toFixed(3);
     const key = `${x.city}|${from}|${to}`;
     try {
       let d = wxCache.get(key);
       if (!d) {
-        const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(3)}&longitude=${lng.toFixed(3)}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FTashkent&start_date=${from}&end_date=${to}`);
-        if (!r.ok) return;
-        d = (await r.json()).daily; wxCache.set(key, d);
+        d = past
+          ? (await omFetch(`${OM_ARCHIVE}?latitude=${lat}&longitude=${lng}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Asia%2FTashkent&start_date=${yearBack(from)}&end_date=${yearBack(to)}`)).daily
+          : (await omFetch(`${OM}?latitude=${lat}&longitude=${lng}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FTashkent&start_date=${from}&end_date=${to}`)).daily;
+        if (d && d.time) wxCache.set(key, d);
       }
-      if (!d || !d.time || state.current !== x) return;
-      box.innerHTML = `<h4 class="d-sub">Ob-havo: ${esc(x.city)}</h4><div class="wx">${d.time.map((t, i) => { const [ic, w] = WMO(d.weather_code[i]); return `<div class="wx-d" title="${w}"><small>${fmtDate(t).slice(0, 5)}</small><span aria-hidden="true">${ic}</span><b>${Math.round(d.temperature_2m_max[i])}°</b><small>${Math.round(d.temperature_2m_min[i])}°${d.precipitation_probability_max && d.precipitation_probability_max[i] >= 30 ? ` · 💧${d.precipitation_probability_max[i]}%` : ""}</small><span class="sr">${w}</span></div>`; }).join("")}</div><p class="muted small">Prognoz: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a></p>`;
+      if (!d || !d.time || !d.time.length || state.current !== x) return;
+      const shown = past ? d.time.map((t, i) => iso(addDays(day(from), i))) : d.time;
+      box.innerHTML = `<h4 class="d-sub">${past ? "Taxminiy ob-havo" : "Ob-havo"}: ${esc(x.city)}</h4>${past ? `<p class="muted small">Sanalar 16 kundan uzoq: o'tgan yili shu kunlardagi ob-havo ko'rsatilgan.</p>` : ""}<div class="wx">${d.time.map((t, i) => { const [ic, w] = WMO(d.weather_code[i]); const rain = past ? (d.precipitation_sum && d.precipitation_sum[i] >= 1 ? ` · 💧${Math.round(d.precipitation_sum[i])} mm` : "") : (d.precipitation_probability_max && d.precipitation_probability_max[i] >= 30 ? ` · 💧${d.precipitation_probability_max[i]}%` : ""); return `<div class="wx-d" title="${w}"><small>${fmtDate(shown[i]).slice(0, 5)}</small>${wxIcon(d.weather_code[i])}<b>${deg(d.temperature_2m_max[i])}</b><small>${deg(d.temperature_2m_min[i])}${rain}</small><span class="sr">${w}</span></div>`; }).join("")}</div><p class="muted small">${past ? "Ma'lumot" : "Prognoz"}: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a></p>`;
       box.hidden = false;
-    } catch (e) { /* offline or blocked */ }
+    } catch (e) { /* offline or blocked: the section stays hidden */ }
   }
 
   // ---------- "Hozir O'zbekistonda": Tashkent clock, world clocks, city weather ----------
@@ -1329,22 +1346,38 @@
   const deg = (c) => wxUnit === "f" ? `${Math.round(c * 9 / 5 + 32)}°F` : `${Math.round(c)}°`;
   const wxKind = (c) => c === 0 ? "sun" : c <= 2 ? "part" : c === 3 ? "cloud" : c <= 48 ? "fog" : c <= 67 || (c >= 80 && c <= 82) ? "rain" : c <= 77 || c === 85 || c === 86 ? "snow" : "storm";
   const wxIcon = (c) => `<span class="wx-ic k-${wxKind(c)}" aria-hidden="true">${WMO(c)[0]}</span>`;
-  async function loadWeather() {
+  const WX_PARAMS = "current=temperature_2m,weather_code,wind_speed_10m,relative_humidity_2m,apparent_temperature&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset&forecast_days=7&timezone=Asia%2FTashkent";
+  async function loadWeather(force) {
     const cached = store("bron.wx", null);
-    if (cached && Date.now() - cached.at < 30 * 60e3 && cached.data) { WX = cached.data; return showWeather(); }
+    // A cache from before midnight would start the week with yesterday.
+    if (!force && cached && Date.now() - cached.at < 30 * 60e3 && cached.data && cached.day === todayIso()) { WX = cached.data; return showWeather(); }
     const names = Object.keys(GEO);
     if (!names.length) return;
+    $("#wxCities").innerHTML = `<p class="muted small">Ob-havo yuklanmoqda…</p>`;
+    const got = {};
+    const add = (n, x) => { if (x && x.current && x.daily) got[n] = { cur: x.current, daily: x.daily }; };
     try {
+      // One request for every city (cards and widget)…
       const q = (i) => names.map((n) => GEO[n][i].toFixed(3)).join(",");
-      const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${q(0)}&longitude=${q(1)}&current=temperature_2m,weather_code,wind_speed_10m,relative_humidity_2m,apparent_temperature&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset&forecast_days=7&timezone=Asia%2FTashkent`);
-      if (!r.ok) throw new Error(r.status);
-      const j = await r.json();
-      const list = Array.isArray(j) ? j : [j];
-      WX = {};
-      list.forEach((x, i) => { if (x && x.current) WX[names[i]] = { cur: x.current, daily: x.daily }; });
-      keep("bron.wx", { at: Date.now(), data: WX });
-      showWeather();
-    } catch (e) { $("#wxCities").innerHTML = `<p class="muted small">Ob-havo ma'lumotini hozir yuklab bo'lmadi.</p>`; }
+      const j = await omFetch(`${OM}?latitude=${q(0)}&longitude=${q(1)}&${WX_PARAMS}`);
+      (Array.isArray(j) ? j : [j]).forEach((x, i) => add(names[i], x));
+    } catch (e) { /* fall back below */ }
+    // …and, if that failed or came back incomplete, one small request per featured city.
+    const missing = WX_CITIES.filter((n) => GEO[n] && !got[n]);
+    if (missing.length) {
+      const res = await Promise.allSettled(missing.map((n) => omFetch(`${OM}?latitude=${GEO[n][0].toFixed(3)}&longitude=${GEO[n][1].toFixed(3)}&${WX_PARAMS}`).then((x) => add(n, x))));
+      void res;
+    }
+    if (!Object.keys(got).length) {
+      if (cached && cached.data) { WX = cached.data; return showWeather(); }
+      $("#wxCities").innerHTML = `<p class="muted small">Ob-havo ma'lumotini hozir yuklab bo'lmadi.</p><button class="btn btn-line" type="button" data-wx-retry>Qayta urinish</button>`;
+      $("#wxWeek").innerHTML = "";
+      return;
+    }
+    WX = got;
+    if (!WX[wxSel]) wxSel = WX_CITIES.find((n) => WX[n]) || Object.keys(WX)[0];
+    keep("bron.wx", { at: Date.now(), day: todayIso(), data: WX });
+    showWeather();
   }
   function showWeather() {
     if (!WX) return;
@@ -1366,8 +1399,11 @@
   function initNow() {
     tickClocks();
     setInterval(tickClocks, 1000);
-    $("#wxCities").addEventListener("click", (e) => { const b = e.target.closest("[data-wx]"); if (b) { wxSel = b.dataset.wx; showWeather(); } });
-    $$("[data-unit]").forEach((b) => { b.setAttribute("aria-pressed", String(b.dataset.unit === wxUnit)); b.addEventListener("click", () => { wxUnit = b.dataset.unit; keep("bron.unit", wxUnit); $$("[data-unit]").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.unit === wxUnit))); showWeather(); }); });
+    $("#wxCities").addEventListener("click", (e) => {
+      if (e.target.closest("[data-wx-retry]")) return loadWeather(true);
+      const b = e.target.closest("[data-wx]"); if (b) { wxSel = b.dataset.wx; showWeather(); }
+    });
+    $$("[data-unit]").forEach((b) => { b.setAttribute("aria-pressed", String(b.dataset.unit === wxUnit)); b.addEventListener("click", () => { wxUnit = b.dataset.unit; keep("bron.unit", wxUnit); $$("[data-unit]").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.unit === wxUnit))); showWeather(); if (state.current && $("#detailDlg").open) detailWeather(state.current); }); });
     // Weather loads when the section comes near the screen (saves a request for visitors who never scroll there).
     const sec = $("#hozir");
     if ("IntersectionObserver" in window) { const io = new IntersectionObserver((es) => { if (es.some((x) => x.isIntersecting)) { io.disconnect(); loadWeather(); } }, { rootMargin: "400px" }); io.observe(sec); io.observe($("#shaharlar")); }
