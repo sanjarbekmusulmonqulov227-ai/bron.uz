@@ -37,6 +37,9 @@
 
   // Amenity icons: 24x24 stroke paths.
   const AMEN = {
+    accessible: ["Nogironlar uchun qulay", "M12 4a1.5 1.5 0 1 0 0-.01M10 7v6h5l3 5M10 10h5M8 10a6 6 0 1 0 7 8"],
+    nosmoke: ["Chekilmaydigan xonalar", "M2 15h14v3H2zM18 15h4v3h-4M3 3l18 18"],
+    pets: ["Uy hayvonlari mumkin", "M8 9a1.5 2 0 1 0 0-.01M16 9a1.5 2 0 1 0 0-.01M5 13a1.5 2 0 1 0 0-.01M19 13a1.5 2 0 1 0 0-.01M12 14c-3 0-5 3-5 5s2 2 5 2 5 0 5-2-2-5-5-5z"],
     wifi: ["Wi-Fi", "M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5h.01"],
     breakfast: ["Nonushta", "M4 9h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM16 10h2a2 2 0 0 1 0 4h-2M8 3v3M12 3v3"],
     pool: ["Basseyn", "M2 18c2 0 2-1.5 4-1.5s2 1.5 4 1.5 2-1.5 4-1.5 2 1.5 4 1.5 2-1.5 4-1.5M8 15V5a2 2 0 0 1 4 0M16 15V5a2 2 0 0 0-4 0M8 9h8"],
@@ -61,8 +64,8 @@
     transport: ["Transport", "M5 17V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v11M5 17h14M5 11h14M8 17v3M16 17v3"]
   };
   const AMEN_FILTER = {
-    hostel: ["wifi", "breakfast", "kitchen", "laundry", "ac", "transfer"],
-    hotel: ["wifi", "breakfast", "pool", "spa", "parking", "transfer", "family"],
+    hostel: ["wifi", "breakfast", "kitchen", "laundry", "ac", "transfer", "accessible", "nosmoke"],
+    hotel: ["wifi", "breakfast", "pool", "spa", "parking", "transfer", "family", "accessible", "nosmoke", "pets"],
     venue: ["translation", "screen", "coffee", "parking", "wifi"],
     tour: ["hotel", "train", "guide", "transport", "meal", "tickets"]
   };
@@ -325,12 +328,14 @@
   function buildFilters() {
     $("#starsGroup").hidden = state.type !== "hotel";
     $("#fStars").innerHTML = [5, 4, 3, 2].map((n) => `<button type="button" class="chip" data-star="${n}" aria-pressed="${state.stars.has(n)}">${n} ★</button>`).join("");
-    $("#fAmen").innerHTML = AMEN_FILTER[state.type].map((k) => `<label class="check"><input type="checkbox" data-amen="${k}"${state.amen.has(k) ? " checked" : ""}> <span>${AMEN[k][0]}</span></label>`).join("");
+    const has = new Set(LISTINGS.filter((x) => x.type === state.type).flatMap((x) => x.amenities || []));
+    $("#fAmen").innerHTML = AMEN_FILTER[state.type].filter((k) => has.has(k) || state.amen.has(k)).map((k) => `<label class="check"><input type="checkbox" data-amen="${k}"${state.amen.has(k) ? " checked" : ""}> <span>${AMEN[k][0]}</span></label>`).join("");
     const prices = LISTINGS.filter((x) => x.type === state.type).map((x) => x.price);
     $("#fPrice").min = prices.length ? Math.max(1, Math.ceil(Math.min(...prices) / maxPriceFor(state.type) * 100)) : 1;
     state.maxPct = Math.max(state.maxPct, +$("#fPrice").min);
     $("#fPrice").value = state.maxPct;
     $("#priceUnit").textContent = `${TYPES[state.type].unit} uchun`;
+    syncNearSort();
     updatePriceOut();
   }
   function updatePriceOut() { const cap = priceCap(); $("#priceOut").textContent = cap === Infinity ? "Istalgan" : `${short(cap)} gacha`; }
@@ -373,6 +378,21 @@
       render();
     } catch (e) { /* offline */ }
   }
+  // Distance to the city centre, only for places with real coordinates (sample pins are approximate).
+  function distKm(x) {
+    const c = GEO[x.city];
+    if (!c || !Number.isFinite(x.lat) || !Number.isFinite(x.lng)) return null;
+    const R = 6371, r = Math.PI / 180, dLat = (x.lat - c[0]) * r, dLng = (x.lng - c[1]) * r;
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(c[0] * r) * Math.cos(x.lat * r) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(a));
+  }
+  const distText = (x) => { const d = distKm(x); return d == null ? "" : d < 1 ? `markazdan ${Math.round(d * 1000 / 50) * 50} m` : `markazdan ${d.toFixed(1).replace(".", ",")} km`; };
+  function syncNearSort() {
+    const any = LISTINGS.some((x) => x.type === state.type && distKm(x) != null);
+    let o = $("#fSort option[value=near]");
+    if (any && !o) { o = document.createElement("option"); o.value = "near"; o.textContent = "Markazga yaqinlari"; $("#fSort").append(o); }
+    if (!any && o) { if ($("#fSort").value === "near") $("#fSort").value = "rec"; o.remove(); state.sort = $("#fSort").value; }
+  }
   function results() {
     const cap = priceCap();
     const need = state.guests;
@@ -386,7 +406,7 @@
       && (!state.deals || x.old)
       && (!state.favOnly || favs.has(x.id))
       && !busy.ids.has(x.id));
-    const by = { cheap: (a, b) => a.price - b.price, exp: (a, b) => b.price - a.price, rate: (a, b) => b.rating - a.rating, rec: (a, b) => b.rating * Math.log(b.reviews + 2) - a.rating * Math.log(a.reviews + 2) };
+    const by = { near: (a, b) => (distKm(a) ?? 1e9) - (distKm(b) ?? 1e9), cheap: (a, b) => a.price - b.price, exp: (a, b) => b.price - a.price, rate: (a, b) => b.rating - a.rating, rec: (a, b) => b.rating * Math.log(b.reviews + 2) - a.rating * Math.log(a.reviews + 2) };
     return list.sort(by[state.sort]);
   }
 
@@ -415,9 +435,10 @@
           <div>${x.stars ? `<div class="stars" aria-label="${x.stars} yulduz">${starStr(x.stars)}</div>` : ""}<h3><button type="button" data-open="${esc(x.id)}">${esc(x.name)}</button></h3></div>
           <div class="rating"><b>${Number(x.rating).toFixed(1)}</b><small>${x.reviews} sharh</small></div>
         </div>
-        <p class="meta">${esc(x.district || x.city)} · ${cap}</p>
+        <p class="meta">${esc(x.district || x.city)}${distText(x) ? " · " + distText(x) : ""} · ${cap}</p>
         <div class="amen">${am.map((k) => AMEN[k] ? `<span>${icon(k)}${AMEN[k][0]}</span>` : "").join("")}</div>
         ${x.free ? `<p class="free">✓ Bepul bekor qilish</p>` : ""}
+        <label class="cmp-chk"><input type="checkbox" data-cmp="${esc(x.id)}"${cmp.has(x.id) ? " checked" : ""}> <span>Solishtirish</span></label>
       </div>
       <div class="item-foot">
         <p class="price">${x.old ? `<s>${som(x.old)}</s>` : ""}<b>${som(x.price)}</b><small>${t.unit}${x.type === "hotel" ? " dan" : ""}</small>${altTag(x.price)}${totalLine(x)}</p>
@@ -605,6 +626,8 @@
     loadReviews(x);
     countView(x);
     detailSights(x);
+    detailRules(x);
+    detailWeather(x);
     const t = TYPES[x.type];
     const ps = photosFor(x);
     $("#dArt").className = "gallery";
@@ -1177,6 +1200,83 @@
   }
 
   // ---------- visit and view counters (server only) ----------
+  // ---------- compare (up to 3 places of one type) ----------
+  const cmp = new Set();
+  function toggleCmp(el) {
+    const id = el.dataset.cmp, on = el.checked, x = LISTINGS.find((y) => y.id === id);
+    if (!x) return;
+    const first = LISTINGS.find((y) => y.id === [...cmp][0]);
+    if (on && first && first.type !== x.type) { cmp.clear(); toast("Bir turdagi joylarni solishtirish mumkin: ro'yxat yangilandi."); }
+    if (on && cmp.size >= 3) { el.checked = false; toast("Ko'pi bilan 3 ta joyni solishtirish mumkin."); return; }
+    on ? cmp.add(id) : cmp.delete(id);
+    // Keep focus on the checkbox: only the bar changes (other cards' boxes stay as they are).
+    $$("[data-cmp]").forEach((c) => { c.checked = cmp.has(c.dataset.cmp); });
+    renderCmpBar();
+  }
+  function renderCmpBar() {
+    $("#cmpBar").hidden = !cmp.size;
+    $("#cmpCount").textContent = `Solishtirish (${cmp.size})`;
+    $("#cmpGo").disabled = cmp.size < 2;
+  }
+  function openCompare() {
+    const xs = [...cmp].map((id) => LISTINGS.find((y) => y.id === id)).filter(Boolean);
+    if (xs.length < 2) return;
+    const am = [...new Set(xs.flatMap((x) => x.amenities || []))].filter((k) => AMEN[k]);
+    const row = (h, f) => `<tr><th scope="row">${h}</th>${xs.map((x) => `<td>${f(x)}</td>`).join("")}</tr>`;
+    const best = (f, low) => { const v = xs.map(f); const m = low ? Math.min(...v) : Math.max(...v); return (x) => f(x) === m && v.filter((y) => y === m).length < v.length; };
+    const cheap = best((x) => x.price, true), top = best((x) => Number(x.rating));
+    $("#cmpTable").innerHTML = `<thead><tr><td></td>${xs.map((x) => `<th scope="col"><button type="button" class="linkish" data-open="${esc(x.id)}">${esc(x.name)}</button><small>${esc(x.city)}</small></th>`).join("")}</tr></thead><tbody>
+      ${row("Narx", (x) => `<b${cheap(x) ? ' class="win"' : ""}>${som(x.price)}</b><small>${TYPES[x.type].unit}</small>${altTag(x.price)}`)}
+      ${state.from ? row("Tanlangan sanalar", (x) => totalLine(x) || "—") : ""}
+      ${row("Reyting", (x) => `<b${top(x) ? ' class="win"' : ""}>${Number(x.rating).toFixed(1)}</b> <small>${x.reviews} sharh</small>`)}
+      ${xs.some((x) => x.stars) ? row("Yulduz", (x) => x.stars ? starStr(x.stars) : "—") : ""}
+      ${row("Joylashuv", (x) => esc(x.district || x.city) + (distText(x) ? `<small>${distText(x)}</small>` : ""))}
+      ${row("Sig'im", (x) => x.type === "hostel" ? `${x.beds || x.capacity} o'rin` : `${x.capacity} kishi`)}
+      ${row("Bepul bekor qilish", (x) => x.free ? '<span class="yes">✓</span>' : '<span class="no">—</span>')}
+      ${am.map((k) => row(AMEN[k][0], (x) => (x.amenities || []).includes(k) ? '<span class="yes">✓</span>' : '<span class="no">—</span>')).join("")}
+      <tr><th></th>${xs.map((x) => `<td><button class="btn btn-gold" type="button" data-book="${esc(x.id)}">Bron qilish</button></td>`).join("")}</tr></tbody>`;
+    openDlg($("#cmpDlg"));
+  }
+
+  // ---------- weather for the trip dates (Open-Meteo, free, no key; up to 16 days ahead) ----------
+  const WMO = (c) => c === 0 ? ["☀️", "Ochiq"] : c <= 2 ? ["🌤️", "Qisman bulutli"] : c === 3 ? ["☁️", "Bulutli"] : c <= 48 ? ["🌫️", "Tuman"] : c <= 67 || (c >= 80 && c <= 82) ? ["🌧️", "Yomg'ir"] : c <= 77 || c === 85 || c === 86 ? ["🌨️", "Qor"] : ["⛈️", "Momaqaldiroq"];
+  const wxCache = new Map();
+  async function detailWeather(x) {
+    const box = $("#dWeather");
+    box.hidden = true; box.innerHTML = "";
+    const c = GEO[x.city];
+    const from = state.from && state.from >= todayIso() ? state.from : todayIso();
+    const lim = iso(addDays(new Date(), 15));
+    if (!c || from > lim) return;
+    let to = state.to && state.to > from ? state.to : iso(addDays(day(from), 2));
+    if (to > lim) to = lim;
+    if (daysBetween(from, to) > 6) to = iso(addDays(day(from), 6));
+    const lat = Number.isFinite(x.lat) ? x.lat : c[0], lng = Number.isFinite(x.lng) ? x.lng : c[1];
+    const key = `${x.city}|${from}|${to}`;
+    try {
+      let d = wxCache.get(key);
+      if (!d) {
+        const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(3)}&longitude=${lng.toFixed(3)}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FTashkent&start_date=${from}&end_date=${to}`);
+        if (!r.ok) return;
+        d = (await r.json()).daily; wxCache.set(key, d);
+      }
+      if (!d || !d.time || state.current !== x) return;
+      box.innerHTML = `<h4 class="d-sub">Ob-havo: ${esc(x.city)}</h4><div class="wx">${d.time.map((t, i) => { const [ic, w] = WMO(d.weather_code[i]); return `<div class="wx-d" title="${w}"><small>${fmtDate(t).slice(0, 5)}</small><span aria-hidden="true">${ic}</span><b>${Math.round(d.temperature_2m_max[i])}°</b><small>${Math.round(d.temperature_2m_min[i])}°${d.precipitation_probability_max && d.precipitation_probability_max[i] >= 30 ? ` · 💧${d.precipitation_probability_max[i]}%` : ""}</small><span class="sr">${w}</span></div>`; }).join("")}</div><p class="muted small">Prognoz: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a></p>`;
+      box.hidden = false;
+    } catch (e) { /* offline or blocked */ }
+  }
+
+  // ---------- house rules ----------
+  function detailRules(x) {
+    const rows = [];
+    if (nightly(x)) rows.push(["Kirish va chiqish", x.checkin || x.checkout ? `Kirish ${x.checkin || "14:00"} dan, chiqish ${x.checkout || "12:00"} gacha` : "Odatda kirish 14:00 dan, chiqish 12:00 gacha; aniq vaqtni menejer tasdiqlaydi"]);
+    rows.push(["Bekor qilish shartlari", x.free ? "Kelish kunidan oldin saytda bepul bekor qilinadi" : "Shartlarni menejer bron tasdiqlanganda aytadi"]);
+    rows.push(["To'lov", "Joyida naqd yoki karta; Click, Payme, Uzum havolasini menejer yuboradi"]);
+    if (nightly(x)) rows.push(["Hujjat", "Kirishda pasport yoki ID-karta; xorijliklar mehmonxona orqali ro'yxatga olinadi"]);
+    if (x.rules) rows.push(["Joy qoidalari", esc(x.rules)]);
+    $("#dRules").innerHTML = `<h4 class="d-sub">Qoidalar va shartlar</h4><dl class="d-rules">${rows.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join("")}</dl>`;
+  }
+
   // ---------- currency ----------
   function applyRates(d) {
     if (!d || !d.rates || !d.rates.USD) return false;
@@ -1286,6 +1386,7 @@
   }
 
   function initExtras() {
+    document.addEventListener("change", (e) => { const c = e.target.closest("[data-cmp]"); if (c) toggleCmp(c); });
     $("#curSel").addEventListener("change", (e) => { CUR = e.target.value; keep("bron.cur", CUR); rerenderPrices(); });
     $("#dShare").addEventListener("click", async () => {
       const x = state.current; if (!x) return;
@@ -1375,6 +1476,8 @@
     document.addEventListener("click", (e) => {
       const t = e.target;
       const fav = t.closest("[data-fav]"); if (fav) { toggleFav(fav.dataset.fav); return; }
+      if (t.closest("#cmpGo")) { openCompare(); return; }
+      if (t.closest("#cmpClear")) { cmp.clear(); renderCmpBar(); render(); return; }
       const open = t.closest("[data-open]"); if (open) { openDetail(open.dataset.open); return; }
       const book = t.closest("[data-book]"); if (book) { openBooking(book.dataset.book, book.dataset.cls); return; }
       const sc = t.closest("[data-sight-city]"); if (sc) { sightCity = sc.dataset.sightCity; renderSights(); return; }
@@ -1641,7 +1744,7 @@
         else { $("#bronlarim").scrollIntoView({ block: "start" }); toast("Sharh qoldirish uchun bron qilgan hisobingizga kiring yoki bron qilgan qurilmangizdan oching."); }
       });
       $("#sampleNote").hidden = !rows.some((x) => x.sample);
-      render(); renderDeals(); renderCities(); heroCount(); renderVenues(); renderPackages(); renderCats(); renderMapMarkers(); renderRecent();
+      buildFilters(); render(); renderDeals(); renderCities(); heroCount(); renderVenues(); renderPackages(); renderCats(); renderMapMarkers(); renderRecent();
       // A shared link to a place that exists only in the database can open now.
       if (/^#joy=/.test(location.hash) && !$("#detailDlg").open) openFromHash();
     } catch (e) { /* static hosting: keep sample data */ }

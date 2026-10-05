@@ -56,6 +56,8 @@ if (!db.prepare("PRAGMA table_info(bookings)").all().some((c) => c.name === "use
 // Hotels can be booked for several identical rooms at once.
 if (!db.prepare("PRAGMA table_info(bookings)").all().some((c) => c.name === "rooms")) db.exec("ALTER TABLE bookings ADD COLUMN rooms INTEGER DEFAULT 1");
 if (!db.prepare("PRAGMA table_info(bookings)").all().some((c) => c.name === "room")) db.exec("ALTER TABLE bookings ADD COLUMN room TEXT");
+// reminded = 1 once the manager was reminded about an unanswered booking (older bookings count as reminded).
+if (!db.prepare("PRAGMA table_info(bookings)").all().some((c) => c.name === "reminded")) db.exec("ALTER TABLE bookings ADD COLUMN reminded INTEGER DEFAULT 0; UPDATE bookings SET reminded = 1");
 db.exec(`
   CREATE TABLE IF NOT EXISTS reviews (
     id INTEGER PRIMARY KEY AUTOINCREMENT, listing_id TEXT NOT NULL, booking_code TEXT NOT NULL UNIQUE, name TEXT NOT NULL,
@@ -92,7 +94,7 @@ db.exec(`
 if (!db.prepare("PRAGMA table_info(listings)").all().some((c) => c.name === "details")) db.exec("ALTER TABLE listings ADD COLUMN details TEXT DEFAULT '{}'");
 
 // Extra listing fields kept as JSON: district, stars, old price, free cancellation, amenities, description, art style.
-const DETAIL_KEYS = ["real", "district", "stars", "old", "free", "amenities", "desc", "art", "photo", "photos", "format", "kind", "area", "layouts", "days", "nights", "route", "itinerary", "beds", "units", "lat", "lng"];
+const DETAIL_KEYS = ["real", "district", "stars", "old", "free", "amenities", "desc", "art", "photo", "photos", "format", "kind", "area", "layouts", "days", "nights", "route", "itinerary", "beds", "units", "lat", "lng", "checkin", "checkout", "rules"];
 const pickDetails = (x) => Object.fromEntries(DETAIL_KEYS.filter((k) => x[k] !== undefined).map((k) => [k, x[k]]));
 
 // The site's own sample data (public/data.js): seeds an empty database and holds the transport timetable.
@@ -228,7 +230,7 @@ async function notify(text) {
 const CSP = [
   "default-src 'self'", "script-src 'self'", "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src https://fonts.gstatic.com", "img-src 'self' data: https:",
-  "connect-src 'self' https://cbu.uz https://overpass-api.de https://en.wikipedia.org https://commons.wikimedia.org https://upload.wikimedia.org https://fonts.googleapis.com https://fonts.gstatic.com",
+  "connect-src 'self' https://cbu.uz https://api.open-meteo.com https://overpass-api.de https://en.wikipedia.org https://commons.wikimedia.org https://upload.wikimedia.org https://fonts.googleapis.com https://fonts.gstatic.com",
   "manifest-src 'self'", "worker-src 'self'", "frame-ancestors 'none'", "base-uri 'self'", "form-action 'self'", "object-src 'none'"
 ].join("; ");
 const SECURITY_HEADERS = {
@@ -407,6 +409,9 @@ function validListing(b, id) {
       route: Array.isArray(b.route) ? b.route.map((x) => str(x, 40)).filter(Boolean).slice(0, 8) : undefined,
       beds: parseInt(b.beds, 10) > 0 ? Math.min(500, parseInt(b.beds, 10)) : undefined,
       units: parseInt(b.units, 10) > 0 ? Math.min(500, parseInt(b.units, 10)) : undefined,
+      checkin: /^([01]\d|2[0-3]):[0-5]\d$/.test(b.checkin || "") ? b.checkin : undefined,
+      checkout: /^([01]\d|2[0-3]):[0-5]\d$/.test(b.checkout || "") ? b.checkout : undefined,
+      rules: str(b.rules, 400) || undefined,
       lat: Number.isFinite(+b.lat) && b.lat !== undefined && b.lat !== "" ? +b.lat : undefined,
       lng: Number.isFinite(+b.lng) && b.lng !== undefined && b.lng !== "" ? +b.lng : undefined,
       itinerary: Array.isArray(b.itinerary) ? b.itinerary.filter(Array.isArray).slice(0, 15).map(([t, d]) => [str(t, 60), str(d, 400)]) : undefined
@@ -461,6 +466,20 @@ function setStatus(row, status) {
   return "";
 }
 const sms = require("./lib/sms");
+
+// Unanswered bookings: remind the manager after 2 hours, and release requests whose start day passed unconfirmed.
+function sweepBookings() {
+  const cutoff = new Date(Date.now() - 2 * 3600e3).toISOString();
+  for (const b of db.prepare("SELECT code FROM bookings WHERE status = 'yangi' AND reminded = 0 AND created < ?").all(cutoff)) {
+    db.prepare("UPDATE bookings SET reminded = 1 WHERE code = ?").run(b.code);
+    notify(`⏰ 2 soatdan beri javob berilmagan bron:\n${describeBooking(b.code)}`);
+  }
+  for (const b of db.prepare("SELECT * FROM bookings WHERE status = 'yangi' AND date_from < ?").all(today())) {
+    setStatus(b, "bekor qilindi");
+    db.prepare("UPDATE bookings SET note = trim(coalesce(note, '') || ' [Avtomatik: kelish kunigacha tasdiqlanmadi]') WHERE code = ?").run(b.code);
+  }
+}
+if (require.main === module) { setTimeout(sweepBookings, 5000).unref(); setInterval(sweepBookings, 10 * 60e3).unref(); }
 
 async function partnerRoutes(req, res, p, M, url) {
   const u = currentUser(req);
@@ -954,8 +973,13 @@ async function handle(req, res) {
     }
     m = /^\/api\/admin\/listings\/([\w-]{1,40})$/.exec(p);
     if (m && M === "PUT") {
-      const x = validListing(await readJson(req), m[1]);
+      const body = await readJson(req);
+      const x = validListing(body, m[1]);
       if (typeof x === "string") return fail(res, 400, x);
+      // The edit form covers only some fields: keep the stored ones it did not send (photos, layouts, itinerary…).
+      const prev = db.prepare("SELECT details FROM listings WHERE id = ?").get(m[1]);
+      const old = prev ? JSON.parse(prev.details || "{}") : {};
+      for (const k of DETAIL_KEYS) if (!(k in body) && old[k] !== undefined) x.details[k] = old[k];
       const r = db.prepare("UPDATE listings SET type=?,name=?,city=?,rating=?,reviews=?,price=?,capacity=?,tags=?,hue=?,glyph=?,active=?,details=? WHERE id=?")
         .run(x.type, x.name, x.city, x.rating, x.reviews, x.price, x.capacity, JSON.stringify(x.tags), x.hue, x.glyph, x.active ? 1 : 0, JSON.stringify(x.details), x.id);
       return r.changes ? send(res, 200, x) : fail(res, 404, "Joy topilmadi.");

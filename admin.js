@@ -8,7 +8,7 @@
   const TYPE = { hotel: "Mehmonxona", hostel: "Hostel", venue: "Zal", tour: "Tur", transport: "Transport" };
   let listings = [];
   // Amenity names the site understands (same keys as public/app.js AMEN).
-  const AMEN = { wifi: "Wi-Fi", breakfast: "Nonushta", pool: "Basseyn", spa: "Spa", gym: "Fitnes", parking: "Avtoturargoh", restaurant: "Restoran", transfer: "Transfer", ac: "Konditsioner", family: "Oilalar uchun", translation: "Sinxron tarjima", screen: "LED ekran", coffee: "Kofe-breyk", stage: "Sahna", guide: "Gid", tickets: "Chiptalar kiradi", meal: "Ovqat kiradi", transport: "Transport" };
+  const AMEN = { accessible: "Nogironlar uchun qulay", nosmoke: "Chekilmaydigan xonalar", pets: "Uy hayvonlari mumkin", wifi: "Wi-Fi", breakfast: "Nonushta", pool: "Basseyn", spa: "Spa", gym: "Fitnes", parking: "Avtoturargoh", restaurant: "Restoran", transfer: "Transfer", ac: "Konditsioner", family: "Oilalar uchun", translation: "Sinxron tarjima", screen: "LED ekran", coffee: "Kofe-breyk", stage: "Sahna", guide: "Gid", tickets: "Chiptalar kiradi", meal: "Ovqat kiradi", transport: "Transport" };
   const amenKey = (t) => { const v = t.trim().toLowerCase(); return Object.keys(AMEN).find((k) => k === v || AMEN[k].toLowerCase() === v); };
 
   function say(t, ok) { const m = $("#msg"); m.textContent = t; m.className = "msg " + (ok ? "ok" : "err"); if (ok) setTimeout(() => { m.textContent = ""; }, 2500); }
@@ -83,10 +83,11 @@
     $("#lPhoto").value = x && x.photo ? x.photo : "";
     $("#lDesc").value = x && x.desc ? x.desc : "";
     $("#lReal").checked = !x || !!x.real;
+    for (const k of ["lat", "lng", "checkin", "checkout", "rules"]) $("#l_" + k).value = x && x[k] !== undefined ? x[k] : "";
     $("#lSave").textContent = x ? "Saqlash" : "Qo'shish";
     $("#lCancel").hidden = !x;
   }
-  const formData = () => ({ type: $("#lType").value, name: $("#lName").value, city: $("#lCity").value, price: $("#lPrice").value, capacity: $("#lCap").value, rating: $("#lRating").value, reviews: $("#lReviews").value, tags: $("#lTags").value, amenities: $("#lTags").value.split(",").map(amenKey).filter(Boolean), hue: $("#lHue").value, photo: $("#lPhoto").value.trim(), desc: $("#lDesc").value.trim(), real: $("#lReal").checked });
+  const formData = () => ({ type: $("#lType").value, name: $("#lName").value, city: $("#lCity").value, price: $("#lPrice").value, capacity: $("#lCap").value, rating: $("#lRating").value, reviews: $("#lReviews").value, tags: $("#lTags").value, amenities: $("#lTags").value.split(",").map(amenKey).filter(Boolean), hue: $("#lHue").value, photo: $("#lPhoto").value.trim(), desc: $("#lDesc").value.trim(), real: $("#lReal").checked, lat: $("#l_lat").value.trim(), lng: $("#l_lng").value.trim(), checkin: $("#l_checkin").value, checkout: $("#l_checkout").value, rules: $("#l_rules").value.trim() });
 
   document.addEventListener("change", async (e) => {
     const s = e.target.closest("select[data-kind]");

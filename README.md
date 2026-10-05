@@ -127,3 +127,8 @@ Server ishlaganda bosh sahifada foydalanuvchilar (noyob qurilmalar), tashriflar,
 - Narx yonida taxminiy USD/EUR/RUB va boshqa valyutadagi qiymat ko'rsatiladi (O'zbekiston Markaziy banki kursi, `GET /api/rates`, 6 soat keshlanadi). Bron va to'lov har doim so'mda.
 - Qidiruvda sana tanlansa, kartada jami narx chiqadi; serverda `GET /api/availability/all` orqali shu sanalarda band joylar natijadan yashiriladi.
 - Server statik fayllarni brotli/gzip bilan siqib, ETag bilan beradi; topilmagan sahifa uchun `404.html`.
+- Joylarni solishtirish: kartadagi "Solishtirish" belgisi bilan bir turdagi 3 tagacha joy jadvalda yonma-yon ko'rsatiladi.
+- Joy oynasida "Qoidalar va shartlar" (kirish/chiqish vaqti, bekor qilish, to'lov, hujjat, joy qoidalari) va safar sanalari uchun ob-havo (Open-Meteo, 16 kungacha) chiqadi. Admin panelda joyga kenglik/uzunlik, kirish/chiqish vaqti va qoidalarni yozish mumkin; koordinata bo'lsa kartada "markazdan N km" va "Markazga yaqinlari" saralash paydo bo'ladi.
+- Yangi qulayliklar: `accessible` (nogironlar uchun qulay), `nosmoke`, `pets`; filtr faqat shunday joy bo'lsa ko'rinadi.
+- Javobsiz bronlar: 2 soat ichida tasdiqlanmasa adminga Telegram eslatmasi boradi; kelish kuni o'tib ham "yangi" turgan bron avtomatik bekor qilinadi (mijozga xabar boradi).
+- Admin panelda joyni tahrirlash endi suratlar, zal joylashuvlari va tur dasturini o'chirib yubormaydi.

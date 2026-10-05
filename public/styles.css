@@ -980,3 +980,27 @@ body { background: var(--bg); }
 .total .alt-cur { display: block; font-size: .8rem; color: var(--muted); text-align: right; }
 @media (max-width: 480px) { .cur-sel { padding: 5px 4px; font-size: .72rem; } }
 .sp-404 { text-align: center; padding: 48px 20px; } .sp-404 .sp-links { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+
+/* v15: compare, rules, weather, distance */
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.cmp-chk { display: inline-flex; align-items: center; gap: 6px; font-size: .82rem; color: var(--muted); margin-top: 6px; cursor: pointer; }
+.cmp-chk input { width: 16px; height: 16px; accent-color: var(--chip-on); }
+.cmp-bar { position: fixed; left: 50%; transform: translateX(-50%); bottom: 18px; z-index: 45; display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 8px 8px 8px 18px; box-shadow: 0 10px 30px rgba(0,0,0,.18); max-width: calc(100vw - 24px); }
+.cmp-bar .btn { padding: 8px 16px; }
+.cmp-bar[hidden] { display: none; }
+@media (max-width: 760px) { .cmp-bar { bottom: calc(72px + env(safe-area-inset-bottom, 0px)); left: 12px; right: 12px; transform: none; max-width: none; justify-content: space-between; gap: 6px; padding: 6px 6px 6px 14px; font-size: .88rem; } .cmp-bar b { flex: 1; min-width: 0; } .cmp-bar .btn { padding: 8px 12px; font-size: .88rem; } }
+.cmp-table th[scope=row], .cmp-table thead td { position: sticky; left: 0; background: var(--surface); z-index: 1; }
+.cmp-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.cmp-table { width: 100%; border-collapse: collapse; min-width: 520px; font-size: .9rem; }
+.cmp-table th, .cmp-table td { padding: 9px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.cmp-table thead th { font-size: .95rem; }
+.cmp-table th[scope=row] { color: var(--muted); font-weight: 600; width: 26%; }
+.cmp-table small { display: block; color: var(--muted); font-weight: 500; }
+.cmp-table .win { color: var(--chip-on); }
+.cmp-table .yes { color: var(--chip-on); font-weight: 700; } .cmp-table .no { color: var(--muted); }
+.linkish { font: inherit; font-weight: 700; color: var(--ink); background: none; border: 0; padding: 0; cursor: pointer; text-align: left; text-decoration: underline; }
+.d-rules { display: grid; grid-template-columns: minmax(110px, 30%) 1fr; gap: 6px 14px; margin: 0 0 12px; font-size: .9rem; }
+.d-rules dt { color: var(--muted); font-weight: 600; } .d-rules dd { margin: 0; }
+.wx { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.wx-d { display: grid; justify-items: center; gap: 2px; min-width: 70px; padding: 8px 6px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.wx-d span[aria-hidden] { font-size: 1.4rem; }

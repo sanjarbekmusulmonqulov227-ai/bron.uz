@@ -2,7 +2,7 @@
 <html lang="uz">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://cbu.uz https://overpass-api.de https://en.wikipedia.org https://commons.wikimedia.org https://upload.wikimedia.org https://fonts.googleapis.com https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://cbu.uz https://api.open-meteo.com https://overpass-api.de https://en.wikipedia.org https://commons.wikimedia.org https://upload.wikimedia.org https://fonts.googleapis.com https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>bron.uz: O'zbekiston bo'ylab mehmonxona, zal va tur bron qilish</title>
@@ -492,6 +492,8 @@
       <div id="dExtra"></div>
       <div class="d-sights" id="dSights" hidden></div>
       <div id="dRooms"></div>
+      <div class="d-weather" id="dWeather" hidden></div>
+      <div id="dRules"></div>
       <section class="d-reviews" id="dReviews" hidden></section>
       <div class="d-foot">
         <p class="price" id="dPrice"></p>
@@ -500,6 +502,15 @@
     </div>
   </div>
 </dialog>
+
+<dialog id="cmpDlg" class="dlg dlg-wide" aria-labelledby="cmpTitle">
+  <div class="dlg-in">
+    <div class="dlg-head"><h3 id="cmpTitle">Joylarni solishtirish</h3><button type="button" class="x" data-close aria-label="Yopish">×</button></div>
+    <div class="cmp-wrap"><table class="cmp-table" id="cmpTable"></table></div>
+  </div>
+</dialog>
+
+<div class="cmp-bar" id="cmpBar" hidden><b id="cmpCount"></b><button class="btn btn-gold" type="button" id="cmpGo">Solishtirish</button><button class="btn btn-line" type="button" id="cmpClear">Tozalash</button></div>
 
 <dialog id="bookDlg" class="dlg" aria-labelledby="dlgTitle">
   <form id="bookForm" class="dlg-in" novalidate>
