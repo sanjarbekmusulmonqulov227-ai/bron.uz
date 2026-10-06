@@ -134,3 +134,16 @@ Server ishlaganda bosh sahifada foydalanuvchilar (noyob qurilmalar), tashriflar,
 - Admin panelda joyni tahrirlash endi suratlar, zal joylashuvlari va tur dasturini o'chirib yubormaydi.
 - "Hozir O'zbekistonda" bo'limi: Toshkent vaqti (jonli soat), mehmonning o'z vaqti va 10 ta dunyo shahri bilan farq (yozgi vaqt hisobga olinadi), quyosh chiqishi/botishi, 12 shahar bo'yicha hozirgi ob-havo va 7 kunlik prognoz (°C/°F). Shahar kartalarida harorat belgisi, `shahar/*.html` sahifalarida mahalliy vaqt va prognoz (`public/cityinfo.js`). Ma'lumot Open-Meteo'dan mehmon brauzerida olinadi, 30 daqiqa keshlanadi.
 - Animatsiyalar: bo'limlar ekranga kirganda ko'tarilib chiqadi, kartalar ketma-ket paydo bo'ladi, sichqoncha ostida shahar kartalari egiladi, bosh rasm parallaks, oynalar yumshoq ochiladi, ob-havo belgilari harakatlanadi. Qurilmada "harakatni kamaytirish" yoqilgan bo'lsa hammasi o'chadi.
+
+## Turizm bugun: kunlik yangiliklar va statistika
+
+`kunlik.html` sahifasi va bosh sahifadagi "Turizm bugun" bo'limi `public/data/daily.json` faylidan o'qiydi. Faylni `node tools/fetch-daily.js` yig'adi:
+
+- turizm yangiliklari (sarlavha va havola): Kun.uz, Daryo, Gazeta.uz, UzA, Podrobno.uz, UzDaily RSS lentalari va Google News qidiruvi, uz/ru/en;
+- Markaziy bank (cbu.uz) valyuta kurslari va kechagiga nisbatan farq;
+- O'zbekiston va shaharlar maqolalarining Vikipediyadagi kunlik ko'rilishi (Wikimedia API), oxirgi 30 kun;
+- Milliy statistika qo'mitasining yillik turistlar soni (siat.stat.uz, 1038, 1012, 1066-ko'rsatkichlar).
+
+Biror manba ishlamasa, o'sha qism oldingi ma'lumot bilan qoladi. Maqola matni ko'chirilmaydi.
+
+**GitHub Pages:** `.github/workflows/sayt.yml` har kuni 07:15 va 17:15 (Toshkent) da, `main` ga sayt o'zgarishi push qilinganda va Actions sahifasidan qo'lda ishga tushadi: ma'lumotni yig'adi va `public/` ni `gh-pages` ga joylaydi. Saytni yangilash uchun endi `main` ga push qilish kifoya. **Server:** `server.js` ma'lumotni ishga tushganda va har 12 soatda o'zi yangilaydi (`DAILY_DATA=0` o'chiradi).

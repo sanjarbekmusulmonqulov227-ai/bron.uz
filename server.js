@@ -338,6 +338,12 @@ function startSession(req, res, userId) {
 }
 setInterval(() => db.prepare("DELETE FROM sessions WHERE expires < ?").run(Date.now()), 3600000).unref();
 
+// Daily tourism news and statistics (public/data/daily.json): refreshed at start and every 12 hours.
+function refreshDaily() {
+  require("node:child_process").execFile(process.execPath, [path.join(__dirname, "tools", "fetch-daily.js")], { timeout: 300000 }, (err) => { if (err) console.error("Kunlik ma'lumot yangilanmadi:", err.message); });
+}
+if (process.env.DAILY_DATA !== "0") { setTimeout(refreshDaily, 5000).unref(); setInterval(refreshDaily, 12 * 3600000).unref(); }
+
 function isAdmin(req) {
   if (!ADMIN_PASSWORD) return false;
   const m = /^Basic (.+)$/.exec(req.headers.authorization || "");

@@ -1089,3 +1089,64 @@ body { background: var(--bg); }
 @media (max-width: 700px) { .city-now { grid-template-columns: 1fr; } }
 .city-now .big-clock { font-size: 2.4rem; }
 .cn-now { font-size: 1.05rem; margin: 6px 0 10px; } .cn-now .wx-ic { font-size: 1.8rem; vertical-align: middle; }
+
+/* ---------- Turizm bugun: daily news and statistics (kunlik.js) ---------- */
+.kn-home-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 18px; align-items: start; }
+@media (max-width: 900px) { .kn-home-grid { grid-template-columns: 1fr; } }
+.kn-news { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 2px; counter-reset: kn; }
+.kn-news li { display: grid; gap: 3px; padding: 10px 0 10px 34px; border-bottom: 1px solid var(--line); position: relative; counter-increment: kn; }
+.kn-news li:last-child { border-bottom: 0; }
+.kn-news li::before { content: counter(kn); position: absolute; left: 0; top: 10px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: .75rem; font-weight: 700; background: color-mix(in srgb, var(--turq) 14%, var(--surface)); color: var(--turq-ink); }
+.kn-news a { color: var(--ink); text-decoration: none; font-weight: 600; line-height: 1.35; }
+.kn-news a:hover, .kn-news a:focus-visible { color: var(--lapis); text-decoration: underline; }
+.kn-meta { font-size: .8rem; color: var(--muted); }
+.kn-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.kn-home-grid .kn-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 420px) { .kn-home-grid .kn-tiles { grid-template-columns: 1fr; } }
+.kn-tile { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r, 16px); padding: 14px 16px; box-shadow: var(--shadow-sm); min-width: 0; }
+.kn-lbl { margin: 0; font-size: .8rem; color: var(--muted); font-weight: 600; }
+.kn-big { margin: 4px 0 2px; font-size: 1.6rem; font-weight: 700; line-height: 1.1; color: var(--ink); font-variant-numeric: tabular-nums; }
+.kn-big small { font-size: .85rem; font-weight: 600; color: var(--muted); }
+.kn-sub { margin: 0; font-size: .78rem; color: var(--muted); }
+.kn-d { font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.kn-d.is-up { color: var(--ok); }
+.kn-d.is-down { color: var(--err); }
+.kn-d.is-flat { color: var(--ink); }
+.kn-upd { margin: 10px 0 0; }
+.kn-page { display: grid; gap: 18px; margin-top: 18px; }
+.kn-page > .kn-upd { margin: 0; }
+.kn-box { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r, 16px); padding: 18px 20px; box-shadow: var(--shadow-sm); min-width: 0; }
+.kn-box .chips { margin: 10px 0 4px; }
+.kn-chart { position: relative; margin-top: 8px; }
+.kn-chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+.kn-bar rect:first-child { fill: color-mix(in srgb, var(--lapis) 55%, var(--surface)); transition: fill .15s; }
+.kn-bar.is-last rect:first-child, .kn-bar.is-hot rect:first-child { fill: var(--lapis); }
+.kn-bar:focus { outline: none; }
+.kn-bar:focus-visible rect:first-child { stroke: var(--gold); stroke-width: 2; }
+.kn-hit { fill: transparent; }
+.kn-base { stroke: var(--line); stroke-width: 1; }
+.kn-ax { fill: var(--muted); font-size: 12px; }
+.kn-val { fill: var(--ink); font-size: 13px; font-weight: 700; }
+.kn-tip { position: absolute; transform: translate(-50%, calc(-100% - 10px)); background: var(--ink); color: var(--surface); padding: 5px 9px; border-radius: 8px; font-size: .8rem; font-weight: 600; white-space: nowrap; pointer-events: none; }
+.kn-table { margin-top: 8px; font-size: .85rem; }
+.kn-table summary { cursor: pointer; color: var(--muted); }
+.kn-table table, .kn-grid { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+.kn-table td, .kn-table th, .kn-grid td, .kn-grid th { padding: 7px 10px 7px 0; border-bottom: 1px solid var(--line); text-align: left; font-weight: 500; }
+.kn-grid thead th, .kn-table thead th { font-size: .78rem; color: var(--muted); font-weight: 600; }
+.kn-grid tbody th { font-weight: 600; }
+.kn-scroll { overflow-x: auto; margin-top: 8px; }
+.kn-spark { width: 120px; height: 30px; display: block; }
+.kn-spark polyline { fill: none; stroke: var(--turq); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.kn-spark circle { fill: var(--turq); stroke: var(--surface); stroke-width: 2; }
+.kn-list { margin: 12px 0 0; padding-left: 18px; display: grid; gap: 6px; font-size: .92rem; }
+.kn-calc { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: end; margin: 10px 0 4px; }
+.kn-calc label { display: grid; gap: 4px; font-size: .8rem; color: var(--muted); font-weight: 600; }
+.kn-calc input, .kn-calc select { font: inherit; font-size: 1rem; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); width: 130px; }
+.kn-calc output { font-size: 1.2rem; font-weight: 700; padding-bottom: 8px; font-variant-numeric: tabular-nums; }
+.motion .reveal-in .kn-tiles > * { animation: rise .55s cubic-bezier(.2,.7,.2,1) both; }
+.motion .reveal-in .kn-tiles > :nth-child(2) { animation-delay: .06s; }
+.motion .reveal-in .kn-tiles > :nth-child(3) { animation-delay: .12s; }
+.motion .reveal-in .kn-tiles > :nth-child(4) { animation-delay: .18s; }
+.chip[aria-pressed="true"] .muted { color: inherit; opacity: .8; }
+.kn-grid td { white-space: nowrap; }
+@media (max-width: 560px) { .kn-spark { width: 72px; } .kn-box { padding: 16px; } .kn-ax { font-size: 13px; } }

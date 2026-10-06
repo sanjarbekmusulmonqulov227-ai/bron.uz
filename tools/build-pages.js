@@ -27,7 +27,7 @@ const AMEN = { wifi: "Wi-Fi", breakfast: "Nonushta", pool: "Basseyn", spa: "Spa"
   translation: "Sinxron tarjima", screen: "LED ekran", coffee: "Kofe-breyk", stage: "Sahna", guide: "Gid", tickets: "Chiptalar kiradi", meal: "Ovqat kiradi", hotel: "Mehmonxona", train: "Poyezd chiptasi", kitchen: "Umumiy oshxona", laundry: "Kir yuvish", transport: "Transport" };
 const CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.open-meteo.com; object-src 'none'; base-uri 'self'; form-action 'self'";
 
-function page({ file, title, desc, body, ld, depth = 0, index = true, base = "" }) {
+function page({ file, title, desc, body, ld, depth = 0, index = true, base = "", scripts = [] }) {
   const up = "../".repeat(depth);
   const url = `${SITE}/${file}`;
   return `<!doctype html>
@@ -47,14 +47,14 @@ function page({ file, title, desc, body, ld, depth = 0, index = true, base = "" 
   <link rel="icon" href="${up}icons/icon.svg" type="image/svg+xml">
   <script src="${up}i18n.js"></script>
   <script src="${up}cityinfo.js" defer></script>
-  ${ld ? `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, "\\u003c")}</script>` : ""}
+  ${scripts.map((x) => `<script src="${up}${x}" defer></script>\n  `).join("")}${ld ? `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, "\\u003c")}</script>` : ""}
 </head>
 <body class="sp">
 <a class="skip" href="#main">Asosiy qismga o'tish</a>
 <header class="topbar">
   <div class="wrap topbar-in">
     <a class="logo" href="${up}./" aria-label="bron.uz"><svg class="logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 20 538 180" aria-hidden="true"><path d="M24.4 141.3V46.2H13.4V37.6H50V82.9Q53.2 76.9 58.7 74Q64.2 71.1 72.3 71.1Q88.7 71.1 98.1 81.9Q107.6 92.7 107.6 111.6Q107.6 130.4 98.1 141.3Q88.7 152.1 72.3 152.1Q64.2 152.1 58.7 149.2Q53.2 146.2 50 140.2V150H13.4V141.3ZM50 115.4Q50 128.8 53.4 134.8Q56.8 140.8 64.5 140.8Q72.4 140.8 75.6 134.5Q78.8 128.1 78.8 111.6Q78.8 95 75.6 88.7Q72.4 82.4 64.5 82.4Q56.8 82.4 53.4 88.4Q50 94.4 50 107.8ZM189 72.3V95.2H180.8Q180.4 89.1 177.5 86.1Q174.6 83.1 169.1 83.1Q160.7 83.1 155.9 90.5Q151 97.8 151 110.9V141.3H165V150H114.5V141.3H125.5V81.9H113.7V73.2H151V86.8Q154.8 78.8 161 75Q167.2 71.1 176.1 71.1Q178.4 71.1 181.6 71.4Q184.8 71.7 189 72.3ZM232.9 143.9Q241 143.9 244.3 137Q247.6 130.1 247.6 111.6Q247.6 93.1 244.3 86.2Q241.1 79.3 232.9 79.3Q224.7 79.3 221.4 86.2Q218.1 93.2 218.1 111.6Q218.1 129.9 221.4 136.9Q224.7 143.9 232.9 143.9ZM232.9 152.1Q212.6 152.1 201.1 141.3Q189.5 130.5 189.5 111.6Q189.5 92.5 201.1 81.8Q212.6 71.1 232.9 71.1Q253.3 71.1 264.8 81.8Q276.2 92.5 276.2 111.6Q276.2 130.5 264.7 141.3Q253.2 152.1 232.9 152.1ZM283.2 150V141.3H294.1V81.9H283.2V73.2H319.7V84Q324.4 77.2 330.3 74.1Q336.2 71.1 345.2 71.1Q358.2 71.1 364.8 78.7Q371.4 86.3 371.4 101.1V141.3H382.4V150H336.5V141.3H345.8V100.4Q345.8 90.7 343.3 86.9Q340.8 83.1 334.7 83.1Q327 83.1 323.3 88.8Q319.7 94.4 319.7 106.8V141.3H329.1V150Z" fill="currentColor"/><path d="M18 178q180 30 360 0" fill="none" stroke="#e0a21c" stroke-width="12" stroke-linecap="round"/><path d="M401.7 135.3H415.4V150H401.7ZM431.5 133.4V107.3H445.2V111.6Q445.2 115.1 445.2 120.3Q445.1 125.5 445.1 127.3Q445.1 132.4 445.4 134.7Q445.7 137 446.3 138Q447.2 139.3 448.5 140.1Q449.9 140.8 451.6 140.8Q455.9 140.8 458.3 137.5Q460.8 134.2 460.8 128.4V107.3H474.4V150H460.8V143.8Q457.7 147.6 454.2 149.3Q450.8 151.1 446.6 151.1Q439.2 151.1 435.4 146.6Q431.5 142 431.5 133.4ZM487.4 107.3H524.6V116.9L502.1 140.2H524.6V150H486.4V140.5L508.9 117.1H487.4Z" fill="#e0a21c"/></svg></a>
-    <nav class="sp-nav"><a href="${up}turistlar.html">Turistlarga</a><a href="${up}shaharlar.html">Shaharlar</a><a href="${up}./#natijalar">Bron qilish</a></nav>
+    <nav class="sp-nav"><a href="${up}kunlik.html">Turizm bugun</a><a href="${up}turistlar.html">Turistlarga</a><a href="${up}shaharlar.html">Shaharlar</a><a href="${up}./#natijalar">Bron qilish</a></nav>
     <div class="top-actions"><div class="lang-sw" role="group" aria-label="Til"><button type="button" data-lang="uz" lang="uz">UZ</button><button type="button" data-lang="ru" lang="ru">RU</button><button type="button" data-lang="en" lang="en">EN</button></div></div>
   </div>
 </header>
@@ -162,6 +162,14 @@ write("turistlar.html", page({ file: "turistlar.html", title: "O'zbekistonga say
 <p class="muted small">Viza va kirish qoidalari o'zgarib turadi: aniq ma'lumotni O'zbekiston Tashqi ishlar vazirligi va e-visa.gov.uz saytidan tekshiring.</p>`,
   ld: { "@context": "https://schema.org", "@type": "TravelAction", name: "O'zbekistonga sayohat", toLocation: { "@type": "Country", name: "Uzbekistan" } } }));
 
+// ---- daily tourism news and statistics (filled by kunlik.js from data/daily.json) ----
+write("kunlik.html", page({ file: "kunlik.html", scripts: ["kunlik.js"], title: "O'zbekiston turizmi bugun: kunlik yangiliklar va statistika | bron.uz",
+  desc: "O'zbekiston turizmi bo'yicha har kuni yangilanadigan yangiliklar, valyuta kurslari, sayyohlar qiziqishi va rasmiy turistlar statistikasi.",
+  body: `<section class="sp-card"><p class="eyebrow">Turizm bugun</p><h1>O'zbekiston turizmi: kunlik yangiliklar va statistika</h1><p>Har kuni ertalab va kechqurun yangilanadi. Faqat ochiq va rasmiy manbalardan olingan ma'lumot.</p><a class="btn btn-gold" href="./#natijalar">Mehmonxona qidirish</a></section>
+<div class="kn-page" id="kunlikPage" data-no-i18n></div>
+<noscript><p class="sp-note">Bu sahifa JavaScript bilan ishlaydi.</p></noscript>`,
+  ld: { "@context": "https://schema.org", "@type": "WebPage", name: "O'zbekiston turizmi bugun", about: { "@type": "Country", name: "Uzbekistan" } } }));
+
 // ---- legal pages ----
 const co = (k, fallback) => esc(CO[k] || fallback);
 const reqs = filled ? `<ul class="sp-list"><li>${co("name")}</li><li>STIR (INN): ${co("inn")}</li>${CO.address ? `<li>Manzil: ${co("address")}</li>` : ""}${CO.phone ? `<li>Telefon: ${co("phone")}</li>` : ""}${CO.email ? `<li>E-pochta: ${co("email")}</li>` : ""}</ul>`
@@ -215,11 +223,12 @@ ${reqs}`]
 };
 // Not-found page: GitHub Pages serves it for any missing path, so links resolve from the site root via <base>.
 write("404.html", page({ file: "404.html", index: false, base: new URL(SITE + "/").pathname, title: "Sahifa topilmadi | bron.uz", desc: "Bu sahifa topilmadi.",
-  body: `<article class="sp-card sp-404"><h1>Sahifa topilmadi</h1><p>Havola eskirgan yoki manzilda xato bor. Quyidagilardan birini tanlang:</p><p class="sp-links"><a class="btn btn-gold" href="./">Bosh sahifa</a> <a class="btn btn-line" href="./#natijalar">Mehmonxonalar</a> <a class="btn btn-line" href="shaharlar.html">Shaharlar</a> <a class="btn btn-line" href="turistlar.html">Turistlarga</a></p></article>` }), false);
+  body: `<article class="sp-card sp-404"><h1>Sahifa topilmadi</h1><p>Havola eskirgan yoki manzilda xato bor. Quyidagilardan birini tanlang:</p><p class="sp-links"><a class="btn btn-gold" href="./">Bosh sahifa</a> <a class="btn btn-line" href="./#natijalar">Mehmonxonalar</a> <a class="btn btn-line" href="shaharlar.html">Shaharlar</a> <a class="btn btn-line" href="turistlar.html">Turistlarga</a> <a class="btn btn-line" href="kunlik.html">Turizm bugun</a></p></article>` }), false);
 for (const [file, [title, desc, html]] of Object.entries(legal)) write(file, page({ file, title: `${title} | bron.uz`, desc, body: `<article class="sp-card sp-legal"><h1>${esc(title)}</h1>${legalNote}${html}</article>` }));
 
 // ---- sitemap & robots ----
-const urls = ["", "turistlar.html", "shaharlar.html", ...out.filter((f) => f !== "shaharlar.html" && f !== "turistlar.html" && !noindex.has(f))];
+const first = ["kunlik.html", "turistlar.html", "shaharlar.html"];
+const urls = ["", ...first, ...out.filter((f) => !first.includes(f) && !noindex.has(f))];
 fs.writeFileSync(path.join(PUB, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${esc(`${SITE}/${u}`)}</loc></url>`).join("\n")}\n</urlset>\n`);
 fs.writeFileSync(path.join(PUB, "robots.txt"), `User-agent: *\nDisallow: /api/\nDisallow: /admin\nDisallow: /partner.html\nSitemap: ${SITE}/sitemap.xml\n`);
 console.log(`${out.length} ta sahifa, sitemap.xml va robots.txt yozildi (${SITE}).${filled ? "" : " Rekvizitlar yo'q: tools/company.json ni to'ldiring."}`);

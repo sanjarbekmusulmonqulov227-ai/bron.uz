@@ -1465,6 +1465,8 @@
     let d = null;
     try { if (API) { const r = await fetch("/api/rates"); if (r.ok) d = await r.json(); } } catch (e) { /* no server */ }
     if (!d || !d.rates) try { const r = await fetch("https://cbu.uz/uz/arkhiv-kursov-valyut/json/"); if (r.ok) d = pick(await r.json()); } catch (e) { /* blocked: so'm only */ }
+    // The daily data file (tools/fetch-daily.js) carries the same Central Bank rates when cbu.uz is out of reach.
+    if (!d || !d.rates) try { const r = await fetch("data/daily.json", { cache: "no-cache" }); if (r.ok) { const j = await r.json(); if (j.rates) d = pick(j.rates.list.map((x) => ({ Ccy: x.c, Rate: x.r, Nominal: x.n, Date: j.rates.date }))); } } catch (e) { /* not deployed yet */ }
     if (d && applyRates(d)) { keep("bron.rates", { ...d, at: Date.now() }); rerenderPrices(); }
   }
   function rerenderPrices() { render(); renderVenues(); renderPackages(); if (state.current && $("#detailDlg").open) updateDetailPrice(); if ($("#bookDlg").open) updateTotal(); }
