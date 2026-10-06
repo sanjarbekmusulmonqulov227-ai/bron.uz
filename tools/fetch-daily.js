@@ -36,9 +36,9 @@ const FEEDS = {
     ["Gazeta.uz", "https://www.gazeta.uz/oz/rss/"],
     ["UzA", "https://uza.uz/uz/rss"],
     ["UzReport", "https://uzreport.news/feed/rss/uz"],
-    ["Google News", GN("turizm", "uz", "UZ", "UZ:uz"), true],
-    ["Google News", GN("sayyohlar", "uz", "UZ", "UZ:uz"), true],
-    ["Google News", GN("turistlar O'zbekiston", "uz", "UZ", "UZ:uz"), true]
+    ["Google News", GN("turizm O‘zbekiston", "uz", "UZ", "UZ:uz"), true],
+    ["Google News", GN("sayyohlar O‘zbekiston", "uz", "UZ", "UZ:uz"), true],
+    ["Google News", GN("turistlar", "uz", "UZ", "UZ:uz"), true]
   ],
   ru: [
     ["Gazeta.uz", "https://www.gazeta.uz/ru/rss/"],
@@ -58,7 +58,7 @@ const FEEDS = {
     ["Google News", GN("Uzbekistan tourism", "en-US", "US", "US:en"), true]
   ]
 };
-// Headline words that mark a tourism story (general feeds are filtered by these; Google News searches are already on topic).
+// Headline words that mark a tourism story.
 const TOPIC = {
   uz: /turizm|turist|sayyoh|sayoh|mehmonxona|aviareys|aviakompaniya|airways|aeroport|vizasiz|viza|ziyorat|muzey|festival|afrosiyob|tezyurar|ekotur|dam olish|kurort|sanator|туризм|турист|сайёҳ|меҳмонхона|авиарейс|аэропорт|визасиз|зиёрат/i,
   ru: /туризм|турист|туров|гостиниц|отел[ьяеи]|авиарейс|авиакомпан|аэропорт|безвиз|виз[аыу]|паломни|путешеств|фестивал|музе[йя]|санатор|курорт|афросиёб|скоростн|airways/i,
@@ -66,6 +66,20 @@ const TOPIC = {
 };
 // Headlines that match a topic word but are about something else.
 const NOT = /futbol|футбол|football|boks|бокс|chempionat|чемпионат|championship/i;
+// Google News also finds stories about other countries; those must name Uzbekistan or one of its places.
+const PLACE = /o['‘ʻ’`]?zbek|uzbek|узбек|ўзбек|toshkent|tashkent|ташкент|тошкент|samarq|samarkand|самарканд|самарқанд|buxoro|bukhara|бухар|xiva|khiva|хив|farg['‘ʻ’`]?ona|fergana|ферган|nukus|нукус|termiz|termez|термез|qo['‘ʻ’`]?qon|kokand|коканд|andijon|andijan|андижан|namangan|наманган|shahrisabz|шахрисабз|chimyon|chimgan|чимган|charvak|chorvoq|чарвак|qoraqalpog|karakalpak|каракалпак|navoiy|navoi|навои|jizzax|jizzakh|джизак|qarshi|karshi|карши|guliston|surxondaryo|surkhandarya|сурхандарь|aral|orol|арал/i;
+// The list for each language keeps only headlines written in it (Uzbek Cyrillic counts as Uzbek).
+const SCRIPT = {
+  uz: (t) => /[ўқғҳЎҚҒҲ]/.test(t) || !/[а-яё]/i.test(t),
+  ru: (t) => /[а-яё]/i.test(t) && !/[ўқғҳЎҚҒҲ]/.test(t),
+  en: (t) => !/[а-яё]/i.test(t) && !/[‘ʻ]|o['’`]z|g['’`]/i.test(t)
+};
+const DIRECT = new Set(Object.values(FEEDS).flat().filter((f) => !f[2]).map((f) => f[0]));
+function accept(lang, title, cats, direct) {
+  if (!SCRIPT[lang](title) || NOT.test(title)) return false;
+  if (!TOPIC[lang].test(`${title} ${cats || ""}`)) return false;
+  return direct || PLACE.test(title);
+}
 
 const ENT = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", laquo: "«", raquo: "»", mdash: "—", ndash: "–", hellip: "…", rsquo: "’", lsquo: "‘", ldquo: "“", rdquo: "”" };
 const decode = (s) => String(s || "").replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
@@ -98,7 +112,7 @@ async function news(prev) {
   const cutoff = Date.now() - NEWS_DAYS * DAY;
   for (const [lang, feeds] of Object.entries(FEEDS)) {
     const list = [];
-    for (const [name, url, onTopic] of feeds) {
+    for (const [i, [name, url, onTopic]] of feeds.entries()) {
       try {
         const items = parseFeed(await get(url));
         let n = 0;
@@ -110,18 +124,19 @@ async function news(prev) {
             // Google News titles end with " - Publisher"; keep the publisher as the source.
             source = it.source || (/ - ([^-]+)$/.exec(title) || [])[1] || name;
             title = title.replace(/ - [^-]+$/, "").trim();
-          } else if (!TOPIC[lang].test(`${title} ${it.cats}`)) continue;
-          if (NOT.test(title)) continue;
+          }
+          if (!accept(lang, title, it.cats, !onTopic)) continue;
           list.push({ t: title.slice(0, 220), u: it.link, s: source.slice(0, 40), d: new Date(when).toISOString() });
           n++;
         }
-        report[`${lang} ${name}`] = `${items.length} ta, mavzuga oid ${n}`;
+        report[`${lang} ${i + 1}. ${name}`] = `${items.length} ta, mavzuga oid ${n}`;
       } catch (e) {
-        report[`${lang} ${name}`] = "xato: " + e.message;
+        report[`${lang} ${i + 1}. ${name}`] = "xato: " + e.message;
       }
     }
     // Keep earlier headlines too, so a feed that is down today does not empty the list.
-    for (const old of (prev && prev[lang]) || []) if (Date.parse(old.d) > cutoff) list.push(old);
+    // Older ones pass the same checks again, so a rule tightened later also cleans the saved list.
+    for (const old of (prev && prev[lang]) || []) if (Date.parse(old.d) > cutoff && accept(lang, old.t, "", DIRECT.has(old.s))) list.push(old);
     const seen = new Set();
     out[lang] = list.sort((a, b) => b.d.localeCompare(a.d)).filter((x) => {
       const k = norm(x.t).slice(0, 80);
