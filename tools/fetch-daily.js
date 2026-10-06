@@ -27,27 +27,35 @@ async function get(url, type = "text") {
 }
 
 // ---------- news ----------
+const GN = (q, hl, gl, ceid) => `https://news.google.com/rss/search?q=${encodeURIComponent(q + " when:7d")}&hl=${hl}&gl=${gl}&ceid=${ceid}`;
+// Feeds that answer 404 or time out are reported in the log and skipped.
 const FEEDS = {
   uz: [
     ["Kun.uz", "https://kun.uz/news/rss"],
     ["Daryo", "https://daryo.uz/feed"],
     ["Gazeta.uz", "https://www.gazeta.uz/oz/rss/"],
     ["UzA", "https://uza.uz/uz/rss"],
-    ["Google News", "https://news.google.com/rss/search?q=" + encodeURIComponent("turizm OR sayyoh OR turist O'zbekiston when:7d") + "&hl=uz&gl=UZ&ceid=UZ:uz", true]
+    ["UzReport", "https://uzreport.news/feed/rss/uz"],
+    ["Google News", GN("turizm", "uz", "UZ", "UZ:uz"), true],
+    ["Google News", GN("sayyohlar", "uz", "UZ", "UZ:uz"), true],
+    ["Google News", GN("turistlar O'zbekiston", "uz", "UZ", "UZ:uz"), true]
   ],
   ru: [
-    ["Kun.uz", "https://kun.uz/ru/news/rss"],
     ["Gazeta.uz", "https://www.gazeta.uz/ru/rss/"],
-    ["Daryo", "https://daryo.uz/ru/feed"],
     ["Podrobno.uz", "https://podrobno.uz/rss/"],
-    ["Google News", "https://news.google.com/rss/search?q=" + encodeURIComponent("туризм Узбекистан when:7d") + "&hl=ru&gl=UZ&ceid=UZ:ru", true]
+    ["Kun.uz", "https://kun.uz/ru/rss"],
+    ["Daryo", "https://daryo.uz/ru/rss"],
+    ["UzReport", "https://uzreport.news/feed/rss/ru"],
+    ["Nuz.uz", "https://nuz.uz/feed/"],
+    ["Google News", GN("туризм Узбекистан", "ru", "UZ", "UZ:ru"), true]
   ],
   en: [
-    ["Kun.uz", "https://kun.uz/en/news/rss"],
-    ["Daryo", "https://daryo.uz/en/feed"],
-    ["Gazeta.uz", "https://www.gazeta.uz/en/rss/"],
     ["UzDaily", "https://uzdaily.uz/en/rss"],
-    ["Google News", "https://news.google.com/rss/search?q=" + encodeURIComponent("Uzbekistan tourism when:7d") + "&hl=en-US&gl=US&ceid=US:en", true]
+    ["Gazeta.uz", "https://www.gazeta.uz/en/rss/"],
+    ["Kun.uz", "https://kun.uz/en/rss"],
+    ["Daryo", "https://daryo.uz/en/rss"],
+    ["Tashkent Times", "https://tashkenttimes.uz/?format=feed&type=atom"],
+    ["Google News", GN("Uzbekistan tourism", "en-US", "US", "US:en"), true]
   ]
 };
 // Headline words that mark a tourism story (general feeds are filtered by these; Google News searches are already on topic).
@@ -187,14 +195,15 @@ async function official() {
     let j = null;
     try { j = await get(`https://api.siat.stat.uz/media/uploads/sdmx/sdmx_data_${id}.json`, "json"); }
     catch (e) { log(`  stat.uz ${id}: ${e.message}`); continue; }
+    if (Array.isArray(j)) j = j[0] || {}; // the file is a one-element array
     const rows = Array.isArray(j.data) ? j.data : [];
-    const row = rows.find((r) => r.Code === "1700") || rows[0];
-    if (!row) continue;
+    const row = rows.find((r) => String(r.Code) === "1700") || rows[0];
+    if (!row) { log(`  stat.uz ${id}: qator yo'q (${Object.keys(j).join(", ")})`); continue; }
     const series = Object.keys(row).filter((k) => /^\d{4}$/.test(k) && row[k] != null && row[k] !== "").map((k) => [Number(k), Number(row[k])]).filter((x) => Number.isFinite(x[1])).sort((a, b) => a[0] - b[0]);
     const title = metaValue(j.metadata, /^(name of (the )?(indicator|dataset)|indicator name|dataset name|name)$/i) || metaValue(j.metadata, /name/i);
     const unit = metaValue(j.metadata, /unit/i);
     const modified = metaValue(j.metadata, /last modified/i);
-    if (!series.length) continue;
+    if (!series.length) { log(`  stat.uz ${id}: yillar yo'q (${Object.keys(row).join(", ")})`); continue; }
     out.push({ id, title, unit, modified: modified && modified.en, series, url: `https://siat.stat.uz/data/${id}/` });
     log(`  stat.uz ${id}: ${series.length} yil, oxirgi ${series[series.length - 1].join(" = ")}; nomi: ${title && title.en}; birlik: ${unit && unit.en}`);
   }

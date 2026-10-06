@@ -98,7 +98,7 @@
   const newsOf = (d, lang) => ((d.news && d.news[lang]) || []);
   function newsList(items, n) {
     if (!items.length) return `<p class="muted">${t("noNews")}</p>`;
-    return `<ol class="kn-news">${items.slice(0, n).map((x) => `<li><a href="${esc(x.u)}" target="_blank" rel="noopener nofollow">${esc(x.t)}</a><span class="kn-meta">${esc(x.s)} · <time datetime="${esc(x.d)}">${esc(ago(x.d))}</time></span></li>`).join("")}</ol>`;
+    return `<ol class="kn-news">${items.slice(0, n).map((x) => `<li${x.l ? ` lang="${x.l}"` : ""}><a href="${esc(x.u)}" target="_blank" rel="noopener nofollow">${esc(x.t)}</a><span class="kn-meta">${esc(x.s)} · <time datetime="${esc(x.d)}">${esc(ago(x.d))}</time></span></li>`).join("")}</ol>`;
   }
   function tiles(d) {
     const out = [];
@@ -191,7 +191,10 @@
 
   // ---------- render ----------
   function renderHome(d) {
-    home.innerHTML = `<div class="kn-home-grid"><div class="now-card"><p class="now-lbl">${t("news")}</p>${newsList(newsOf(d, LANG), 5)}</div><div>${tiles(d)}<p class="muted small kn-upd">${t("updated", esc(stamp(d.updated)))}</p></div></div>`;
+    // Few stories in the visitor's language: fill up with the newest ones in the other languages.
+    let items = newsOf(d, LANG).slice(0, 5);
+    if (items.length < 5) items = items.concat(["uz", "en", "ru"].filter((l) => l !== LANG).flatMap((l) => newsOf(d, l).map((x) => ({ ...x, l }))).sort((a, b) => b.d.localeCompare(a.d)).slice(0, 5 - items.length));
+    home.innerHTML = `<div class="kn-home-grid"><div class="now-card"><p class="now-lbl">${t("news")}</p>${newsList(items, 5)}</div><div>${tiles(d)}<p class="muted small kn-upd">${t("updated", esc(stamp(d.updated)))}</p></div></div>`;
   }
   function renderFull(d) {
     let nl = LANG;
