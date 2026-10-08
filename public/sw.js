@@ -1,5 +1,5 @@
 // bron.uz service worker: the app shell works offline; photos are cached as they are viewed.
-const VERSION = "bron-v18";
+const VERSION = "bron-v19";
 const SHELL = ["./", "index.html", "styles.css", "i18n.js", "picker.js", "app.js", "kunlik.js", "kunlik.html", "data.js", "sights.js", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png"];
 
 self.addEventListener("install", (e) => {

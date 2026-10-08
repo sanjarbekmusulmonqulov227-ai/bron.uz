@@ -1150,3 +1150,26 @@ body { background: var(--bg); }
 .chip[aria-pressed="true"] .muted { color: inherit; opacity: .8; }
 .kn-grid td { white-space: nowrap; }
 @media (max-width: 560px) { .kn-spark { width: 72px; } .kn-box { padding: 16px; } .kn-ax { font-size: 13px; } }
+
+/* v19: entrance, progress, shine */
+.scroll-prog { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 60; transform-origin: 0 50%; transform: scaleX(0); background: linear-gradient(90deg, var(--gold), #0e8a85, var(--gold)); pointer-events: none; }
+.to-top { position: fixed; right: 16px; bottom: 24px; z-index: 44; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--ink); box-shadow: var(--shadow); cursor: pointer; display: grid; place-items: center; }
+.to-top svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.to-top[hidden] { display: none; }
+@media (max-width: 760px) { .to-top { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); right: 12px; } }
+.cmp-on .to-top { display: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .hero-copy > * { animation: rise .8s cubic-bezier(.2,.7,.2,1) both; }
+  .hero-copy > :nth-child(2) { animation-delay: .08s; } .hero-copy > :nth-child(3) { animation-delay: .16s; } .hero-copy > :nth-child(4) { animation-delay: .26s; }
+  .hero-visual .h-arch { animation: arch-in 1s cubic-bezier(.2,.7,.2,1) .15s both; }
+  .h-float { animation: float-y 5s ease-in-out infinite alternate; }
+  .h-f2 { animation-delay: -2.5s; }
+  @keyframes arch-in { from { opacity: 0; transform: translateY(30px) scale(.94); } }
+  @keyframes float-y { from { translate: 0 -6px; } to { translate: 0 6px; } }
+  .hero h1 em { background: linear-gradient(90deg, #f2b636, #ffe7a3 40%, #45c7bf 60%, #f2b636); background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 7s linear infinite; }
+  @keyframes shimmer { to { background-position: -220% 0; } }
+  .btn-gold { position: relative; overflow: hidden; isolation: isolate; }
+  .btn-gold::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.45) 50%, transparent 70%); transform: translateX(-120%); transition: transform .6s ease; }
+  .btn-gold:hover::after { transform: translateX(120%); }
+  .to-top:not([hidden]) { animation: bar-in .3s ease; }
+}

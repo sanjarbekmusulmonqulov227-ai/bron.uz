@@ -1215,6 +1215,7 @@
   }
   function renderCmpBar() {
     $("#cmpBar").hidden = !cmp.size;
+    document.body.classList.toggle("cmp-on", cmp.size > 0);
     $("#cmpCount").textContent = `Solishtirish (${cmp.size})`;
     $("#cmpGo").disabled = cmp.size < 2;
   }
@@ -1417,6 +1418,20 @@
     const secs = $$("main > section:not(.hero)");
     const io = new IntersectionObserver((es) => es.forEach((x) => { if (x.isIntersecting) { x.target.classList.add("reveal-in"); io.unobserve(x.target); } }), { rootMargin: "0px 0px -8% 0px" });
     secs.forEach((x) => { const r = x.getBoundingClientRect(); if (r.top < innerHeight) x.classList.add("reveal-in"); else { x.classList.add("reveal-wait"); io.observe(x); } });
+    // Reading progress bar and a back-to-top button.
+    const prog = $("#scrollProg"), top = $("#toTop");
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return; ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        const max = document.documentElement.scrollHeight - innerHeight;
+        prog.style.transform = `scaleX(${max > 0 ? Math.min(1, scrollY / max) : 0})`;
+        top.hidden = scrollY < 1400;
+      });
+    };
+    addEventListener("scroll", onScroll, { passive: true }); onScroll();
+    top.addEventListener("click", () => { scrollTo({ top: 0, behavior: "smooth" }); $(".logo").focus({ preventScroll: true }); });
     if (matchMedia("(hover: hover) and (pointer: fine)").matches) {
       document.addEventListener("pointermove", (e) => {
         const c = e.target.closest && e.target.closest(".city, .sight, .pcard");
@@ -1497,9 +1512,16 @@
     }).catch(() => {});
   }
 
+  let heroCounted = false;
   function heroCount() {
-    const cities = new Set(LISTINGS.map((x) => x.city)).size;
-    $(".hero .eyebrow").textContent = `${cities} shahar · ${LISTINGS.length} joy · narxlar so'mda`;
+    const cities = new Set(LISTINGS.map((x) => x.city)).size, n = LISTINGS.length, el = $(".hero .eyebrow");
+    const put = (c, k) => { el.textContent = `${c} shahar · ${k} joy · narxlar so'mda`; };
+    // The first time, the numbers count up (skipped when the visitor prefers less motion).
+    if (heroCounted || !document.documentElement.classList.contains("motion")) return put(cities, n);
+    heroCounted = true;
+    const t0 = performance.now(), dur = 900;
+    const step = (t) => { const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3); put(Math.round(cities * e), Math.round(n * e)); if (k < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
   }
 
   // ---------- guests & rooms picker (hotels) ----------
