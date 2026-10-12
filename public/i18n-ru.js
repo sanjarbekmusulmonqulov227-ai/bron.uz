@@ -1851,3 +1851,12 @@ Object.assign(window.BRON_I18N_DICT.ru, {"Turizm bugun": "Туризм сего�
 
 // v19 motion
 Object.assign(window.BRON_I18N_DICT.ru, {"Yuqoriga": "Наверх"});
+// v20 trip planner
+Object.assign(window.BRON_I18N_DICT.ru, {
+  "Sayohat rejasi": "План поездки",
+  "Kunma-kun sayohat rejasini tuzish": "Составить план поездки по дням",
+  "Sayohat rejasi: O'zbekiston bo'ylab kunma-kun marshrut | bron.uz": "План поездки: маршрут по Узбекистану по дням | bron.uz",
+  "Shaharlar, kunlar va byudjetni tanlang: kunma-kun marshrut, ko'riladigan joylar, poyezd yoki reys, turar joy va taxminiy narx bir sahifada.": "Выберите города, дни и бюджет: маршрут по дням, достопримечательности, поезд или рейс, жильё и примерная стоимость на одной странице.",
+  "O'zbekiston bo'ylab kunma-kun reja": "План поездки по Узбекистану по дням",
+  "Shaharlarni va kunlar sonini tanlang: marshrut, har kunning joylari, yo'l va turar joy taxminiy narxi bilan tayyor bo'ladi. Rejani havola orqali ulashing yoki kalendarga qo'shing.": "Выберите города и количество дней: маршрут, места на каждый день, дорога и жильё с примерной ценой будут готовы сразу. Поделитесь планом по ссылке или добавьте его в календарь."
+});

@@ -1814,3 +1814,12 @@ Object.assign(window.BRON_I18N_DICT.en, {"Turizm bugun": "Tourism today", "Kunli
 
 // v19 motion
 Object.assign(window.BRON_I18N_DICT.en, {"Yuqoriga": "Back to top"});
+// v20 trip planner
+Object.assign(window.BRON_I18N_DICT.en, {
+  "Sayohat rejasi": "Trip planner",
+  "Kunma-kun sayohat rejasini tuzish": "Plan your trip day by day",
+  "Sayohat rejasi: O'zbekiston bo'ylab kunma-kun marshrut | bron.uz": "Trip planner: a day-by-day route around Uzbekistan | bron.uz",
+  "Shaharlar, kunlar va byudjetni tanlang: kunma-kun marshrut, ko'riladigan joylar, poyezd yoki reys, turar joy va taxminiy narx bir sahifada.": "Pick cities, days and budget: a day-by-day route, places to see, trains or flights, a place to stay and an approximate price on one page.",
+  "O'zbekiston bo'ylab kunma-kun reja": "A day-by-day plan for Uzbekistan",
+  "Shaharlarni va kunlar sonini tanlang: marshrut, har kunning joylari, yo'l va turar joy taxminiy narxi bilan tayyor bo'ladi. Rejani havola orqali ulashing yoki kalendarga qo'shing.": "Choose the cities and the number of days: you get the route, places for each day, travel and a place to stay with approximate prices. Share the plan by link or add it to your calendar."
+});
