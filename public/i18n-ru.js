@@ -2015,3 +2015,6 @@ Object.assign(window.BRON_I18N_DICT.ru, {
 "Dekabr: Sovuq": "Декабрь: Холодно",
 "Dekabr: Chang'i mavsumi": "Декабрь: Лыжный сезон"
 });
+
+// Fallbacks for screen-reader labels of generated listings ("<name>: batafsil").
+Object.assign(window.BRON_I18N_DICT.ru, { "batafsil": "подробнее", "dastur": "программа" });

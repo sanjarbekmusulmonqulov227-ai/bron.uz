@@ -71,6 +71,8 @@
     if (LANG !== "uz") return d.toLocaleDateString(LOC, o);
     return (o.weekday ? UZ_WD[d.getDay()] + ", " : "") + d.getDate() + "-" + (o.month === "short" ? UZ_MON[d.getMonth()].slice(0, 3) : UZ_MON[d.getMonth()]) + (o.year ? ", " + d.getFullYear() : "");
   };
+  // Today in the visitor's own calendar (toISOString is UTC: before 05:00 in Tashkent it gave yesterday).
+  const localToday = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
   const addDays = (s, n) => { const d = new Date(s + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return iso(d); };
 
   const SIGHTS = window.BRON_SIGHTS || [];
@@ -88,7 +90,7 @@
   // Read the plan from the address bar, with defaults.
   function readQuery() {
     const q = new URLSearchParams(location.search);
-    const today = iso(new Date());
+    const today = localToday();
     const c = (q.get("c") || "Samarqand~Buxoro~Xiva").split("~").filter((x) => CITIES.includes(x));
     const s = STARTS.includes(q.get("s")) ? q.get("s") : "Toshkent";
     const d = q.get("t") && /^\d{4}-\d\d-\d\d$/.test(q.get("t")) && q.get("t") >= today ? q.get("t") : addDays(today, 14);
@@ -221,7 +223,7 @@
 
   // Daily forecast for each day of the trip, when it falls within the next 16 days (Open-Meteo, no key).
   function weather(o, res) {
-    const end = addDays(o.t, o.d - 1), lim = addDays(iso(new Date()), 15);
+    const end = addDays(o.t, o.d - 1), lim = addDays(localToday(), 15);
     if (o.t > lim) return;
     const unit = (() => { try { return localStorage.getItem("bron.unit") === "f" ? "fahrenheit" : "celsius"; } catch (e) { return "celsius"; } })();
     [...new Set(res.days.map((d) => d.city))].forEach((c) => {
@@ -245,7 +247,7 @@
     page.innerHTML = `<form class="sp-card rj-form" id="rjForm">
       <div class="rj-grid">
         <label>${S.start}<select name="s">${STARTS.map((c) => `<option value="${esc(c)}"${c === o.s ? " selected" : ""}>${esc(T(c))}</option>`).join("")}</select></label>
-        <label>${S.date}<input type="date" name="t" value="${o.t}" min="${iso(new Date())}"></label>
+        <label>${S.date}<input type="date" name="t" value="${o.t}" min="${localToday()}"></label>
         <label>${S.days}<input type="number" name="d" min="1" max="14" value="${o.d}" inputmode="numeric"></label>
         <label>${S.people}<input type="number" name="u" min="1" max="16" value="${o.u}" inputmode="numeric"></label>
         <label>${S.pace}<select name="p">${opt(S.paceOpts, o.p - 2)}</select></label>
