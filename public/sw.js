@@ -1,6 +1,6 @@
 // bron.uz service worker: the app shell works offline; photos are cached as they are viewed.
-const VERSION = "bron-v21";
-const SHELL = ["./", "index.html", "styles.css", "i18n.js", "picker.js", "app.js", "kunlik.js", "kunlik.html", "foydali.js", "reja.js", "reja.html", "data.js", "sights.js", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png"];
+const VERSION = "bron-v22";
+const SHELL = ["./", "index.html", "styles.css", "i18n.js", "picker.js", "app.js", "kunlik.js", "kunlik.html", "foydali.js", "reja.js", "reja.html", "data.js", "sights.js", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "fonts/golos-text-latin.woff2", "fonts/yeseva-one-latin.woff2"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));

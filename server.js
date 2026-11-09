@@ -228,9 +228,9 @@ async function notify(text) {
 // ---------- http helpers ----------
 // Browser-side protections sent with every response.
 const CSP = [
-  "default-src 'self'", "script-src 'self'", "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "font-src https://fonts.gstatic.com", "img-src 'self' data: https:",
-  "connect-src 'self' https://cbu.uz https://api.open-meteo.com https://archive-api.open-meteo.com https://overpass-api.de https://en.wikipedia.org https://commons.wikimedia.org https://upload.wikimedia.org https://fonts.googleapis.com https://fonts.gstatic.com",
+  "default-src 'self'", "script-src 'self'", "style-src 'self' 'unsafe-inline'",
+  "font-src 'self'", "img-src 'self' data: https:",
+  "connect-src 'self' https://cbu.uz https://api.open-meteo.com https://archive-api.open-meteo.com https://overpass-api.de https://en.wikipedia.org https://commons.wikimedia.org https://upload.wikimedia.org",
   "manifest-src 'self'", "worker-src 'self'", "frame-ancestors 'none'", "base-uri 'self'", "form-action 'self'", "object-src 'none'"
 ].join("; ");
 const SECURITY_HEADERS = {
@@ -356,7 +356,7 @@ function isAdmin(req) {
 }
 const askAuth = (res) => send(res, 401, "Kirish uchun login va parol kerak.", { "www-authenticate": 'Basic realm="bron.uz admin", charset="UTF-8"' });
 
-const MIME = { ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".ico": "image/x-icon", ".webp": "image/webp", ".webmanifest": "application/manifest+json", ".xml": "application/xml; charset=utf-8", ".txt": "text/plain; charset=utf-8" };
+const MIME = { ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".ico": "image/x-icon", ".webp": "image/webp", ".woff2": "font/woff2", ".webmanifest": "application/manifest+json", ".xml": "application/xml; charset=utf-8", ".txt": "text/plain; charset=utf-8" };
 // Static files: compressed once per file version (text types only), revalidated with an ETag.
 const packed = new Map();
 function serveFile(res, file, status = 200) {

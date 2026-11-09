@@ -25,7 +25,7 @@ const TYPE = { hotel: ["Mehmonxona", "Mehmonxonalar", "1 kecha"], hostel: ["Host
 const LD = { hotel: "Hotel", hostel: "Hostel", venue: "EventVenue", tour: "TouristTrip" };
 const AMEN = { wifi: "Wi-Fi", breakfast: "Nonushta", pool: "Basseyn", spa: "Spa", gym: "Fitnes", parking: "Avtoturargoh", restaurant: "Restoran", transfer: "Transfer", ac: "Konditsioner", family: "Oilalar uchun",
   translation: "Sinxron tarjima", screen: "LED ekran", coffee: "Kofe-breyk", stage: "Sahna", guide: "Gid", tickets: "Chiptalar kiradi", meal: "Ovqat kiradi", hotel: "Mehmonxona", train: "Poyezd chiptasi", kitchen: "Umumiy oshxona", laundry: "Kir yuvish", transport: "Transport" };
-const CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.open-meteo.com; object-src 'none'; base-uri 'self'; form-action 'self'";
+const CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https:; connect-src 'self' https://api.open-meteo.com; object-src 'none'; base-uri 'self'; form-action 'self'";
 
 function page({ file, title, desc, body, ld, depth = 0, index = true, base = "", scripts = [] }) {
   const up = "../".repeat(depth);
@@ -42,7 +42,6 @@ function page({ file, title, desc, body, ld, depth = 0, index = true, base = "",
   <meta property="og:type" content="website"><meta property="og:site_name" content="bron.uz"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${esc(url)}"><meta property="og:image" content="${SITE}/icons/icon-512.png">
   ${base ? `<base href="${base}">\n  ` : ""}<meta name="twitter:card" content="summary">
   ${index ? ["uz", "ru", "en"].map((l) => `<link rel="alternate" hreflang="${l}" href="${esc(url)}${l === "uz" ? "" : "?lang=" + l}">`).join("") + `<link rel="alternate" hreflang="x-default" href="${esc(url)}">\n  ` : ""}<meta name="theme-color" content="#15306f">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Yeseva+One&family=Golos+Text:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="${up}styles.css">
   <link rel="icon" href="${up}icons/icon.svg" type="image/svg+xml">
   <script src="${up}i18n.js"></script>

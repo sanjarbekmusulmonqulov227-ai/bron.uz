@@ -10,7 +10,7 @@
   const MONTHS = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentabr", "Oktabr", "Noyabr", "Dekabr"];
   const ST = { yangi: "st-new", tasdiqlandi: "st-ok", "bekor qilindi": "st-off", yakunlandi: "st-done" };
   let me = null;
-  let month = new Date().toISOString().slice(0, 7);
+  let month = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`; })();
 
 
   function say(t, ok) { const m = $("#pcMsg"); m.textContent = t; m.style.color = ok ? "var(--ok)" : "var(--err)"; if (ok) setTimeout(() => { if (m.textContent === t) m.textContent = ""; }, 2500); }

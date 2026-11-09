@@ -427,7 +427,7 @@
     return `
     <article class="item">
       <div style="position:relative">
-        <button class="thumb" type="button" data-open="${esc(x.id)}" aria-label="${esc(x.name)}: batafsil">${art(x.art, x.hue, x.id)}${imgTag(photosFor(x)[0], 640)}<span class="kind">${t.kind} · ${esc(x.city)}</span>${off ? `<span class="badge">−${off}%</span>` : ""}${x.sample ? `<span class="sample-tag">Namuna</span>` : ""}${photosFor(x)[0] ? `<span class="place">${esc(photosFor(x)[0].title)}</span>` : ""}</button>
+        <button class="thumb" type="button" data-open="${esc(x.id)}"><span class="sr-only">${esc(x.name)}: batafsil</span>${art(x.art, x.hue, x.id)}${imgTag(photosFor(x)[0], 640)}<span class="kind">${t.kind} · ${esc(x.city)}</span>${off ? `<span class="badge">−${off}%</span>` : ""}${x.sample ? `<span class="sample-tag">Namuna</span>` : ""}${photosFor(x)[0] ? `<span class="place">${esc(photosFor(x)[0].title)}</span>` : ""}</button>
         <button class="fav" type="button" data-fav="${esc(x.id)}" aria-pressed="${favs.has(x.id)}" aria-label="${favs.has(x.id) ? "Sevimlilardan olib tashlash" : "Sevimlilarga qo'shish"}">${heart}</button>
       </div>
       <div class="item-body">
@@ -481,7 +481,7 @@
     return `
     <article class="vcard">
       <div class="v-photo-wrap">
-        <button class="v-photo" type="button" data-open="${esc(x.id)}" aria-label="${esc(x.name)}: batafsil">${art(x.art, x.hue, "v" + x.id)}${imgTag(p, 800)}<span class="kind">${esc(x.kind || "Zal")}</span>${off ? `<span class="badge">−${off}%</span>` : ""}</button>
+        <button class="v-photo" type="button" data-open="${esc(x.id)}"><span class="sr-only">${esc(x.name)}: batafsil</span>${art(x.art, x.hue, "v" + x.id)}${imgTag(p, 800)}<span class="kind">${esc(x.kind || "Zal")}</span>${off ? `<span class="badge">−${off}%</span>` : ""}</button>
         <button class="fav" type="button" data-fav="${esc(x.id)}" aria-pressed="${favs.has(x.id)}" aria-label="${favs.has(x.id) ? "Sevimlilardan olib tashlash" : "Sevimlilarga qo'shish"}">${heart}</button>
       </div>
       <div class="v-body">
@@ -516,7 +516,7 @@
     return `
     <article class="pcard">
       <div class="v-photo-wrap">
-        <button class="p-photo" type="button" data-open="${esc(x.id)}" aria-label="${esc(x.name)}: dastur">${art(x.art, x.hue, "p" + x.id)}${imgTag(p, 700)}<span class="dur">${esc(durOf(x))}</span>${off ? `<span class="badge">−${off}%</span>` : ""}</button>
+        <button class="p-photo" type="button" data-open="${esc(x.id)}"><span class="sr-only">${esc(x.name)}: dastur</span>${art(x.art, x.hue, "p" + x.id)}${imgTag(p, 700)}<span class="dur">${esc(durOf(x))}</span>${off ? `<span class="badge">−${off}%</span>` : ""}</button>
         <button class="fav" type="button" data-fav="${esc(x.id)}" aria-pressed="${favs.has(x.id)}" aria-label="${favs.has(x.id) ? "Sevimlilardan olib tashlash" : "Sevimlilarga qo'shish"}">${heart}</button>
       </div>
       <div class="p-body">
