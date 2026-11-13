@@ -1218,7 +1218,9 @@ function rFinal(){stopTimer();S.done=true;S.finished=S.finished||Date.now();save
 /* ---------- natijani o‘qituvchiga yuborish ---------- */
 var EXEC="https://script.google.com/macros/s/AKfycbz6wKfg292iYReiI7-a4J09KtYJ51fN1--5jDn8UUh88hWS05sWtqpOpjyhLXoyJiz3HQ/exec";var GS=true;
 var syncBusy=false,syncNext=null,SV=0,NEEDV=6;
-function ping(){try{fetch(EXEC+"?action=ping&_="+Date.now(),{credentials:"omit"}).then(function(r){return r.json();}).then(function(j){SV=(j&&j.v)||1;pump();}).catch(function(){SV=-1;});}catch(e){SV=-1;}}
+function tfetch(u,o,ms){o=o||{};var c=null,t=null;try{c=new AbortController();o.signal=c.signal;t=setTimeout(function(){try{c.abort();}catch(e){}},ms||25000);}catch(e){}
+  return fetch(u,o).then(function(r){if(t)clearTimeout(t);return r.json();},function(e){if(t)clearTimeout(t);throw e;});}
+function ping(){try{tfetch(EXEC+"?action=ping&_="+Date.now(),{credentials:"omit"},15000).then(function(j){SV=(j&&j.v)||1;pump();}).catch(function(){SV=-1;pump();});}catch(e){SV=-1;}}
 ping();
 function sync(status){if(!GS||!S||!S.name)return;var t=know(),fin=status==="final";
   syncNext={v:10,key:S.key,name:S.name,group:S.group,status:status,final:fin,stage:clamp(S.i,0,FLOW.length-2)+"/"+(FLOW.length-2),score:t,grade:fin?grade(t)[0]+" · "+grade(t)[1]:"",rating:fin?eventRating().n:"",stars:starsSum(),budget:S.budget,sat:S.sat,xp:S.xp,rank:rankOf(S.xp).n,attempt:S.attempt,b:MISSIONS.map(function(m){return S.pts[m.id]==null?null:S.pts[m.id];})};pump();}
@@ -1228,8 +1230,9 @@ function pump(){if(syncBusy||!syncNext)return;
   if(SV<NEEDV){syncNext=null;syncNote("⚠️ Natijalar serveri yangilanmoqda — natijangiz hozircha o‘qituvchiga yuborilmadi");return;}
   var d=syncNext;syncNext=null;syncBusy=true;var tries=0;
   function ok(){syncBusy=false;if(d.final)syncNote("✅ Natijangiz o‘qituvchiga avtomatik yuborildi");pump();}
-  function fail(){if(++tries<5)setTimeout(send,2500*tries);else{syncBusy=false;if(d.final)syncNote("⚠️ Internet bilan muammo — sahifani yopmang, keyinroq qayta oching");pump();}}
-  function send(){try{fetch(EXEC,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(d),credentials:"omit"}).then(function(r){return r.json();}).then(function(j){j&&j.ok?ok():fail();}).catch(fail);}catch(e){fail();}}
+  function fail(){if(syncNext&&!d.final){syncBusy=false;pump();return;}
+    if(++tries<6)setTimeout(send,2500*tries);else{syncBusy=false;if(!syncNext)syncNext=d;if(d.final)syncNote("⚠️ Internet bilan muammo — sahifani yopmang, 1 daqiqadan so‘ng qayta urinamiz");setTimeout(pump,60000);}}
+  function send(){if(d.final)syncNote("⏳ Natija yuborilmoqda…");try{tfetch(EXEC,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(d),credentials:"omit"},25000).then(function(j){j&&j.ok?ok():fail();}).catch(fail);}catch(e){fail();}}
   send();}
 
 go(0);
