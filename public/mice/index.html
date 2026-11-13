@@ -429,6 +429,53 @@ select,input,textarea{font-size:16px}
   .teams{grid-template-columns:repeat(3,1fr)}.teams button{font-size:12px;padding:8px 4px}
   .numq{grid-template-columns:1fr}
 }
+
+/* ===== v8: yakka → sardorlar → jamoa ===== */
+.howplay{background:var(--bg);border-radius:14px;padding:12px 14px;margin-bottom:14px}
+.hp{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;padding:7px 0;font-size:14.5px;line-height:1.45}
+.hp+.hp{border-top:1px dashed var(--line)}
+.hn{width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px}
+.hp.tot .hn{background:var(--gold)}
+.lobby .lhead{margin-bottom:10px}
+.lbar{height:12px;background:var(--bg);border-radius:99px;overflow:hidden;margin:4px 0 10px}
+.lbar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:99px;transition:width .8s}
+.myplace{background:var(--gold-soft);color:#6b4e17;border-radius:12px;padding:10px 14px;font-size:15px}
+.cand{margin:6px 0 10px;padding-left:22px}.cand li{padding:2px 0;font-weight:600}
+.turnbox{background:var(--navy);color:#fff;border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:15px}
+.turnbox.my{background:linear-gradient(135deg,#c08f3e,#e2b867);color:#2b1d05;animation:pulseb 1.2s infinite}
+@keyframes pulseb{50%{box-shadow:0 0 0 6px rgba(226,184,103,.35)}}
+.turnbox .tl{margin-left:auto;font-weight:800;font-variant-numeric:tabular-nums}
+.picked{background:var(--teal-soft,#dcf1ec);color:#0d5348;border-radius:12px;padding:10px 14px;margin-top:10px;font-size:15px}
+.dpool{display:flex;flex-wrap:wrap;gap:6px}
+.pp{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:7px 13px;font-size:14px;font-weight:600}
+button.pp{cursor:pointer;border-color:var(--gold)}button.pp.sel{background:var(--navy);border-color:var(--navy);color:#fff}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.tcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:14px}
+.tcard.mine{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold) inset}
+.tcard.turn{background:var(--gold-soft)}
+.tcard .th{display:flex;align-items:center;gap:6px;margin-bottom:4px}.tcard .te{font-size:20px}.tcard .tn{margin-left:auto;font-size:12px;color:var(--muted);font-weight:700}
+.tcard .tm{padding:1px 0}.tcard .tm.cap{font-weight:700}
+.tcard .tsc{margin-top:6px;padding-top:6px;border-top:1px dashed var(--line)}
+.vbar{margin-top:10px;background:var(--blue-soft);color:#1d3f75;border-radius:12px;padding:9px 12px;font-size:14px}
+.vbar.off{opacity:.55}
+.opt .vc{float:right;margin-left:8px;background:var(--navy);color:#fff;border-radius:99px;padding:2px 9px;font-size:13px;font-weight:800}
+.voted{margin-top:8px;color:#0d5348;font-weight:700;font-size:14px}
+.whead{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--navy);color:#fff;border-radius:16px;padding:10px 14px}
+.whead .te{font-size:22px}.whead .muted{color:rgba(255,255,255,.75)}
+.wsc{text-align:right;font-family:Unbounded,Onest,sans-serif}.wsc b{font-size:22px;color:var(--gold2)}.wsc small{display:block;font-family:Onest,sans-serif;font-size:11px;opacity:.8}
+.prev{margin:10px 0 0;padding-left:20px;font-size:14px;color:var(--muted)}.prev li{padding:2px 0}
+.sumrow{display:flex;align-items:center;justify-content:center;gap:8px;margin:12px 0 4px;flex-wrap:wrap}
+.sumrow .sb{background:var(--bg);border-radius:14px;padding:8px 14px;min-width:86px}
+.sumrow .sb span{display:block;font-size:12px;color:var(--muted);font-weight:700}
+.sumrow .sb b{font-family:Unbounded,Onest,sans-serif;font-size:24px;color:var(--navy)}
+.sumrow .sb small{color:var(--muted)}
+.sumrow .sb.tot{background:var(--navy)}.sumrow .sb.tot b{color:var(--gold2)}.sumrow .sb.tot span,.sumrow .sb.tot small{color:rgba(255,255,255,.75)}
+.sumrow .plus{font-size:22px;font-weight:800;color:var(--muted)}
+.spin{width:34px;height:34px;border-radius:50%;border:4px solid var(--line);border-top-color:var(--gold);margin:10px auto;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.netbad{margin-top:8px;background:var(--red-soft,#fbe3e1);color:#86251f;border-radius:10px;padding:8px 12px;font-size:13px}
+.rubh{grid-column:1/-1;font-weight:800;margin:8px 0 2px;color:var(--navy)}
+@media (max-width:720px){.tgrid{grid-template-columns:1fr 1fr}.sumrow .sb{min-width:72px;padding:6px 10px}.sumrow .sb b{font-size:20px}}
 </style>
 </head>
 <body>
@@ -454,7 +501,7 @@ select,input,textarea{font-size:16px}
     <div class="who"><div>👤 <b id="whoName"></b> <span class="muted" id="whoGroup"></span></div><div class="muted" id="whoStage"></div></div>
     <div class="hud2">
       <div class="hrow2">
-        <div class="hmain" id="dPts"><div class="lab">Baho bali</div><div class="val"><span id="mPts">0</span><small> / 100</small></div><div class="sub">bilim <b id="mKnow">0</b>/80 · KPI <b id="mKpi">0</b>/20</div><div class="bar"><i id="bPts"></i></div></div>
+        <div class="hmain" id="dPts"><div class="lab" id="mLab">Shaxsiy ball</div><div class="val"><span id="mPts">0</span><small> / 50</small></div><div class="sub" id="mSub">1-bosqich · yakka ish</div><div class="bar"><i id="bPts"></i></div></div>
         <div class="hchips">
           <div class="hc" id="cStreak" title="Ketma-ket mukammal javoblar">🔥 <span id="mStreak">0</span><small id="mMult"></small></div>
           <div class="hc" id="dXp" title="Tajriba ochkolari">⭐ <span id="mXp">0</span><small> XP</small></div>
@@ -509,10 +556,10 @@ select,input,textarea{font-size:16px}
 
 <div class="modal" id="mRules"><div class="box"><button class="x" data-close>×</button>
   <h2>🎯 Ballar qanday hisoblanadi</h2>
-  <div class="formula2"><div><b>Baho bali (100)</b> = <span class="tag t1">Bilim — 80</span> + <span class="tag t2">Tashkilotchi KPI — 20</span></div></div>
+  <div class="formula2"><div><b>Yakuniy baho (100)</b> = <span class="tag t1">🧑 Shaxsiy — 50</span> + <span class="tag t2">👥 Jamoa — 50</span></div></div>
   <div class="two">
-    <div><h3>📚 Bilim (80)</h3><p class="muted" style="margin-top:0;font-size:14px">Har topshiriqning maksimal bali oldindan ko‘rsatiladi. To‘g‘ri — to‘liq, qisman — qisman, xato — 0. Javob bir marta beriladi.</p></div>
-    <div><h3>📈 KPI (20)</h3><p class="muted" style="margin-top:0;font-size:14px">Haqiqiy tashkilotchi natija bilan baholanadi: <b>obro‘</b> (8), delegatlar <b>mamnunligi</b> (8), <b>byudjet</b> manfiyga tushmasa (4). Har bir qaroringiz ularni o‘zgartiradi.</p></div>
+    <div><h3>🧑 1-bosqich · yakka (50)</h3><p class="muted" style="margin-top:0;font-size:14px">1–3-bob: 14 ta topshiriqni har kim o‘zi bajaradi. To‘g‘ri — to‘liq, qisman — qisman, xato — 0. Javob bir marta beriladi.</p></div>
+    <div><h3>👥 2-bosqich · jamoa (50)</h3><p class="muted" style="margin-top:0;font-size:14px">Eng yuqori ball olganlar <b>👑 sardor</b> bo‘lib, navbat bilan a’zo tanlaydi. 4–6-bob: sardor javob kiritadi, a’zolar 🗳 ovoz beradi. <b>40 bilim + 10 KPI</b> (obro‘ 4, mamnunlik 4, byudjet 2) — hamma a’zoga bir xil. Jamoaning boshlang‘ich KPI’si a’zolarning 1-bosqich natijasidan olinadi.</p></div>
   </div>
   <div class="rubric" id="rubric"></div>
   <h3 style="margin-top:16px">⭐ XP, unvon va nishonlar — o‘yin uchun (bahoga ta’sir qilmaydi)</h3>
@@ -521,6 +568,7 @@ select,input,textarea{font-size:16px}
     <li><b>⚡ Tez javob</b>: sariq chiziq tugamasdan mukammal javob bersangiz — <b>+20 XP</b>.</li>
     <li><b>💡 Maslahat</b> — bahoni kamaytirmaydi, faqat −20 XP. <b>🃏 50/50</b> — 2 marta, noto‘g‘ri variantlarni olib tashlaydi.</li>
     <li><b>Unvonlar</b>: 🎒 Stajyor → 📋 Koordinator (250) → 🗂️ Loyiha menejeri (550) → 🎖️ Bosh menejer (900) → 👑 PCO direktori (1250).</li>
+    <li><b>XP</b> yakunda: o‘zingizning XP + jamoa XP + nishonlar.</li>
     <li><b>9 ta nishon</b> (har biri +50 XP): 🔥 Olovli seriya, 🧯 Inqiroz ustasi, 💰 Byudjet qo‘riqchisi, ⚡ Chaqmoq, 🧠 Mustaqil, 🃏 Jokersiz, 🤝 Diplomat, 😊 Mehmondo‘st, 📜 Tarixchi.</li>
   </ul>
   <h3>Baholash</h3>
@@ -629,18 +677,18 @@ window.addEventListener("hashchange",function(){show(location.hash.slice(1));});
    MISSION — scoring
    ===================================================================== */
 var MISSIONS=[
- {id:"toifa",short:"Toifa",name:"Buyurtmani tanib olish (M·I·C·E)",max:3,bob:"1-bob · Brif"},
- {id:"smart",short:"SMART",name:"SMART maqsadlar",max:3,bob:"1-bob · Brif"},
- {id:"gold",short:"Goldblatt",name:"Goldblatt modeli: loyiha bosqichlari",max:3,bob:"1-bob · Brif"},
+ {id:"toifa",short:"Toifa",name:"Buyurtmani tanib olish (M·I·C·E)",max:4,bob:"1-bob · Brif"},
+ {id:"smart",short:"SMART",name:"SMART maqsadlar",max:4,bob:"1-bob · Brif"},
+ {id:"gold",short:"Goldblatt",name:"Goldblatt modeli: loyiha bosqichlari",max:4,bob:"1-bob · Brif"},
  {id:"bid",short:"Bid",name:"Bid paketi",max:4,bob:"2-bob · Bid"},
- {id:"insp",short:"Inspeksiya",name:"Inspeksiya safari",max:2,bob:"2-bob · Bid"},
+ {id:"insp",short:"Inspeksiya",name:"Inspeksiya safari",max:3,bob:"2-bob · Bid"},
  {id:"jamoa",short:"Jamoa",name:"Kim nima qiladi (PCO·DMC·CVB·agentlik)",max:5,bob:"3-bob · Reja"},
- {id:"sana",short:"Sana",name:"Sana tanlash",max:2,bob:"3-bob · Reja"},
- {id:"venue",short:"Joy turi",name:"Tadbir joyini tanlash",max:3,bob:"3-bob · Reja"},
- {id:"zal",short:"Zal",name:"Zal sxemalari",max:3,bob:"3-bob · Reja"},
+ {id:"sana",short:"Sana",name:"Sana tanlash",max:3,bob:"3-bob · Reja"},
+ {id:"venue",short:"Joy turi",name:"Tadbir joyini tanlash",max:4,bob:"3-bob · Reja"},
+ {id:"zal",short:"Zal",name:"Zal sxemalari",max:4,bob:"3-bob · Reja"},
  {id:"ddr",short:"DDR",name:"Zal sig‘imi va DDR hisob-kitobi",max:4,bob:"3-bob · Reja"},
- {id:"byudjet",short:"Byudjet",name:"Byudjet va zararsizlik nuqtasi",max:4,bob:"3-bob · Reja"},
- {id:"joy",short:"Joylashtirish",name:"Delegatlarni joylashtirish",max:2,bob:"3-bob · Reja"},
+ {id:"byudjet",short:"Byudjet",name:"Byudjet va zararsizlik nuqtasi",max:5,bob:"3-bob · Reja"},
+ {id:"joy",short:"Joylashtirish",name:"Delegatlarni joylashtirish",max:3,bob:"3-bob · Reja"},
  {id:"shart",short:"Shartnoma",name:"Shartnoma bandlari",max:3,bob:"3-bob · Reja"},
  {id:"ros",short:"Ssenariy",name:"Run of show (tadbir kuni ssenariysi)",max:3,bob:"4-bob · Tadbir kuni"},
  {id:"inq",short:"Inqirozlar",name:"5 ta inqiroz (har biri 2 ball)",max:10,bob:"4-bob · Tadbir kuni"},
@@ -651,15 +699,15 @@ var MISSIONS=[
  {id:"hisobot",short:"Hisobot",name:"Hokimlikka hisobot: MICE funksiyalari",max:3,bob:"5-bob · Meros"},
  {id:"fyre",short:"Fyre keysi",name:"Keys: Fyre Festival xatolari",max:4,bob:"5-bob · Meros"},
  {id:"tarix",short:"Tarix",name:"Uchrashuvlar tarixi (xronologiya)",max:3,bob:"6-bob · Final"},
- {id:"blitz",short:"Blitz",name:"Yakuniy blitz: to‘g‘ri yoki noto‘g‘ri",max:4,bob:"6-bob · Final"}
+ {id:"blitz",short:"Blitz",name:"Yakuniy blitz: to‘g‘ri yoki noto‘g‘ri",max:5,bob:"6-bob · Final"}
 ];
 var MX={};MISSIONS.forEach(function(m){MX[m.id]=m;});
 function mPts(id){if(id!=="inq")return S.pts[id];var t=0,any=false;for(var i=1;i<=5;i++){if(S.pts["inq"+i]!==undefined){any=true;t+=S.pts["inq"+i];}}return any?t:undefined;}
-function renderRubric(){$("rubric").innerHTML=MISSIONS.map(function(m){var v=S?mPts(m.id):undefined;var got=v!==undefined;return "<div class=\"rub"+(got?" done":"")+"\"><div>"+m.name+"<small>"+m.bob+"</small></div><b>"+(got?v+"/":"")+m.max+"</b></div>";}).join("");}
+function renderRubric(){$("rubric").innerHTML=MISSIONS.map(function(m,ix){var v=S?mPts(m.id):undefined;var got=v!==undefined;return (ix===0?"<div class=\"rubh\">🧑 1-bosqich · yakka — 50 ball</div>":ix===13?"<div class=\"rubh\">👥 2-bosqich · jamoa — 40 bilim + 10 KPI</div>":"")+"<div class=\"rub"+(got?" done":"")+"\"><div>"+m.name+"<small>"+m.bob+"</small></div><b>"+(got?v+"/":"")+m.max+"</b></div>";}).join("");}
 function know(){var t=0;for(var k in S.pts)t+=S.pts[k];return t;}
-function kpiParts(){function sc(v){return Math.round(clamp((v-50)/50,0,1)*8);}return [sc(S.rep),sc(S.sat),S.budget>=0?4:S.budget>=-15000?2:0];}
+function kpiParts(){function sc(v){return Math.round(clamp((v-50)/50,0,1)*4);}return [sc(S.rep),sc(S.sat),S.budget>=0?2:S.budget>=-15000?1:0];}
 function kpi(){var p=kpiParts();return p[0]+p[1]+p[2];}
-function total(){return know()+kpi();}
+function total(){return MODE==="team"?know()+kpi():know();}
 var RANKS=[[0,"Stajyor","🎒"],[250,"Koordinator","📋"],[550,"Loyiha menejeri","🗂️"],[900,"Bosh menejer","🎖️"],[1250,"PCO direktori","👑"]];
 function rankOf(x){var r=0;RANKS.forEach(function(R,i){if(x>=R[0])r=i;});return {i:r,n:RANKS[r][1],e:RANKS[r][2],next:RANKS[r+1]?RANKS[r+1][0]:null};}
 function rankUp(r){beep("win");confetti();var d=document.createElement("div");d.className="rankup";d.innerHTML="<div><span class=\"e\">"+r.e+"</span><div class=\"muted\" style=\"font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase\">Yangi unvon!</div><h2 style=\"margin:6px 0 4px\">"+r.n+"</h2><p class=\"muted\" style=\"margin:0 0 14px\">"+S.xp+" XP to‘pladingiz</p><button class=\"btn gold\" style=\"width:100%\">Zo‘r! Davom etamiz</button></div>";document.body.appendChild(d);d.addEventListener("click",function(){d.remove();});}
@@ -672,9 +720,11 @@ var CAST={
   TB:{n:"Temur Bakirov",r:"«Silk Road Events» PCO direktori — sizning rahbaringiz",c:"#2c5ea8"}
 };
 var S;
-function resetState(){S={team:"",crOrder:shuffle([0,1,2,3,4]),xp:0,streak:0,best:0,jok:2,hints:0,fast:0,stars:{},t0:0,fastMs:30000,attempt:1,name:"",group:"",key:"",timerOn:false,budget:120000,rep:50,sat:50,bleisure:10,pts:{},log:[],i:0,won:true,started:Date.now(),done:false};}
+var ME=null;
+function newMe(){return {phase:"solo",crOrder:shuffle([0,1,2,3,4]),xp:0,streak:0,best:0,jok:2,hints:0,fast:0,stars:{},t0:0,fastMs:30000,attempt:1,name:"",group:"",key:"",timerOn:false,budget:120000,rep:50,sat:50,bleisure:10,pts:{},log:[],i:0,ans:false,won:true,started:Date.now(),done:false};}
+function resetState(){ME=newMe();S=ME;MODE="solo";TS=null;}
 resetState();
-function saveState(){try{ls("mice7_state",JSON.stringify(S));}catch(e){}}
+function saveState(){try{if(MODE==="team"&&TS)ls(LSTS,JSON.stringify(TS));if(ME)ls(LSME,JSON.stringify(ME));}catch(e){}}
 function award(id,p,label){var mx=MX[id].max;p=clamp(Math.round(p),0,mx);S.pts[id]=p;
   var full=p===mx;if(full){S.streak++;S.best=Math.max(S.best,S.streak);}else S.streak=0;
   var mult=S.streak>=5?2:S.streak>=3?1.5:1;var xp=Math.round(p*10*mult);
@@ -682,7 +732,7 @@ function award(id,p,label){var mx=MX[id].max;p=clamp(Math.round(p),0,mx);S.pts[i
   var oldR=rankOf(S.xp).i;S.xp+=xp;S.lastXp={xp:xp,mult:mult,fast:fast};
   S.stars[id]=full?3:p>=mx*.6?2:p>0?1:0;
   if(p>0)deltaOn("main","+"+p,true);if(xp)deltaOn("dXp","+"+xp,true);
-  S.log.push({t:label||MX[id].name,p:p+"/"+MX[id].max});hud();
+  S.log.push({t:label||MX[id].name,p:p+"/"+MX[id].max});S.last={m:id,p:p,mx:mx,o:-1};hud();
   var nr=rankOf(S.xp);if(nr.i>oldR)setTimeout(function(){rankUp(nr);},900);
   return p;}
 function apply(e,label){if(!e)return [];var chips=[];
@@ -695,12 +745,12 @@ function earned(p,id){var st=S.stars[id]||0,lx=S.lastXp||{xp:0};var stars="<span
   var extra=lx.xp?"<span class=\"xpline\">+"+lx.xp+" XP"+(lx.mult>1?" · 🔥×"+String(lx.mult).replace(".",","):"")+(lx.fast?" · ⚡ tez":"")+"</span>":"";
   return "<div class=\"row\" style=\"gap:6px;margin-bottom:8px\"><span class=\"earned\" style=\"margin:0\">+"+p+" / "+MX[id].max+" ball</span>"+stars+extra+"</div>";}
 function deltaOn(k,txt,pos){var m=$({main:"dPts",bud:"dBud",rep:"dRep",sat:"dSat"}[k]||k);if(!m)return;var d=document.createElement("span");d.className="delta "+(pos?"p":"n");d.textContent=txt;m.appendChild(d);setTimeout(function(){d.remove();},1900);}
-function hud(){var k=know(),kp=kpi(),t=k+kp;$("mPts").textContent=t;$("bPts").style.width=t+"%";$("mKnow").textContent=k;$("mKpi").textContent=kp;
+function hud(){var k=know(),kp=kpi(),team=MODE==="team",t=team?k+kp:k;$("mPts").textContent=t;$("bPts").style.width=Math.min(100,t*2)+"%";$("mLab").textContent=team?"Jamoa bali":"Shaxsiy ball";$("mSub").innerHTML=team?"bilim <b>"+k+"</b>/40 · KPI <b>"+kp+"</b>/10":"1-bosqich · yakka ish";
   var r=rankOf(S.xp);$("mXp").textContent=S.xp;$("mRank").textContent=r.e+" "+r.n;
   $("mStreak").textContent=S.streak;$("cStreak").classList.toggle("hot",S.streak>=3);$("mMult").textContent=S.streak>=5?" ×2":S.streak>=3?" ×1,5":"";$("mJok").textContent=S.jok;
   $("mBud").textContent=money(S.budget);$("bBud").style.width=clamp(S.budget/120000*100,0,100)+"%";$("mBud").style.color=S.budget<0?"var(--red)":"";
   $("mRep").textContent=S.rep;$("bRep").style.width=S.rep+"%";$("mSat").textContent=S.sat;$("bSat").style.width=S.sat+"%";
-  $("whoName").textContent=S.name;$("whoGroup").textContent=(S.group?"· "+S.group:"")+(S.team?" · "+(TEAMS.filter(function(t){return t[0]===S.team;})[0]||["",""])[1]+" "+S.team:"");}
+  if(team){$("whoName").textContent=(TS.teamE||"")+" "+TS.team;$("whoGroup").textContent="· 👑 sardor "+S.name;}else{$("whoName").textContent=S.name;$("whoGroup").textContent=S.group?"· "+S.group:"";}}
 
 /* scene helpers */
 function msg(who,text){var c=CAST[who];var ini=c.n.replace("Dr. ","").split(" ").map(function(w){return w[0];}).join("");
@@ -725,7 +775,7 @@ function bindTools(sc){var hb=$("hintBtn");if(hb)hb.addEventListener("click",fun
     var n=sc.opts.length>=4?2:1;bad.slice(0,n).forEach(function(x){var el=document.querySelector(".opt[data-i=\""+x[1]+"\"]");if(el){el.classList.add("gone");el.disabled=true;}});beep();hud();});}
 function finishScene(cls,html){stopTimer();var f=$("sFb");f.className="fb on "+cls;f.innerHTML=html;$("sNext").classList.add("on");$("sGo").onclick=function(){go(S.i+1);};
   var jb=$("jokBtn");if(jb)jb.disabled=true;var hb=$("hintBtn");if(hb)hb.disabled=true;
-  setTimeout(function(){try{f.scrollIntoView({behavior:"smooth",block:"nearest"});}catch(e){}},80);beep(cls==="good"?"good":cls==="bad"?"bad":"");saveState();sync("progress");}
+  setTimeout(function(){try{f.scrollIntoView({behavior:"smooth",block:"nearest"});}catch(e){}},80);beep(cls==="good"?"good":cls==="bad"?"bad":"");S.ans=true;saveState();if(MODE==="team")tsync(true,false);else sync("progress");}
 
 /* ---------- scene types ---------- */
 function rBlitz(sc){var items=shuffle(sc.items),k=0,ok=0,left=sc.sec,ans=[],tH=null,busy=false;
@@ -741,11 +791,12 @@ function rBlitz(sc){var items=shuffle(sc.items),k=0,ok=0,left=sc.sec,ans=[],tH=n
     var q=$("bzQ");q.className="bq pop "+(g?"ok":"no");beep(g?"good":"bad");k++;setTimeout(showQ,g?420:900);});});}
 
 function rChoice(sc){var keys="ABCD";S.noFast=false;var ord=shuffle(sc.opts.map(function(o,i){return i;}));
-  $("stage").innerHTML=frame(sc,"<div class=\"opts\">"+ord.map(function(i,pos){var o=sc.opts[i];return "<button class=\"opt\" data-i=\""+i+"\"><span class=\"k\">"+keys[pos]+"</span>"+o.t+(o.cost?"<span class=\"cost\">"+o.cost+"</span>":"")+"</button>";}).join("")+"</div>");
+  $("stage").innerHTML=frame(sc,"<div class=\"opts\">"+ord.map(function(i,pos){var o=sc.opts[i];return "<button class=\"opt\" data-i=\""+i+"\"><span class=\"k\">"+keys[pos]+"</span>"+o.t+(o.cost?"<span class=\"cost\">"+o.cost+"</span>":"")+"</button>";}).join("")+"</div>"+(MODE==="team"?"<div class=\"vbar\" id=\"vBar\">🗳 <b>Jamoa ovozi:</b> a’zolar telefonida savol chiqdi — ovozlar shu yerda ko‘rinadi</div>":""));
+  if(MODE==="team"&&VIEW&&VIEW.st&&VIEW.st.i===S.i)showVotes(VIEW.votes||{},VIEW);
   [].forEach.call(document.querySelectorAll(".opt"),function(b){b.addEventListener("click",function(){var o=sc.opts[+b.dataset.i];
     [].forEach.call(document.querySelectorAll(".opt"),function(x){x.disabled=true;if(sc.opts[+x.dataset.i].best)x.classList.add("best");});
     b.classList.add(o.best?"good":(o.ok?"sel":"bad"));
-    var mx=MX[sc.m].max,p=o.best?mx:o.ok?Math.round(mx/2):0;var ch=apply(o.e);var got=award(sc.m,p,sc.title+": "+o.t.replace(/<[^>]+>/g,""));if(sc.after)sc.after(o);
+    var mx=MX[sc.m].max,p=o.best?mx:o.ok?Math.round(mx/2):0;var ch=apply(o.e);var got=award(sc.m,p,sc.title+": "+o.t.replace(/<[^>]+>/g,""));S.last.o=+b.dataset.i;var vb=$("vBar");if(vb)vb.classList.add("off");if(sc.after)sc.after(o);
     finishScene(o.best?"good":o.ok?"mid":"bad",earned(got,sc.m)+o.fb+chipsHtml(ch));});});
   startTimer();}
 
@@ -1056,86 +1107,200 @@ var SCENES=[
    ["NPS ishtirokchining tadbirni tavsiya qilish ehtimolini o‘lchaydi",true,""]]},
  {type:"final"}
 ];
-var FLOW;
-function buildFlow(){FLOW=[];var CO=(S&&S.crOrder&&S.crOrder.length===5)?S.crOrder:[0,1,2,3,4];SCENES.forEach(function(s){if(s==="CRISES"){CO.map(function(k){return CRISES[k];}).forEach(function(c,i){var x=Object.assign({},c);x.type="choice";x.m="inq"+(i+1);x.tag="4-bob · Inqiroz "+(i+1)+"/5";FLOW.push(x);});}else FLOW.push(s);});}
-/* inqirozlar: 5 ta alohida 3 ballik */
+var FLOW,MODE="solo",TS=null,VIEW=null,LSME="mice8_me",LSTS="mice8_team";
+function gkey(g){return String(g||"").toUpperCase().replace(/[^0-9A-ZА-ЯЁЎҚҒҲ]/g,"");}
+function teamFlow(co){var F=[{type:"tlobby"}];co=(co&&co.length===5)?co:[0,1,2,3,4];
+  SCENES.forEach(function(s){if(s==="CRISES"){co.map(function(k){return CRISES[k];}).forEach(function(c,i){var x=Object.assign({},c);x.type="choice";x.m="inq"+(i+1);x.tag="4-bob · Inqiroz "+(i+1)+"/5";F.push(x);});}
+    else if(s.type!=="intro"&&s.type!=="final"&&chapOf(s)>=4)F.push(s);});
+  F.push({type:"final"});return F;}
+function buildFlow(){if(MODE==="team"){FLOW=teamFlow(S&&S.co);return;}
+  FLOW=[SCENES[0]];SCENES.forEach(function(s){if(s!=="CRISES"&&s.type!=="intro"&&s.type!=="final"&&chapOf(s)<=3)FLOW.push(s);});FLOW.push({type:"solodone"});}
+/* inqirozlar: 5 ta alohida, har biri 2 ball */
 for(var ci=1;ci<=5;ci++)MX["inq"+ci]={id:"inq"+ci,name:"Inqiroz "+ci,max:2};
 buildFlow();
 
+function phaseName(){return MODE==="team"?"2-bosqich · jamoa":"1-bosqich · yakka";}
 function prog(){var p=$("prog");p.innerHTML=FLOW.slice(1,-1).map(function(s,i){var idx=i+1;var cls=idx<S.i?"done":idx===S.i?"cur":"";if(idx<S.i&&s.m&&S.pts[s.m]===0)cls="zero";return "<i class=\""+cls+"\" title=\""+esc(s.title||"")+"\"></i>";}).join("");
-  $("whoStage").textContent=S.i>0&&S.i<FLOW.length-1?"Bosqich "+S.i+" / "+(FLOW.length-2):"";}
-function go(i){S.i=i;stopTimer();var sc=FLOW[i];$("hudWrap").style.display=(sc.type==="intro")?"none":"";prog();
+  $("whoStage").textContent=S.i>0&&S.i<FLOW.length-1?phaseName()+" · "+S.i+" / "+(FLOW.length-2):"";}
+function go(i){S.i=i;S.ans=false;stopTimer();var sc=FLOW[i];$("hudWrap").style.display=(sc.type==="intro"||sc.type==="tlobby")?"none":"";prog();
   S.t0=Date.now();S.noFast=!!sc.noFast;S.fastMs=({choice:30,rounds:70,multi:45,sort:100,order:75,match:70,calc:110,num:120,builder:150,report:100}[sc.type]||60)*1000;if(sc.type!=="intro")saveState();
-  ({intro:rIntro,choice:rChoice,multi:rMulti,sort:rSort,order:rOrder,builder:rBuilder,report:rReport,vote:rVote,rounds:rRounds,match:rMatch,calc:rCalc,num:rNum,blitz:rBlitz,final:rFinal})[sc.type](sc);
+  ({intro:rIntro,choice:rChoice,multi:rMulti,sort:rSort,order:rOrder,builder:rBuilder,report:rReport,vote:rVote,rounds:rRounds,match:rMatch,calc:rCalc,num:rNum,blitz:rBlitz,final:rFinal,solodone:rSoloDone,tlobby:function(){enterLobby();}})[sc.type](sc);
   var cc=chapOf(sc);if(cc&&cc!==S.lastChap&&sc.type!=="final"){S.lastChap=cc;saveState();stopTimer();chapIntro(cc,function(){S.t0=Date.now();startTimer();});}
-  if(sc.type!=="intro"&&sc.type!=="final")bindTools(sc);
+  if(sc.type!=="intro"&&sc.type!=="final"&&sc.type!=="solodone"&&sc.type!=="tlobby")bindTools(sc);
+  if(MODE==="team"&&sc.m)tsync(false,false);
   var top=$("v-keys").getBoundingClientRect().top+scrollY-10;if(scrollY>top)scrollTo({top:top,behavior:"smooth"});}
 
-var TEAMS=[["Registon","🕌"],["Ark","🏰"],["Ichan Qal’a","🧱"],["Shohi Zinda","💠"],["Oqsaroy","🏛️"],["Afrosiyob","🏺"]];
+function indScore(m){m=m||ME;var t=0;for(var k in m.pts)t+=m.pts[k];return t;}
+function indB(){return MISSIONS.slice(0,13).map(function(m){return ME.pts[m.id]==null?null:ME.pts[m.id];});}
+function meInfo(){return {s:indScore(),x:ME.xp,r:ME.rep,sa:ME.sat,bu:ME.budget};}
+
+/* ---------- kirish ---------- */
 function rIntro(){var c=Object.keys(CAST).map(function(k){var x=CAST[k];var ini=x.n.replace("Dr. ","").split(" ").map(function(w){return w[0];}).join("");return "<div><span class=\"ava\" style=\"background:"+x.c+"\">"+ini+"</span><span><b>"+x.n+"</b><br><span class=\"muted\">"+x.r+"</span></span></div>";}).join("");
-  var saved=null;try{saved=JSON.parse(ls("mice7_state")||"null");}catch(e){}
-  var resume=saved&&saved.i>0&&!saved.done&&saved.name?"<div class=\"resume\">⏸ <b>"+esc(saved.name)+"</b>, sizning tugallanmagan missiyangiz bor ("+saved.i+"-bosqich, "+(function(){var t=0;for(var k in saved.pts)t+=saved.pts[k];return t;})()+" ball). <button class=\"btn sm gold\" id=\"tResume\">Davom ettirish</button></div>":"";
-  $("stage").innerHTML="<div class=\"hero scene\"><div class=\"poster\"><span class=\"pill\">Amaliy mashg‘ulot · rolli o‘yin</span><h2 style=\"margin-top:10px\">Siz — «Silk Road Events» PCO loyiha menejerisiz</h2><p style=\"opacity:.9\">Samarqand 2027-yilgi xalqaro kardiologlar kongressi uchun kurashmoqda. Siz buyurtmani qabul qilasiz, bid tayyorlaysiz, jamoani, byudjetni va tadbir kunini boshqarasiz, inqirozlarni yechasiz. Har bir qaror ball beradi.</p>"+
-   "<div class=\"steps\"><div class=\"step\"><b>1</b><span>Ism va guruhni yozing, «Boshlash»ni bosing</span></div><div class=\"step\"><b>2</b><span>"+(FLOW.length-2)+" ta bosqichni bosib o‘ting — har birida maksimal ball ko‘rsatilgan</span></div><div class=\"step\"><b>3</b><span>Natijangiz o‘qituvchiga avtomatik boradi</span></div></div>"+
-   "<p style=\"font-size:13px;opacity:.85;margin-top:14px\">🎯 <b>Baho</b> = bilim (80) + tashkilotchi KPI (20): obro‘, mamnunlik, byudjet. ⭐ <b>XP</b>, 🔥 seriya, unvon va nishonlar — o‘yin uchun. 💡 maslahat bahoni kamaytirmaydi.</p></div>"+
-   "<div class=\"card\">"+resume+"<div class=\"field\"><label for=\"tName\">Ism va familiyangiz</label><input type=\"text\" id=\"tName\" placeholder=\"Masalan: Aziza Karimova\" maxlength=\"60\" autocomplete=\"off\"></div>"+
-   "<div class=\"field\"><label for=\"tGroup\">Guruh</label><input type=\"text\" id=\"tGroup\" placeholder=\"Masalan: TM-23-1\" maxlength=\"30\" autocomplete=\"off\"></div>"+
-   "<div class=\"field\" style=\"margin-bottom:4px\"><label>Jamoangiz <span class=\"muted\" style=\"font-weight:500\">(o‘qituvchi aytgan jamoani tanlang)</span></label></div><div class=\"teams\" id=\"tTeams\">"+TEAMS.map(function(t){return "<button type=\"button\" data-t=\""+t[0]+"\" aria-pressed=\"false\"><span>"+t[1]+"</span>"+t[0]+"</button>";}).join("")+"</div>"+
+  var saved=null;try{saved=JSON.parse(ls(LSME)||"null");}catch(e){}
+  var resume="";if(saved&&saved.name){
+    if(saved.phase==="solo"&&saved.i>0)resume="<div class=\"resume\">⏸ <b>"+esc(saved.name)+"</b>, 1-bosqichdagi missiyangiz tugallanmagan ("+saved.i+"-topshiriq, "+indScore(saved)+" ball). <button class=\"btn sm gold\" id=\"tResume\">Davom ettirish</button></div>";
+    else if(saved.phase!=="solo")resume="<div class=\"resume\">👥 <b>"+esc(saved.name)+"</b>, siz 1-bosqichni tugatgansiz ("+indScore(saved)+"/50). <button class=\"btn sm gold\" id=\"tResume\">"+(saved.phase==="done"?"Natijani ko‘rish":"Jamoa zaliga qaytish")+"</button></div>";}
+  $("stage").innerHTML="<div class=\"hero scene\"><div class=\"poster\"><span class=\"pill\">Amaliy mashg‘ulot · rolli o‘yin</span><h2 style=\"margin-top:10px\">Siz — «Silk Road Events» PCO loyiha menejerisiz</h2><p style=\"opacity:.9\">Samarqand 2027-yilgi xalqaro kardiologlar kongressi uchun kurashmoqda. Avval o‘zingiz buyurtmani qabul qilasiz, bid tayyorlaysiz va kongressni rejalashtirasiz. Keyin eng kuchlilar sardor bo‘lib jamoa tuzadi va tadbir kunini birga o‘tkazasiz.</p></div>"+
+   "<div class=\"card\">"+resume+
+   "<div class=\"howplay\"><h3 style=\"margin-top:0\">Qanday o‘ynaladi?</h3>"+
+     "<div class=\"hp\"><span class=\"hn\">1</span><div><b>🧑 1-bosqich — yakka (1–3-bob)</b><br>14 ta topshiriqni o‘zingiz bajarasiz. <b>50 ball.</b></div></div>"+
+     "<div class=\"hp\"><span class=\"hn\">2</span><div><b>👑 Sardorlar va jamoa tuzish</b><br>Guruhda hamma tugatgach, eng yuqori ball olganlar <b>sardor</b> bo‘ladi va navbat bilan jamoaga a’zo tanlaydi.</div></div>"+
+     "<div class=\"hp\"><span class=\"hn\">3</span><div><b>👥 2-bosqich — jamoa (4–6-bob)</b><br>Sardor telefonida javob kiritadi, a’zolar muhokama qilib <b>🗳 ovoz beradi</b>. <b>50 ball</b> (40 bilim + 10 KPI) — jamoaning hamma a’zosiga bir xil.</div></div>"+
+     "<div class=\"hp tot\"><span class=\"hn\">=</span><div><b>Yakuniy baho = shaxsiy (50) + jamoa (50) = 100</b><br><span class=\"muted\">Natija o‘qituvchiga avtomatik boradi.</span></div></div></div>"+
+   "<div class=\"field\"><label for=\"tName\">Ism va familiyangiz</label><input type=\"text\" id=\"tName\" placeholder=\"Masalan: Aziza Karimova\" maxlength=\"60\" autocomplete=\"off\"></div>"+
+   "<div class=\"field\"><label for=\"tGroup\">Guruh <span class=\"muted\" style=\"font-weight:500\">(guruhdoshlar bilan bir xil yozing)</span></label><input type=\"text\" id=\"tGroup\" placeholder=\"Masalan: 13-26\" maxlength=\"30\" autocomplete=\"off\"></div>"+
+   "<button class=\"btn gold\" id=\"tGo\" style=\"width:100%;padding:13px\">🚀 1-bosqichni boshlash</button>"+
    "<h3>Siz bilan ishlaydiganlar</h3><div class=\"cast\">"+c+"</div>"+
-   "<p class=\"muted\" style=\"font-size:13px\">MOKA, «NovaFarm», qahramonlar va raqamlar shartli; faktlar 1–2-mavzu va «Biznes tadbirlarni tashkil etish» ma’ruzasidan.</p>"+
-   "<button class=\"btn gold\" id=\"tGo\" style=\"width:100%;padding:13px\">🚀 Missiyani boshlash</button></div></div>";
-  var tn=$("tName"),tg=$("tGroup"),pickTeam=(saved&&saved.team)||ls("mice7_team")||"";if(saved&&saved.name){tn.value=saved.name;tg.value=saved.group||"";}
-  function drawTeams(){[].forEach.call($("tTeams").querySelectorAll("button"),function(b){b.setAttribute("aria-pressed",b.dataset.t===pickTeam?"true":"false");});}
-  [].forEach.call($("tTeams").querySelectorAll("button"),function(b){b.addEventListener("click",function(){pickTeam=pickTeam===b.dataset.t?"":b.dataset.t;drawTeams();beep("click");});});drawTeams();
-  if($("tResume"))$("tResume").addEventListener("click",function(){S=saved;buildFlow();hud();toast("Davom etamiz, "+S.name+"!");go(S.i);});
+   "<p class=\"muted\" style=\"font-size:13px\">MOKA, «NovaFarm», qahramonlar va raqamlar shartli; faktlar 1–2-mavzu va «Biznes tadbirlarni tashkil etish» ma’ruzasidan.</p></div>";
+  var tn=$("tName"),tg=$("tGroup");if(saved&&saved.name){tn.value=saved.name;tg.value=saved.group||"";}
+  if($("tResume"))$("tResume").addEventListener("click",function(){ME=saved;S=ME;MODE="solo";buildFlow();hud();toast("Davom etamiz, "+ME.name+"!");if(ME.phase==="solo")go(ME.i);else enterLobby();});
   $("tGo").addEventListener("click",function(){var n=tn.value.trim(),g=tg.value.trim();if(n.length<3){toast("Ism va familiyani yozing");tn.focus();return;}if(!g){toast("Guruhni yozing");tg.focus();return;}
-    resetState();S.name=n;S.group=g;S.team=pickTeam;ls("mice7_team",pickTeam);S.key=(g+"_"+n).toLowerCase().replace(/[^a-z0-9а-яёўқғҳ‘’']+/gi,"_");S.attempt=(+ls("mice6_attempt")||0)+1;ls("mice6_attempt",String(S.attempt));$("cwTeam").value=$("cwTeam").value||n;buildFlow();hud();beep("good");sync("start");go(1);});}
+    if(saved&&saved.name&&saved.phase!=="solo"&&saved.name===n&&gkey(saved.group)===gkey(g)){if(!confirm("Siz 1-bosqichni tugatgansiz. Qaytadan boshlasangiz, eski natija o‘chadi. Davom etasizmi?"))return;}
+    resetState();ME.name=n;ME.group=g;ME.key=(g+"_"+n).toLowerCase().replace(/[^a-z0-9а-яёўқғҳ‘’']+/gi,"_");ME.attempt=(+ls("mice6_attempt")||0)+1;ls("mice6_attempt",String(ME.attempt));ls(LSTS,null);$("cwTeam").value=$("cwTeam").value||n;buildFlow();hud();beep("good");sync("start");go(1);});}
 
-function rFinal(){var t0=total(),k=know(),kp=kpiParts(),g0;S.done=true;S.finished=S.finished||Date.now();
-  var inqAll=[1,2,3,4,5].every(function(i){return S.pts["inq"+i]===2;});
-  var BD=[["🔥","Olovli seriya","5 ta ketma-ket mukammal javob",S.best>=5],["🧯","Inqiroz ustasi","5 inqirozda ham eng to‘g‘ri qaror",inqAll],["💰","Byudjet qo‘riqchisi","Byudjet manfiyga tushmadi",S.budget>=0],["⚡","Chaqmoq","8+ tez javob",S.fast>=8],["🧠","Mustaqil","Birorta maslahat olinmadi",S.hints===0],["🃏","Jokersiz","50/50 ishlatilmadi",S.jok===2],["🤝","Diplomat","Obro‘ 90+",S.rep>=90],["😊","Mehmondo‘st","Mamnunlik 90+",S.sat>=90],["📜","Tarixchi","Tarix va blitz mukammal",S.pts.tarix===MX.tarix.max&&S.pts.blitz===MX.blitz.max]];
-  if(!S.badgeXp){var nb=BD.filter(function(b){return b[3];}).length;S.badgeXp=nb*50;S.xp+=S.badgeXp;}
-  S.badges=BD.filter(function(b){return b[3];}).map(function(b){return b[0];}).join("");saveState();hud();
-  var t=t0,g=grade(t),rk=rankOf(S.xp);var nStars=0;for(var q in S.stars)nStars+=S.stars[q];
+/* ---------- 1-bosqich yakuni ---------- */
+function rSoloDone(){var t=indScore();ME.phase="lobby";ME.soloAt=ME.soloAt||Date.now();saveState();sync("solo_done");if(t>=40){confetti();beep("win");}else beep("good");
+  var g=t>=43?"🥇":t>=36?"🥈":t>=28?"🥉":"💪";
+  $("stage").innerHTML="<div class=\"card scene final\"><span class=\"pill\">1-bosqich yakunlandi</span><h2 style=\"margin-top:10px\">"+esc(ME.name)+", zo‘r ish!</h2><div class=\"medal\" style=\"background:linear-gradient(145deg,#2c5ea8,#132038)\">"+t+"</div><div class=\"grade g4\" style=\"background:var(--blue-soft,#e3ecf8);color:#1d3f75\">Shaxsiy ball: "+t+" / 50 "+g+"</div>"+
+   "<p class=\"muted\">Kongress Samarqandga "+(ME.won?"berildi 🎉":"berilmadi")+" · obro‘ "+ME.rep+" · byudjet "+money(ME.budget)+"</p>"+
+   "<div class=\"howplay\" style=\"text-align:left\"><div class=\"hp\"><span class=\"hn\">👑</span><div>Endi <b>jamoa zali</b>. Guruhingizda hamma 1-bosqichni tugatgach, eng yuqori ball olganlar <b>sardor</b> bo‘ladi va navbat bilan a’zo tanlaydi.</div></div><div class=\"hp\"><span class=\"hn\">📈</span><div>Sizning obro‘, mamnunlik va byudjet natijangiz jamoaning boshlang‘ich KPI’siga qo‘shiladi.</div></div></div>"+
+   "<button class=\"btn gold\" id=\"toLobby\" style=\"width:100%;padding:13px;margin-top:6px\">👥 Jamoa zaliga o‘tish</button></div>";
+  $("toLobby").addEventListener("click",enterLobby);}
+
+/* ---------- server bilan aloqa ---------- */
+function post(d){return fetch(EXEC,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(d),credentials:"omit"}).then(function(r){return r.json();});}
+var pollH=null,pollBusy=false,tick=null;
+function stopPoll(){clearTimeout(pollH);pollH=null;}
+function poll(ms){stopPoll();pollH=setTimeout(doPoll,ms||0);}
+function doPoll(){if(pollBusy||!ME||!ME.key)return;pollBusy=true;
+  post({action:"state",key:ME.key,name:ME.name,group:ME.group,solo:ME.phase!=="solo",me:meInfo()}).then(function(v){pollBusy=false;if(v&&v.ok){netOk(true);VIEW=v;onView(v);}else poll(5000);},function(){pollBusy=false;netOk(false);poll(5000);});}
+function netOk(ok){var e=$("netBad");if(e)e.style.display=ok?"none":"";}
+function nextPoll(v){var ms=v.phase==="draft"?2500:4000;if(document.hidden)ms=9000;poll(ms);}
+function onView(v){
+  if(MODE==="team"){if(v.me.role!=="cap"){toast("O‘qituvchi sardorni almashtirdi");lostCap();return;}
+    if(v.st&&v.st.i===TS.i&&!TS.ans)showVotes(v.votes||{},v);poll(document.hidden?9000:4000);return;}
+  if(ME.phase==="solo")return;renderLobby(v);
+  if(!(v.st&&v.st.done&&(v.me.role==="mem"||v.me.role==="cap")))nextPoll(v);}
+function lostCap(){MODE="solo";S=ME;TS=null;ls(LSTS,null);enterLobby();}
+function enterLobby(){stopTimer();MODE="solo";S=ME;if(ME.phase==="solo")ME.phase="lobby";saveState();$("hudWrap").style.display="none";lobbySig="";
+  $("stage").innerHTML="<div class=\"card scene\" style=\"text-align:center\"><div class=\"spin\"></div><p class=\"muted\">Jamoa zali yuklanmoqda…</p></div>";poll(0);}
+
+/* ---------- jamoa zali: kutish → sardorlar tanlovi → o‘yin ---------- */
+function teamEmoji(n){return (TEAMS.filter(function(t){return t[0]===n;})[0]||["","🏳️"])[1];}
+function tcard(T,i,v){var mine=v.me.t===i,turn=v.turn&&v.turn.t===i;
+  return "<div class=\"tcard"+(mine?" mine":"")+(turn?" turn":"")+"\"><div class=\"th\"><span class=\"te\">"+T.e+"</span><b>"+esc(T.t)+"</b><span class=\"tn\">"+T.n+(v.size?"/"+v.size:"")+"</span></div>"+
+   "<div class=\"tm cap\">👑 "+esc(T.cap)+"</div>"+T.mem.map(function(m){return "<div class=\"tm\">• "+esc(m)+"</div>";}).join("")+
+   (v.phase==="play"?"<div class=\"tsc\">"+(T.done?"✅ ":T.started?"🎮 ":"⏳ ")+"<b>"+T.score+"</b>/50"+(T.started&&!T.done?" · "+T.i+"/"+T.len:"")+"</div>":"")+"</div>";}
+var lobbySig="",pickSel=null;
+function renderLobby(v){var me=v.me,sig;
+  if(v.phase==="play"&&me.t>=0&&v.st&&v.st.done){ME.phase="done";saveState();if(lobbySig!=="final"){lobbySig="final";finalScreen(v.st,v.teams,me.t,me.role==="cap");}return;}
+  if(v.phase==="play"&&me.role==="mem"&&v.st){watch(v);return;}
+  sig=JSON.stringify([v.phase,me,v.teams.map(function(t){return [t.cap,t.mem,t.started];}),v.pool,v.F,v.T,v.cand,v.place,v.turn&&v.turn.no,!!v.st,pickSel]);
+  if(sig!==lobbySig){lobbySig=sig;$("stage").innerHTML=lobbyHtml(v);bindLobby(v);}
+  clearInterval(tick);if(v.turn){var left=v.turn.left;tick=setInterval(function(){left=Math.max(0,left-1);var e=$("tLeft");if(e)e.textContent=left;},1000);}}
+function lobbyHtml(v){var me=v.me,h="<div class=\"lobby\"><div class=\"lhead\"><span class=\"pill\">👥 Jamoa zali · "+esc(v.g||ME.group)+"</span><div class=\"muted\" style=\"font-size:13px;margin-top:6px\">Siz: <b>"+esc(ME.name)+"</b> · shaxsiy ball <b>"+indScore()+"</b>/50</div><div class=\"netbad\" id=\"netBad\" style=\"display:none\">⚠️ Internet bilan muammo — qayta ulanmoqda…</div></div>";
+  if(v.phase==="wait"){var pct=v.T?Math.round(v.F/v.T*100):0;
+    h+="<div class=\"card scene\"><h2>⏳ Sardorlar aniqlanmoqda</h2><p style=\"margin-top:0\">Guruhingizda <b>"+v.F+" / "+v.T+"</b> talaba 1-bosqichni tugatdi.</p><div class=\"lbar\"><i style=\"width:"+pct+"%\"></i></div>"+
+     "<p>Hamma tugatgach (yoki o‘qituvchi boshlaganda) eng yuqori ball olgan <b>"+(v.Kest||1)+"</b> talaba <b>👑 sardor</b> bo‘ladi.</p>"+
+     (v.place?"<div class=\"myplace\">Hozir siz <b>"+v.place+"-o‘rin</b>dasiz"+(v.place<=(v.Kest||1)?" — <b>sardorlikka nomzodsiz! 👑</b>":"")+"</div>":"")+
+     (v.cand&&v.cand.length?"<h3>👑 Sardorlikka nomzodlar (hozircha)</h3><ol class=\"cand\">"+v.cand.map(function(n){return "<li>"+esc(n)+"</li>";}).join("")+"</ol>":"")+
+     "<p class=\"muted\" style=\"font-size:13px\">Bu sahifa o‘zi yangilanadi — telefonni yopmang. Bu orada 🧩 krossvordni yechishingiz mumkin.</p></div>";}
+  else if(v.phase==="draft"){var tt=v.turn?v.turn.t:-1,T=v.teams[tt]||{},myTurn=me.role==="cap"&&me.t===tt;
+    h+="<div class=\"card scene\"><h2>👑 Sardorlar jamoa tuzmoqda</h2>"+
+     "<div class=\"turnbox"+(myTurn?" my":"")+"\">"+(myTurn?"<b>Sizning navbatingiz!</b> Jamoangizga bitta a’zo tanlang":"Navbat: <b>"+(T.e||"")+" "+esc(T.t||"")+"</b> · sardor "+esc(T.cap||""))+" <span class=\"tl\">⏱ <span id=\"tLeft\">"+(v.turn?v.turn.left:0)+"</span> s</span></div>";
+    if(me.role==="cap")h+="<p class=\"muted\" style=\"font-size:13px;margin:8px 0 0\">Siz <b>"+v.teams[me.t].e+" "+esc(v.teams[me.t].t)+"</b> sardorisiz. Navbat sizga kelganda ro‘yxatdan ismni bosing va «Tanlash»ni bosing. 30 soniyada tanlamasangiz, tizim tasodifiy tanlaydi.</p>";
+    else if(me.role==="pool")h+="<p style=\"margin:8px 0 0\">🙂 Sizni hali hech kim tanlamadi — sardorlar tanlamoqda, kuting.</p>";
+    else if(me.role==="mem"){var M=v.teams[me.t];h+="<div class=\"picked\">🎉 Siz <b>"+M.e+" "+esc(M.t)+"</b> jamoasidasiz! Sardor: <b>"+esc(M.cap)+"</b></div>";}
+    h+="<h3>Tanlanmaganlar ("+v.pool.length+")</h3><div class=\"dpool\">"+(v.pool.length?v.pool.map(function(p){return myTurn?"<button class=\"pp"+(pickSel===p.k?" sel":"")+"\" data-k=\""+esc(p.k)+"\">"+esc(p.n)+"</button>":"<span class=\"pp\">"+esc(p.n)+"</span>";}).join(""):"<span class=\"muted\">hamma tanlandi</span>")+"</div>"+
+     (myTurn?"<button class=\"btn gold\" id=\"pickGo\" style=\"width:100%;margin-top:10px;padding:12px\""+(pickSel?"":" disabled")+">✓ Tanlash</button>":"")+"</div>";}
+  else{/* play */
+    if(me.role==="cap"){var M=v.teams[me.t];h+="<div class=\"card scene\"><h2>"+M.e+" "+esc(M.t)+" jamoasi tayyor!</h2><p style=\"margin-top:0\">Siz — <b>👑 sardor</b>. 2-bosqichda (4–6-bob) jamoa nomidan javob kiritasiz. A’zolar o‘z telefonida savolni ko‘radi va <b>🗳 ovoz beradi</b> — ovozlar variantlar yonida chiqadi. Avval jamoa bilan maslahatlashing, keyin bosing.</p>"+
+       "<button class=\"btn gold\" id=\"tStart\" style=\"width:100%;padding:13px\">"+(v.st?"▶ 2-bosqichni davom ettirish":"▶ 2-bosqichni boshlash")+"</button></div>";}
+    else if(me.role==="mem"){var M2=v.teams[me.t];h+="<div class=\"card scene\"><h2>"+M2.e+" "+esc(M2.t)+" jamoasidasiz</h2><p style=\"margin-top:0\">Sardoringiz <b>"+esc(M2.cap)+"</b> 2-bosqichni boshlashini kuting. Boshlanishi bilan savollar shu yerda chiqadi va siz <b>🗳 ovoz berasiz</b>.</p><div class=\"spin\"></div></div>";}
+    else h+="<div class=\"card scene\"><h2>Jamoa topilmadi</h2><p>Barcha jamoalar tugatgan yoki joy yo‘q. O‘qituvchiga murojaat qiling.</p></div>";}
+  h+="<h3 style=\"margin-top:16px\">Jamoalar</h3><div class=\"tgrid\">"+(v.teams.length?v.teams.map(function(T,i){return tcard(T,i,v);}).join(""):"<div class=\"muted\">Hali jamoa yo‘q.</div>")+"</div></div>";
+  return h;}
+function bindLobby(v){[].forEach.call(document.querySelectorAll(".dpool button.pp"),function(b){b.addEventListener("click",function(){pickSel=b.dataset.k;lobbySig="";renderLobby(VIEW);beep("click");});});
+  var pg=$("pickGo");if(pg)pg.addEventListener("click",function(){if(!pickSel)return;pg.disabled=true;var k=pickSel;pickSel=null;
+    post({action:"pick",key:ME.key,group:ME.group,k:k}).then(function(r){if(r&&r.picked){beep("good");toast("Tanlandi!");}else toast("Navbat o‘tib ketdi");if(r&&r.ok){VIEW=r;lobbySig="";renderLobby(r);}poll(1500);},function(){toast("Internet xatosi — qayta bosing");pg.disabled=false;pickSel=k;});});
+  var ts=$("tStart");if(ts)ts.addEventListener("click",function(){startTeam(VIEW);});}
+
+/* ---------- sardor: 2-bosqich ---------- */
+function newTeam(v){var I=v.init||{r:50,sa:50,bu:120000},M=v.teams[v.me.t];
+  return {team:M.t,teamE:M.e,g:gkey(ME.group),key:ME.key,name:ME.name,group:ME.group,co:shuffle([0,1,2,3,4]),xp:0,streak:0,best:0,jok:2,hints:0,fast:0,stars:{},t0:0,fastMs:30000,budget:I.bu,rep:I.r,sat:I.sa,bleisure:10,pts:{},log:[],i:0,ans:false,won:true,started:Date.now(),done:false};}
+function startTeam(v){stopPoll();clearInterval(tick);var st=v.st,loc=null;try{loc=JSON.parse(ls(LSTS)||"null");}catch(e){}
+  TS=newTeam(v);
+  if(loc&&loc.key===ME.key&&loc.team===TS.team&&loc.g===TS.g&&(!st||loc.i>=st.i))TS=loc;
+  else if(st){["i","co","pts","rep","sat","budget","xp","streak","best","fast","hints","jok","bleisure","lastChap","ans","done"].forEach(function(f){if(st[f]!==undefined)TS[f]=st[f];});TS.lastChap=0;}
+  MODE="team";S=TS;ME.phase="team";buildFlow();hud();saveState();beep("whoosh");
+  var i=TS.ans?TS.i+1:Math.max(1,TS.i||1);if(TS.done)i=FLOW.length-1;go(Math.min(i,FLOW.length-1));poll(3000);}
+var tBusy=false,tNext=null;
+function tsync(ans,done){if(!GS||!TS)return;var b=MISSIONS.slice(13).map(function(m){var x=mPts(m.id);return x===undefined?null:x;});
+  tNext={action:"tupd",key:ME.key,group:ME.group,st:{i:TS.i,len:FLOW.length-2,co:TS.co,pts:TS.pts,rep:TS.rep,sat:TS.sat,budget:TS.budget,xp:TS.xp,streak:TS.streak,best:TS.best,fast:TS.fast,hints:TS.hints,jok:TS.jok,bleisure:TS.bleisure,lastChap:TS.lastChap||0,won:true,done:!!done,ans:!!ans,know:know(),kpi:kpi(),score:know()+kpi(),b:b,last:ans?TS.last:null}};tpump();}
+function tpump(){if(tBusy||!tNext)return;var d=tNext;tNext=null;tBusy=true;var tries=0;
+  function ok(j){tBusy=false;if(j&&j.notcap&&MODE==="team"){toast("Siz endi sardor emassiz");lostCap();return;}if(d.st.done)syncNote("✅ Jamoa natijasi o‘qituvchiga yuborildi");tpump();}
+  function fail(){if(++tries<6)setTimeout(send,2000*tries);else{tBusy=false;if(d.st.done)syncNote("⚠️ Internet bilan muammo — sahifani yopmang, qayta urinib ko‘ring");tpump();}}
+  function send(){post(d).then(ok,fail);}send();}
+/* sardor ekranida a’zolar ovozi */
+function showVotes(votes,v){var bar=$("vBar");if(!bar)return;var cnt={},n=0;for(var k in votes){cnt[votes[k]]=(cnt[votes[k]]||0)+1;n++;}
+  var M=v.teams[v.me.t]||{n:1};bar.innerHTML="🗳 <b>Jamoa ovozi:</b> "+n+" / "+Math.max(0,M.n-1)+" a’zo ovoz berdi"+(n?"":" — a’zolar telefonida savol chiqdi");
+  [].forEach.call(document.querySelectorAll(".opt"),function(o){var c=cnt[+o.dataset.i]||0,b=o.querySelector(".vc");if(!b){b=document.createElement("span");b.className="vc";o.appendChild(b);}b.textContent=c?"🗳 "+c:"";b.style.display=c?"":"none";});}
+
+/* ---------- a’zo: kuzatish va ovoz ---------- */
+var watchSig="",myVotes={};
+function watch(v){var st=v.st,M=v.teams[v.me.t],F=teamFlow(st.co),sc=F[Math.min(Math.max(1,st.i),F.length-2)],sid=st.i;
+  var sig=JSON.stringify([st.i,st.ans,st.score,myVotes[sid],M.mem]);if(sig===watchSig)return;watchSig=sig;lobbySig="watch";
+  var kp=st.kpi,body="";
+  if(st.ans&&st.last){var L=st.last,full=L.p>=L.mx;body="<div class=\"fb on "+(full?"good":L.p>0?"mid":"bad")+"\">"+(full?"✅":L.p>0?"🟡":"❌")+" Sardor javob berdi: <b>+"+L.p+" / "+L.mx+" ball</b>"+(sc.type==="choice"&&L.o>=0&&sc.opts[L.o]?"<br><span style=\"font-size:14px\">Tanlov: «"+sc.opts[L.o].t+"»"+(sc.opts[L.o].best?"":" · eng to‘g‘ri javob: «"+(sc.opts.filter(function(o){return o.best;})[0]||{t:""}).t+"»")+"</span>":"")+"<br><span class=\"muted\" style=\"font-size:13px\">Keyingi savol kutilmoqda…</span></div>";}
+  else if(sc.type==="choice"){var mv=myVotes[sid];body="<p class=\"muted\" style=\"margin:4px 0 8px;font-size:14px\">🗳 Qaysi javob to‘g‘ri? Ovozingiz sardor ekranida ko‘rinadi.</p><div class=\"opts\">"+sc.opts.map(function(o,i){return "<button class=\"opt vopt"+(mv===i?" sel":"")+"\" data-v=\""+i+"\"><span class=\"k\">"+"ABCD"[i]+"</span>"+o.t+(o.cost?"<span class=\"cost\">"+o.cost+"</span>":"")+"</button>";}).join("")+"</div>"+(mv!=null?"<div class=\"voted\">✓ Ovozingiz qabul qilindi. Fikringizni sardorga ayting!</div>":"");}
+  else body="<div class=\"hint\" style=\"margin-top:8px\">📱 Bu topshiriq <b>sardor telefonida</b> bajariladi. Uning yonida turing va birga muhokama qiling!</div>"+preview(sc);
+  $("stage").innerHTML="<div class=\"lobby\"><div class=\"whead\"><div><span class=\"te\">"+M.e+"</span> <b>"+esc(M.t)+"</b> <span class=\"muted\" style=\"font-size:13px\">· 👑 "+esc(M.cap)+" · "+M.n+" kishi</span></div><div class=\"wsc\"><b>"+st.score+"</b>/50<small>bilim "+st.know+"/40 · KPI "+kp+"/10</small></div></div>"+
+   "<div class=\"progress\" style=\"margin:8px 0 12px\">"+F.slice(1,-1).map(function(s,i){var idx=i+1;return "<i class=\""+(idx<st.i||(idx===st.i&&st.ans)?"done":idx===st.i?"cur":"")+"\"></i>";}).join("")+"</div>"+
+   "<div class=\"card scene\">"+chapStrip(sc)+"<span class=\"pill\">"+sc.tag+" · 2-bosqich "+st.i+"/"+(F.length-2)+"</span><h2 style=\"margin-top:8px\">"+sc.title+"</h2>"+(sc.crisis?"<div class=\"crisis\"><span style=\"font-size:22px\">⚡</span><div><b>INQIROZ</b></div></div>":"")+(sc.who?msg(sc.who,sc.text):(sc.text?"<p>"+sc.text+"</p>":""))+body+"</div>"+
+   "<div class=\"netbad\" id=\"netBad\" style=\"display:none\">⚠️ Internet bilan muammo — qayta ulanmoqda…</div></div>";
+  [].forEach.call(document.querySelectorAll(".vopt"),function(b){b.addEventListener("click",function(){var o=+b.dataset.v;myVotes[sid]=o;watchSig="";watch(VIEW);beep("click");
+    post({action:"vote",key:ME.key,group:ME.group,t:v.me.t,sid:sid,opt:o}).then(function(){},function(){toast("Ovoz yuborilmadi — qayta bosing");delete myVotes[sid];watchSig="";});});});}
+function preview(sc){var L=[];
+  if(sc.type==="blitz")return "<p class=\"muted\" style=\"font-size:14px\">⚡ Blitz: sardor "+sc.sec+" soniyada "+sc.items.length+" ta fikrga javob beradi — «to‘g‘ri»/«noto‘g‘ri»ni tez ayting!</p>";
+  if(sc.opts)L=sc.opts.map(function(o){return o.t;});else if(sc.items)L=sc.items.map(function(x){return typeof x==="string"?x:x[0];});else if(sc.rows)L=sc.rows.map(function(r){return r[0];});else if(sc.cards)L=sc.cards.map(function(c){return c[0];});else if(sc.acts)L=sc.acts.map(function(a){return a[0];});else if(sc.facts)L=sc.facts.map(function(f){return f[0];});else if(sc.qs)L=sc.qs.map(function(q){return q[0];});
+  return L.length?"<ul class=\"prev\">"+shuffle(L).map(function(t){return "<li>"+t+"</li>";}).join("")+"</ul>":"";}
+
+/* ---------- yakun ---------- */
+function rFinal(){stopTimer();TS.done=true;TS.finished=TS.finished||Date.now();saveState();tsync(true,true);
+  var st={pts:TS.pts,rep:TS.rep,sat:TS.sat,budget:TS.budget,xp:TS.xp,best:TS.best,know:know(),kpi:kpi(),score:know()+kpi()};
+  MODE="solo";S=ME;ME.phase="done";saveState();$("hudWrap").style.display="none";
+  finalScreen(st,VIEW?VIEW.teams:[],VIEW?VIEW.me.t:-1,true);
+  setTimeout(function(){post({action:"state",key:ME.key,name:ME.name,group:ME.group,solo:true,me:meInfo()}).then(function(v){if(v&&v.ok){VIEW=v;fillStand(v.teams,v.me.t);}});},3000);}
+function fillStand(teams,mt){var el=$("tStand");if(!el)return;if(!teams||!teams.length){el.style.display="none";return;}
+  var A=teams.map(function(t,i){return Object.assign({ix:i},t);}).sort(function(a,b){return b.score-a.score;}),mx=Math.max.apply(null,A.map(function(t){return t.score;}).concat([1]));
+  el.innerHTML="<b>⚔️ Guruhdagi jamoalar</b>"+A.map(function(t,i){return "<div class=\"tr"+(t.ix===mt?" me":"")+"\"><span>"+(i+1)+"</span><span>"+t.e+" "+esc(t.t)+" <span class=\"muted\" style=\"font-weight:500;font-size:12px\">· "+t.n+" kishi"+(t.done?"":t.started?" · o‘ynamoqda":" · boshlamagan")+"</span><div class=\"tb\"><i style=\"width:"+Math.round(t.score/mx*100)+"%\"></i></div></span><b style=\"text-align:right\">"+t.score+"</b></div>";}).join("")+"<div class=\"muted\" style=\"font-size:12px;margin-top:6px\">Jamoa bali (50 dan).</div>";}
+function finalScreen(st,teams,mt,isCap){stopPoll();clearInterval(tick);var ind=indScore(),jam=Math.round(st.score||0),t=ind+jam,g=grade(t),M=(teams&&teams[mt])||{t:TS?TS.team:"",e:TS?TS.teamE:""};
+  var pts=st.pts||{},inqAll=[1,2,3,4,5].every(function(i){return pts["inq"+i]===2;});
+  var BD=[["🔥","Olovli seriya","5 ta ketma-ket mukammal javob",Math.max(ME.best,st.best||0)>=5],["🧯","Inqiroz ustasi","5 inqirozda ham eng to‘g‘ri qaror (jamoa)",inqAll],["💰","Byudjet qo‘riqchisi","Jamoa byudjeti manfiyga tushmadi",st.budget>=0],["⚡","Chaqmoq","1-bosqichda 5+ tez javob",ME.fast>=5],["🧠","Mustaqil","1-bosqichda maslahat olinmadi",ME.hints===0],["🃏","Jokersiz","1-bosqichda 50/50 ishlatilmadi",ME.jok===2],["🤝","Diplomat","Jamoa obro‘si 90+",st.rep>=90],["😊","Mehmondo‘st","Mamnunlik 90+",st.sat>=90],["📜","Tarixchi","Tarix va blitz mukammal",pts.tarix===MX.tarix.max&&pts.blitz===MX.blitz.max]];
+  var nb=BD.filter(function(b){return b[3];}).length;ME.badges=BD.filter(function(b){return b[3];}).map(function(b){return b[0];}).join("");ME.teamXp=st.xp||0;ME.badgeXp=nb*50;ME.finalScore=t;saveState();
+  var xp=totalXp(),rk=rankOf(xp);
   var m=t>=86?["linear-gradient(145deg,#e9c36f,#b8862f)","Oltin karvon"]:t>=71?["linear-gradient(145deg,#c9d1dc,#8793a6)","Kumush karvon"]:t>=56?["linear-gradient(145deg,#d49a6a,#9a5b2e)","Bronza karvon"]:["linear-gradient(145deg,#9aa4b5,#5d6676)","Yana bir urinish"];
-  var rec=makeRecord();if(!S.saved){saveLocalResult(rec);S.saved=true;saveState();}var code=encodeResult(rec);
   if(t>=71){confetti();beep("win");}
-  var inq=0;for(var i=1;i<=5;i++)inq+=S.pts["inq"+i]||0;
-  var rows=MISSIONS.map(function(mm){var v=mm.id==="inq"?inq:(S.pts[mm.id]||0);return "<tr><td>"+mm.name+"</td><td style=\"text-align:right;white-space:nowrap\"><b>"+v+"</b> / "+mm.max+"</td></tr>";}).join("");
-  var msgTxt="📊 MICE · Tashkilotchi missiyasi\n👤 "+S.name+" ("+S.group+")\n🎯 Baho bali: "+t+"/100 → "+g[0]+" ("+g[1]+")\n⭐ "+S.xp+" XP · "+rk.e+" "+rk.n+(S.badges?" · "+S.badges:"")+"\n🔐 "+code;
-  $("stage").innerHTML="<div class=\"card scene final\"><span class=\"pill\">Missiya yakunlandi · "+S.attempt+"-urinish</span><h2 style=\"margin-top:10px\">"+esc(S.name)+" · "+esc(S.group)+"</h2><div class=\"medal\" style=\"background:"+m[0]+"\">"+t+"</div><div class=\"grade "+g[2]+"\">Baho: "+g[0]+" · "+g[1]+"</div><p class=\"muted\" style=\"margin-top:0\">"+m[1]+" · "+rk.e+" "+rk.n+" · "+S.xp+" XP</p>"+
-   (GS?"<div class=\"hint\" id=\"fSync\" style=\"font-size:15px;font-weight:700\">⏳ Natijangiz o‘qituvchiga yuborilmoqda…</div>":"")+"<div class=\"codebox\"><b>📨 "+(GS?"Zaxira: Telegram orqali ham yuborish mumkin":"Natijani o‘qituvchiga yuboring")+"</b><div class=\"muted\" style=\"font-size:13px\">«Telegram» tugmasini bosing va o‘qituvchini tanlang. Xabarda himoyalangan kod bor — o‘qituvchi uni o‘z paneliga qo‘yadi.</div><div class=\"sendbig\"><a class=\"tgbtn\" id=\"fTg\" target=\"_blank\" rel=\"noopener\">✈️ Telegram</a><button class=\"btn gold\" id=\"fCopy\">📋 Nusxalash</button></div><code id=\"resCode\" style=\"margin-top:10px\">"+code+"</code></div>"+
-   "<div class=\"kgrid\"><div class=\"kbox\"><div class=\"l\">📚 Bilim</div><div class=\"v\">"+k+" / 80</div><div class=\"s\">topshiriqlar</div></div><div class=\"kbox\"><div class=\"l\">📈 KPI</div><div class=\"v\">"+(kp[0]+kp[1]+kp[2])+" / 20</div><div class=\"s\">obro‘ "+kp[0]+"/8 · mamnun "+kp[1]+"/8 · byudjet "+kp[2]+"/4</div></div><div class=\"kbox\"><div class=\"l\">⭐ Yulduzlar</div><div class=\"v\">"+nStars+" / "+(Object.keys(MX).length-1)*3+"</div><div class=\"s\">eng uzun seriya: 🔥"+S.best+"</div></div><div class=\"kbox\"><div class=\"l\">⏱ Vaqt</div><div class=\"v\" style=\"font-size:18px\">"+dur(S.started,S.finished)+"</div><div class=\"s\">tez javoblar: ⚡"+S.fast+"</div></div></div>"+
-   "<h3 style=\"text-align:left\">🏅 Nishonlar ("+BD.filter(function(b){return b[3];}).length+" / 9, har biri +50 XP)</h3><div class=\"badges\">"+BD.map(function(b){return "<div class=\"badge"+(b[3]?" on":"")+"\"><span class=\"e\">"+b[0]+"</span><b>"+b[1]+"</b>"+b[2]+"</div>";}).join("")+"</div>"+
-   "<details style=\"text-align:left;margin-top:14px\"><summary>📋 Ballar taqsimoti</summary><div class=\"tbl\"><table class=\"gl\">"+rows+"<tr><td>KPI (obro‘, mamnunlik, byudjet)</td><td style=\"text-align:right\"><b>"+(kp[0]+kp[1]+kp[2])+"</b> / 20</td></tr><tr><td><b>Jami</b></td><td style=\"text-align:right\"><b>"+t+"</b> / 100</td></tr></table></div></details>"+
-   "<details style=\"text-align:left;margin-top:10px\"><summary>🗒 Qarorlar jurnali</summary><div class=\"tbl\"><table class=\"gl\">"+S.log.map(function(l){return "<tr><td>"+esc(l.t)+"</td><td style=\"text-align:right;white-space:nowrap\">"+esc(l.p)+"</td></tr>";}).join("")+"</table></div></details>"+
-   "<div class=\"row\" style=\"justify-content:center;margin-top:16px\"><button class=\"btn ghost\" id=\"fAgain\">🔁 Qayta o‘ynash</button><button class=\"btn ghost\" id=\"fCw\">🧩 Bonus: krossvord</button></div></div>";
-  sync("final");
-  if(S.team){var tsEl=document.createElement("div");tsEl.className="tstand";tsEl.id="tStand";tsEl.innerHTML="<b>⚔️ Jamoalar reytingi</b><div class=\"muted\" style=\"font-size:13px\">yuklanmoqda…</div>";var kg=document.querySelector(".kgrid");if(kg)kg.parentNode.insertBefore(tsEl,kg);
-    setTimeout(function(){try{fetch(EXEC+"?action=teams&_="+Date.now(),{credentials:"omit"}).then(function(r){return r.json();}).then(function(j){var T=(j&&j.teams)||[];if(!T.length){tsEl.innerHTML="<b>⚔️ Jamoalar reytingi</b><div class=\"muted\" style=\"font-size:13px\">Hali ma’lumot yo‘q.</div>";return;}var mx=Math.max.apply(null,T.map(function(t){return t.avg;}))||1;
-      tsEl.innerHTML="<b>⚔️ Jamoalar reytingi</b>"+T.map(function(t,i){var e=(TEAMS.filter(function(x){return x[0]===t.team;})[0]||["","🏳️"])[1];return "<div class=\"tr"+(t.team===S.team?" me":"")+"\"><span>"+(i+1)+"</span><span>"+e+" "+esc(t.team)+" <span class=\"muted\" style=\"font-weight:500;font-size:12px\">· "+t.n+" kishi</span><div class=\"tb\"><i style=\"width:"+Math.round(t.avg/mx*100)+"%\"></i></div></span><b style=\"text-align:right\">"+t.avg+"</b></div>";}).join("")+"<div class=\"muted\" style=\"font-size:12px;margin-top:6px\">Jamoa a’zolarining o‘rtacha bali.</div>";}).catch(function(){tsEl.remove();});}catch(e){tsEl.remove();}},2500);}
-  $("fTg").href="https://t.me/share/url?url="+encodeURIComponent("MICE natija")+"&text="+encodeURIComponent(msgTxt);
-  $("fCopy").addEventListener("click",function(){try{navigator.clipboard.writeText(msgTxt).then(function(){toast("Nusxalandi — Telegramda o‘qituvchiga yuboring");},function(){toast("Kodni qo‘lda belgilab nusxalang");});}catch(e){toast("Kodni qo‘lda belgilab nusxalang");}});
-  $("fAgain").addEventListener("click",function(){ls("mice7_state",null);var n=S.name,gr=S.group;resetState();S.name=n;S.group=gr;buildFlow();hud();go(0);});
+  var inq=0;for(var i=1;i<=5;i++)inq+=pts["inq"+i]||0;
+  var rows=MISSIONS.map(function(mm,ix){var v=ix<13?(ME.pts[mm.id]||0):(mm.id==="inq"?inq:(pts[mm.id]||0));return (ix===0?"<tr><th colspan=\"2\">🧑 1-bosqich · yakka</th></tr>":ix===13?"<tr><th colspan=\"2\">👥 2-bosqich · jamoa</th></tr>":"")+"<tr><td>"+mm.name+"</td><td style=\"text-align:right;white-space:nowrap\"><b>"+v+"</b> / "+mm.max+"</td></tr>";}).join("");
+  var kp=[0,0,0];(function(){function sc4(v){return Math.round(clamp((v-50)/50,0,1)*4);}kp=[sc4(st.rep),sc4(st.sat),st.budget>=0?2:st.budget>=-15000?1:0];})();
+  $("stage").innerHTML="<div class=\"card scene final\"><span class=\"pill\">Missiya yakunlandi</span><h2 style=\"margin-top:10px\">"+esc(ME.name)+" · "+esc(ME.group)+"</h2><div class=\"medal\" style=\"background:"+m[0]+"\">"+t+"</div><div class=\"grade "+g[2]+"\">Baho: "+g[0]+" · "+g[1]+"</div><p class=\"muted\" style=\"margin-top:0\">"+m[1]+" · "+rk.e+" "+rk.n+" · "+xp+" XP</p>"+
+   (GS?"<div class=\"hint\" id=\"fSync\" style=\"font-size:15px;font-weight:700\">⏳ Natijangiz o‘qituvchiga yuborilmoqda…</div>":"")+
+   "<div class=\"sumrow\"><div class=\"sb\"><span>🧑 Shaxsiy</span><b>"+ind+"</b><small>/ 50</small></div><div class=\"plus\">+</div><div class=\"sb\"><span>"+(M.e||"👥")+" Jamoa</span><b>"+jam+"</b><small>/ 50</small></div><div class=\"plus\">=</div><div class=\"sb tot\"><span>Yakuniy</span><b>"+t+"</b><small>/ 100</small></div></div>"+
+   "<p class=\"muted\" style=\"font-size:13px;margin-top:6px\">"+(M.t?esc(M.t)+" jamoasi"+(isCap?" · siz sardor edingiz 👑":""):"")+" · jamoa: bilim "+(st.know||0)+"/40 + KPI "+(st.kpi||0)+"/10 (obro‘ "+kp[0]+"/4 · mamnunlik "+kp[1]+"/4 · byudjet "+kp[2]+"/2)</p>"+
+   "<div class=\"tstand\" id=\"tStand\"><b>⚔️ Guruhdagi jamoalar</b><div class=\"muted\" style=\"font-size:13px\">yuklanmoqda…</div></div>"+
+   "<h3 style=\"text-align:left\">🏅 Nishonlar ("+nb+" / 9, har biri +50 XP)</h3><div class=\"badges\">"+BD.map(function(b){return "<div class=\"badge"+(b[3]?" on":"")+"\"><span class=\"e\">"+b[0]+"</span><b>"+b[1]+"</b>"+b[2]+"</div>";}).join("")+"</div>"+
+   "<details style=\"text-align:left;margin-top:14px\"><summary>📋 Ballar taqsimoti</summary><div class=\"tbl\"><table class=\"gl\">"+rows+"<tr><td>Jamoa KPI (obro‘, mamnunlik, byudjet)</td><td style=\"text-align:right\"><b>"+(st.kpi||0)+"</b> / 10</td></tr><tr><td><b>Jami</b></td><td style=\"text-align:right\"><b>"+t+"</b> / 100</td></tr></table></div></details>"+
+   "<div class=\"row\" style=\"justify-content:center;margin-top:16px\"><button class=\"btn ghost\" id=\"fCw\">🧩 Bonus: krossvord</button></div></div>";
+  fillStand(teams,mt);sync("final");
   $("fCw").addEventListener("click",function(){location.hash="krossvord";show("krossvord");});}
+function totalXp(){return (ME.xp||0)+(ME.teamXp||0)+(ME.badgeXp||0);}
 function dur(a,b){var s=Math.max(0,Math.round(((b||Date.now())-a)/1000));return Math.floor(s/60)+" daq "+(s%60)+" s";}
-
-/* ---------- result record, code, local store ---------- */
-function makeRecord(){var inq=0;for(var i=1;i<=5;i++)inq+=S.pts["inq"+i]||0;var br=MISSIONS.map(function(m){return m.id==="inq"?inq:(S.pts[m.id]||0);});
-  var d=new Date(S.finished||Date.now());return {v:2,n:S.name,g:S.group,s:total(),k:know(),p:kpi(),b:br,x:S.xp,rk:rankOf(S.xp).n,bd:S.badges||"",st:S.best,r:S.rep,m:S.sat,bu:S.budget,a:S.attempt,
-  d:d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"),t:Math.max(1,Math.round(((S.finished||Date.now())-S.started)/60000))};}
-function hash(str){var h=5381;for(var i=0;i<str.length;i++)h=((h<<5)+h+str.charCodeAt(i))|0;return (h>>>0).toString(36);}
-function b64e(s){return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");}
-function b64d(s){s=s.replace(/-/g,"+").replace(/_/g,"/");while(s.length%4)s+="=";return decodeURIComponent(escape(atob(s)));}
-function encodeResult(rec){var p=b64e(JSON.stringify(rec));return "MICE2-"+p+"."+hash(p+"|"+SECRET);}
-function decodeResult(){return {err:"n/a"};}
-function loadLocal(k){try{return JSON.parse(ls(k)||"[]");}catch(e){return [];}}
-function saveLocalResult(rec){var L=loadLocal("mice_results");L.push(Object.assign({src:"qurilma"},rec));ls("mice_results",JSON.stringify(L));}
 
 var EXEC="https://script.google.com/macros/s/AKfycbz6wKfg292iYReiI7-a4J09KtYJ51fN1--5jDn8UUh88hWS05sWtqpOpjyhLXoyJiz3HQ/exec";var GS=true;function gasRun(){try{return (window.google&&google.script&&google.script.run)?google.script.run:null;}catch(e){return null;}}
 var syncBusy=false,syncNext=null;
-function sync(status){if(!GS||!S||!S.name)return;var fin=status==="final",t=total(),g=grade(t),rec=makeRecord(),N=FLOW.length-2;
-  syncNext={key:S.key,name:S.name,group:S.group,team:S.team||"",status:status,final:fin,stage:(fin?N:clamp(S.i,0,N))+"/"+N,score:t,grade:g[0]+" · "+g[1],know:know(),kpi:kpi(),xp:S.xp,rank:rankOf(S.xp).n,badges:S.badges||"",attempt:S.attempt,b:rec.b};pump();}
+function sync(status){if(!GS||!ME||!ME.name)return;var fin=status==="final",x=fin?totalXp():ME.xp;
+  syncNext={key:ME.key,name:ME.name,group:ME.group,status:status,final:fin,stage:(status==="solo_done"?14:clamp(ME.i,0,14))+"/28",shaxsiy:indScore(),xp:x,rank:rankOf(x).n,badges:ME.badges||"",attempt:ME.attempt,b:indB(),me:meInfo()};pump();}
 function syncNote(t){var e=$("fSync");if(e)e.textContent=t;}
 function pump(){if(syncBusy||!syncNext)return;var d=syncNext;syncNext=null;syncBusy=true;var tries=0;
   function ok(){syncBusy=false;if(d.final)syncNote("✅ Natijangiz o‘qituvchiga avtomatik yuborildi");pump();}
