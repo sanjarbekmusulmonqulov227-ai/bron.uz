@@ -494,6 +494,16 @@ button.pp{cursor:pointer;border-color:var(--gold)}button.pp.sel{background:var(-
 .pass .sec ul{margin:0;padding-left:20px;font-size:14px}.pass .sec li{padding:1px 0}
 .chk li{list-style:none;margin-left:-20px}.chk li:before{content:"☐ ";color:var(--gold);font-weight:800}
 .howplay{background:var(--bg);border-radius:14px;padding:12px 14px;margin-bottom:14px}
+.world{margin-top:10px;background:linear-gradient(135deg,#eef4ff,#f6fbff);border:1px solid #c9d8f2;border-radius:12px;padding:10px 12px;font-size:14px;color:var(--ink);line-height:1.5}
+.world .wh{font-weight:800;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#2c5ea8;margin-bottom:3px}
+.how{margin:10px 0 4px;font-size:14px;background:#fff8e6;border:1px dashed #e2b867;border-radius:10px;padding:7px 11px;color:var(--ink)}
+.scene.decide{border:2px solid #6b4fbb;box-shadow:0 6px 24px rgba(107,79,187,.12)}
+.scene.decide .pill{background:#6b4fbb;color:#fff}
+.steps3{margin:6px 0 8px;padding-left:20px;font-size:14.5px}.steps3 li{margin:2px 0}
+.news{margin:14px 0;border:2px solid var(--ink);border-radius:10px;padding:12px 14px;background:#fffdf7;font-family:Georgia,"Times New Roman",serif;text-align:left}
+.news .nm{font-family:inherit;font-size:12px;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--ink);padding-bottom:5px;margin-bottom:6px}
+.news .nm span{text-transform:none;letter-spacing:0;opacity:.6}
+.news h3{margin:4px 0 6px;font-size:20px;line-height:1.25}.news ul{margin:0;padding-left:18px;font-size:14.5px}
 .rating{margin:10px auto 6px;background:linear-gradient(135deg,#132038,#1e3157);color:#fff;border-radius:18px;padding:14px 16px;max-width:420px}
 .rating .rs{font-size:34px;letter-spacing:4px;animation:pop .7s cubic-bezier(.2,1.6,.4,1)}.rating b{display:block;font-size:19px;color:var(--gold2);margin-top:2px}.rating .muted{color:rgba(255,255,255,.75)}
 .rlist{display:inline-block;text-align:left;font-size:14px;margin:6px 0 10px;background:var(--bg);border-radius:12px;padding:8px 14px}
@@ -568,7 +578,7 @@ button.pp{cursor:pointer;border-color:var(--gold)}button.pp.sel{background:var(-
 
 <div class="modal" id="mRules"><div class="box"><button class="x" data-close>×</button>
   <h2>🎯 Ballar qanday hisoblanadi</h2>
-  <p>Siz forumni boshidan oxirigacha tashkil etasiz: <b>12 bob, 37 ta topshiriq, jami 100 ball</b>. Har topshiriqda maksimal ball yozilgan. To‘g‘ri javob — to‘liq ball, qisman to‘g‘ri — qisman, xato — 0. Har topshiriqqa javob bir marta beriladi, keyin to‘g‘ri yechim va <b>tashkilotchi qoidasi</b> ko‘rsatiladi.</p>
+  <p>Siz forumni boshidan oxirigacha tashkil etasiz: <b>12 bob, 37 ta topshiriq, jami 100 ball</b>. Har topshiriqda maksimal ball yozilgan. To‘g‘ri javob — to‘liq ball, qisman to‘g‘ri — qisman, xato — 0. Har topshiriqqa javob bir marta beriladi, keyin to‘g‘ri yechim, <b>tashkilotchi qoidasi</b> va <b>jahon tajribasi</b> ko‘rsatiladi. Bundan tashqari 2 ta ballsiz <b>boshqaruv qarori</b> bor.</p>
   <div class="rubric" id="rubric"></div>
   <h3 style="margin-top:16px">⭐ Yulduzlar, 💰 byudjet, 😊 mamnunlik, 🏅 status</h3>
   <ul class="xplist">
@@ -576,7 +586,7 @@ button.pp{cursor:pointer;border-color:var(--gold)}button.pp.sel{background:var(-
     <li><b>💰 Byudjet:</b> boshida $450 000. Joy, boshlovchi, materiallar, kofe-breyk, transport, shou — hammasi pul. 10% zaxirani ($45 000) saqlang.</li>
     <li><b>😊 Mamnunlik:</b> 70 dan boshlanadi; to‘g‘ri qarorlar oshiradi, xatolar va noqulay sana, joy, inqirozlar tushiradi.</li>
     <li><b>🏅 Status (XP bo‘yicha):</b> 🎒 Stajyor → 📋 Koordinator (300) → 🗂️ Loyiha menejeri (650) → 🎖️ Bosh menejer (1000) → 👑 Bosh tashkilotchi (1350). XP = ball × 10, 🔥 seriya ×1,5/×2, ⚡ tez javob +20.</li>
-    <li><b>🏆 Tadbir reytingi (5 yulduz):</b> forum o‘tkazildi · ball 71+ · ball 86+ · zaxira saqlandi · mamnunlik 80+.</li>
+    <li><b>⚖️ Boshqaruv qarorlari:</b> homiy va gala-kecha joyini tanlash — ball berilmaydi, lekin byudjet, mamnunlik va keyingi voqealar (masalan, jala kuni nima bo‘lishi) shu qarorga bog‘liq. Professional tanlov +15 XP.</li><li><b>🌍 Jahon tajribasi:</b> har javobdan keyin haqiqiy xalqaro tadbirdan misol (ITB Berlin, Parij-2024, BMT, YuNESKO Samarqand sessiyasi va boshq.).</li><li><b>🏆 Tadbir reytingi (5 yulduz):</b> forum o‘tkazildi · ball 71+ · ball 86+ · zaxira saqlandi · mamnunlik 80+.</li>
     <li>Baho faqat <b>100 ballik</b> natijadan qo‘yiladi. 💡 Maslahat va 🃏 50/50 bahoni kamaytirmaydi.</li>
   </ul>
   <h3>Baholash</h3>
@@ -787,6 +797,7 @@ function hud(){var t=know();$("mPts").textContent=t;$("bPts").style.width=Math.m
 /* ---------- sahna ramkasi ---------- */
 function msg(who,text){var c=CAST[who];var ini=c.n.split(" ").map(function(w){return w[0];}).join("");
   return "<div class=\"msg\"><div class=\"ava\" style=\"background:"+c.c+"\">"+ini+"</div><div class=\"bubble\"><div class=\"whoName\">"+c.n+" · "+c.r+"</div>"+text+"</div></div>";}
+var HOW={choice:"bitta eng to‘g‘ri javobni bosing. Qisman to‘g‘ri javob ham yarim ball oladi.",match:"har bir qator yonidagi ro‘yxatdan mos javobni tanlang, so‘ng «Tekshirish»ni bosing.",num:"faqat raqam yozing (bo‘sh joy va $ belgisisiz), so‘ng «Javobni topshirish».",decide:"variantlarni solishtiring va bittasini tanlang. To‘g‘ri-noto‘g‘ri bali yo‘q, lekin byudjet, mamnunlik va keyingi voqealar shu qarorga bog‘liq."};
 var timerH=null;
 function startTimer(){var sp=$("spd");if(!sp||S.noFast)return;var i=sp.querySelector("i");i.style.transitionDuration=S.fastMs+"ms";requestAnimationFrame(function(){requestAnimationFrame(function(){i.style.width="0%";});});timerH=setTimeout(function(){sp.classList.add("off");},S.fastMs);}
 function stopTimer(){if(timerH){clearTimeout(timerH);timerH=null;}var sp=$("spd");if(sp){var i=sp.querySelector("i");var w=getComputedStyle(i).width;i.style.transitionDuration="0ms";i.style.width=w;}}
@@ -796,21 +807,30 @@ function chapIntro(c,done){var prev="";if(c>1){var r=chapRes(c-1);prev="<div cla
   var d=document.createElement("div");d.className="chov";d.innerHTML="<div class=\"cbox\"><div class=\"cimg\" style=\"background-image:url("+chapImg(c)+")\"><div><small>"+c+"-bob · "+NCH+" dan</small><h2>"+CHAPS[c][0]+"</h2></div></div><div class=\"cbody\">"+prev+"<p>"+CHAPS[c][1]+"</p><button class=\"btn gold\" style=\"width:100%;padding:13px\">Boshlash →</button></div></div>";
   document.body.appendChild(d);if(!prev)beep("whoosh");var closed=false;function close(){if(closed)return;closed=true;d.remove();done&&done();}d.querySelector("button").addEventListener("click",close);d.addEventListener("click",function(e){if(e.target===d)close();});}
 function frame(sc,body){var crisis=sc.crisis?"<div class=\"crisis\"><span style=\"font-size:26px\">⚡</span><div><b>INQIROZ</b><div style=\"font-size:14px;opacity:.9\">"+sc.crisis+"</div></div></div>":"";
-  var speed=!sc.noFast?"<div class=\"speed\" id=\"spd\"><i></i><span>⚡ Tez javob bonusi: +20 XP</span></div>":"";
+  var speed=(!sc.noFast&&sc.type!=="decide")?"<div class=\"speed\" id=\"spd\"><i></i><span>⚡ Tez javob bonusi: +20 XP</span></div>":"";
   var tools="";if(sc.hint||(sc.type==="choice"&&sc.opts.length>2)){tools="<div class=\"tools\">"+(sc.hint?"<button class=\"tbtn\" id=\"hintBtn\">💡 Maslahat (−20 XP)</button>":"")+(sc.type==="choice"&&sc.opts.length>2?"<button class=\"tbtn\" id=\"jokBtn\""+(S.jok>0?"":" disabled")+">🃏 50/50 (qoldi: "+S.jok+")</button>":"")+"</div>";}
-  return "<div class=\"card scene"+(sc.cls?" "+sc.cls:"")+"\">"+chapStrip(sc)+crisis+"<div class=\"shead\"><div><span class=\"pill\">"+sc.ch+"-bob · topshiriq "+S.i+" / "+(FLOW.length-2)+"</span><h2 style=\"margin-top:8px\">"+sc.title+"</h2></div><div class=\"row\"><span class=\"maxp\">🎯 maks. "+MX[sc.m].max+" ball</span></div></div>"+speed+(sc.who?msg(sc.who,sc.text):(sc.text?"<p>"+sc.text+"</p>":""))+(sc.extra||"")+tools+(sc.hint?"<div class=\"hint\" id=\"hintBox\" style=\"display:none\">💡 <b>Maslahat:</b> "+sc.hint+"</div>":"")+body+
+  var isD=sc.type==="decide",mi=isD?0:MISSIONS.indexOf(MX[sc.m])+1;
+  var how=HOW[sc.type]?"<div class=\"how\">🎯 <b>Nima qilasiz:</b> "+HOW[sc.type]+"</div>":"";
+  return "<div class=\"card scene"+(sc.cls?" "+sc.cls:"")+(isD?" decide":"")+"\">"+chapStrip(sc)+crisis+"<div class=\"shead\"><div><span class=\"pill\">"+sc.ch+"-bob · "+(isD?"boshqaruv qarori":"topshiriq "+mi+" / "+MISSIONS.length)+"</span><h2 style=\"margin-top:8px\">"+sc.title+"</h2></div><div class=\"row\"><span class=\"maxp\">"+(isD?"⚖️ ballsiz · oqibatli":"🎯 maks. "+MX[sc.m].max+" ball")+"</span></div></div>"+speed+(sc.who?msg(sc.who,sc.text):(sc.text?"<p>"+sc.text+"</p>":""))+(sc.extra||"")+how+tools+(sc.hint?"<div class=\"hint\" id=\"hintBox\" style=\"display:none\">💡 <b>Maslahat:</b> "+sc.hint+"</div>":"")+body+
   "<div class=\"fb\" id=\"sFb\"></div><div class=\"next row\" id=\"sNext\"><button class=\"btn gold\" id=\"sGo\">Keyingi topshiriq →</button></div></div>";}
 function bindTools(sc){var hb=$("hintBtn");if(hb)hb.addEventListener("click",function(){hb.disabled=true;$("hintBox").style.display="";S.hints++;S.xp=Math.max(0,S.xp-20);hud();});
   var jb=$("jokBtn");if(jb)jb.addEventListener("click",function(){if(S.jok<=0)return;S.jok--;jb.disabled=true;jb.textContent="🃏 50/50 ishlatildi";var bad=[];sc.opts.forEach(function(o,i){if(!o.best)bad.push([o.ok?1:0,i]);});bad.sort(function(a,b){return a[0]-b[0];});
     bad.slice(0,sc.opts.length>=4?2:1).forEach(function(x){var el=document.querySelector(".opt[data-i=\""+x[1]+"\"]");if(el){el.classList.add("gone");el.disabled=true;}});beep();hud();});}
 function finishScene(cls,html,sc){stopTimer();var ch=[];if(sc&&sc.autoE)ch=apply({budget:sc.autoE.budget},sc.autoE.label);
-  var f=$("sFb");f.className="fb on "+cls;f.innerHTML=html+chipsHtml(ch)+(sc&&sc.autoE?"<div class=\"muted\" style=\"font-size:13px;margin-top:4px\">💰 "+sc.autoE.label+"</div>":"")+(sc&&sc.rule?"<div class=\"rule\">📌 <b>Tashkilotchi qoidasi:</b> "+sc.rule+"</div>":"");$("sNext").classList.add("on");$("sGo").onclick=function(){go(S.i+1);};
+  var f=$("sFb");f.className="fb on "+cls;f.innerHTML=html+chipsHtml(ch)+(sc&&sc.autoE?"<div class=\"muted\" style=\"font-size:13px;margin-top:4px\">💰 "+sc.autoE.label+"</div>":"")+(sc&&sc.rule?"<div class=\"rule\">📌 <b>Tashkilotchi qoidasi:</b> "+sc.rule+"</div>":"")+(sc&&sc.w?"<div class=\"world\"><div class=\"wh\">🌍 Jahon tajribasi</div>"+sc.w+"</div>":"");$("sNext").classList.add("on");$("sGo").onclick=function(){go(S.i+1);};
   if(S.i===FLOW.length-2)$("sGo").textContent="🏁 Natijani ko‘rish";
   var jb=$("jokBtn");if(jb)jb.disabled=true;var hb=$("hintBtn");if(hb)hb.disabled=true;
   setTimeout(function(){try{f.scrollIntoView({behavior:"smooth",block:"nearest"});}catch(e){}},80);beep(cls==="good"?"good":cls==="bad"?"bad":"");S.ans=true;saveState();sync("progress");}
 function verdict(ok,n){return ok===n?"good":ok>=n*.6?"mid":"bad";}
 
 /* ---------- topshiriq turlari ---------- */
+function rDecide(sc){var ord=shuffle(sc.opts.map(function(o,i){return i;}));
+  $("stage").innerHTML=frame(sc,"<div class=\"opts\">"+ord.map(function(i){var o=sc.opts[i];var b=o.e&&o.e.budget?(o.e.budget>0?"+":"−")+money(Math.abs(o.e.budget)):"$0";return "<button class=\"opt\" data-i=\""+i+"\">"+o.t+"<span class=\"cost\">"+b+"</span></button>";}).join("")+"</div>");
+  [].forEach.call(document.querySelectorAll(".opt"),function(btn){btn.addEventListener("click",function(){var o=sc.opts[+btn.dataset.i];
+    [].forEach.call(document.querySelectorAll(".opt"),function(x){x.disabled=true;});btn.classList.add(o.best?"good":"sel");
+    S.dec=S.dec||{};S.dec[sc.id]=o.k;if(sc.id==="gala")S.gala=o.k;S.ch=S.ch||{};S.ch[sc.id]=o.t.replace(/<[^>]+>/g,"");
+    var ch=apply(o.e,sc.lbl||sc.title);if(o.best){S.xp+=15;hud();}
+    finishScene(o.best?"good":"mid","<div class=\"row\" style=\"gap:6px;margin-bottom:8px\"><span class=\"earned\" style=\"margin:0\">⚖️ Qaror qabul qilindi</span>"+(o.best?"<span class=\"xpline\">+15 XP · professional tanlov</span>":"")+"</div>"+o.fb+chipsHtml(ch),sc);});});}
 function rChoice(sc){var keys="ABCD";var ord=shuffle(sc.opts.map(function(o,i){return i;}));
   $("stage").innerHTML=frame(sc,"<div class=\"opts\">"+ord.map(function(i,pos){var o=sc.opts[i];return "<button class=\"opt\" data-i=\""+i+"\">"+(o.img||"")+"<span class=\"k\">"+keys[pos]+"</span>"+o.t+(o.cost?"<span class=\"cost\">"+o.cost+"</span>":"")+"</button>";}).join("")+"</div>");
   [].forEach.call(document.querySelectorAll(".opt"),function(b){b.addEventListener("click",function(){var o=sc.opts[+b.dataset.i];
@@ -864,7 +884,7 @@ function rMatch(sc){var opts=sc.options.slice();if(!sc.keepOrder)opts=shuffle(op
 function rNum(sc){
   $("stage").innerHTML=frame(sc,sc.qs.map(function(q,i){return "<div class=\"numq\"><div>"+(i+1)+". "+q[0]+"</div><div><input type=\"number\" data-q=\""+i+"\" placeholder=\"javob\" inputmode=\"decimal\"><div class=\"u\">"+(q[3]||"")+"</div></div></div>";}).join("")+"<div class=\"row\" style=\"margin-top:14px\"><button class=\"btn\" id=\"nOk\">Javobni topshirish</button></div>");
   $("nOk").addEventListener("click",function(){var ins=[].slice.call(document.querySelectorAll("[data-q]"));if(ins.some(function(x){return x.value==="";})){toast("Hamma savolga javob yozing");return;}
-    $("nOk").disabled=true;var ok=0;ins.forEach(function(x,i){var a=sc.qs[i][1],v=+String(x.value).replace(",",".");var g=Math.abs(v-a)<0.01;if(g)ok++;x.className=g?"ok":"bad";x.disabled=true;});var p=award(sc.m,ok*MX[sc.m].max/sc.qs.length);
+    $("nOk").disabled=true;var ok=0;ins.forEach(function(x,i){var a=sc.qs[i][1],v=+String(x.value).replace(",",".");var g=Math.abs(v-a)<(sc.qs[i][4]||0.01);if(g)ok++;x.className=g?"ok":"bad";x.disabled=true;});var p=award(sc.m,ok*MX[sc.m].max/sc.qs.length);
     finishScene(verdict(ok,sc.qs.length),earned(p,sc.m)+"<b>"+ok+" / "+sc.qs.length+" to‘g‘ri.</b><br>"+sc.qs.map(function(q,i){return (i+1)+") <b>"+Number(q[1]).toLocaleString("ru-RU")+" "+(q[3]||"")+"</b> — "+q[2];}).join("<br>"),sc);});
   startTimer();}
 function rBuilder(sc){var picked={};var B=sc.B;
@@ -877,7 +897,7 @@ function rBuilder(sc){var picked={};var B=sc.B;
   [].forEach.call(document.querySelectorAll(".act"),function(b){b.addEventListener("click",function(){var i=+b.dataset.i;picked[i]=!picked[i];b.setAttribute("aria-pressed",picked[i]?"true":"false");beep("click");upd();});});
   upd();$("bfOk").addEventListener("click",function(){$("bOk").click();});
   $("bOk").addEventListener("click",function(){var r=st();if(!r[0]){toast("Avval variantlarni tanlang");return;}$("bFloat").classList.remove("on");$("bOk").disabled=true;[].forEach.call(document.querySelectorAll(".act"),function(b){b.disabled=true;});
-    var ok=sc.CR.filter(function(c){return c[1](r[0],r[1]);}).length,n=sc.CR.length;var p=award(sc.m,ok*MX[sc.m].max/n);
+    var ok=sc.CR.filter(function(c){return c[1](r[0],r[1]);}).length,n=sc.CR.length;if(sc.m==="paket")S.pk=r[0];var p=award(sc.m,ok*MX[sc.m].max/n);
     S.ch=S.ch||{};S.ch[sc.m]=sc.acts.filter(function(a,i){return picked[i];}).map(function(a){return a[0];}).join("; ")+" ($"+r[0]+")";var ch=sc.spend?apply({budget:-Math.round(r[0]*sc.spend),sat:ok===n?3:ok<n-1?-4:0},sc.spendLabel):[];
     finishScene(verdict(ok,n),earned(p,sc.m)+"<b>"+ok+" / "+n+" talab bajarildi.</b> "+sc.CR.map(function(c){return (c[1](r[0],r[1])?"✅ ":"❌ ")+c[0];}).join(" · ")+"<br>"+sc.fb+chipsHtml(ch),sc);});
   startTimer();}
@@ -887,7 +907,7 @@ function rBuilder(sc){var picked={};var B=sc.B;
 var SCENES=[
  {type:"intro"},
  /* 1-bob BRIF */
- {ch:1,m:"tur",type:"choice",who:"GR",title:"Buyurtma keldi: bu qanday tadbir?",
+ {ch:1,m:"tur",w:"ITB Berlin (Germaniya) — dunyodagi eng yirik turizm ko‘rgazmasi va unga yondosh konvensiya. 2025-yilda 170 dan ortiq davlatdan 5 800 dan ortiq ekspozitsiyachi va qariyb 100 000 tashrif buyuruvchi qatnashgan. Bizning forum ham shu model asosida: sessiyalar (C) + ko‘rgazma (E).",type:"choice",who:"GR",title:"Buyurtma keldi: bu qanday tadbir?",
   extra:"<div class=\"facts\"><div><b>800</b>delegat, 40 davlatdan</div><div><b>6</b>VIP mehmon (vazirlar)</div><div><b>60</b>ko‘rgazma stendi</div><div><b>$450 000</b>forum byudjeti</div></div>",
   text:"Assalomu alaykum! Turizm qo‘mitasi 2027-yilda Samarqandda <b>Xalqaro turizm forumi</b>ni o‘tkazadi: plenar va panel sessiyalar, turizm kompaniyalari ko‘rgazmasi, gala-kecha va forumdan keyin sayohat. «Silk Road Events» bosh tashkilotchi bo‘ladi. Avval aniqlang: bu MICE’ning qaysi toifasi?",
   hint:"Forumda ham sessiyalar (g‘oya almashish), ham stendlar (mahsulot ko‘rsatish) bor.",
@@ -896,40 +916,40 @@ var SCENES=[
    {t:"<b>Incentives</b> — mukofot safari",fb:"Yo‘q: insentiv — xodimni taqdirlash safari, unda ish mashg‘uloti bo‘lmaydi."},
    {t:"<b>Faqat Exhibition</b> — ko‘rgazma",ok:true,fb:"Qisman: ko‘rgazma bor, lekin forumning asosi — sessiyalar va nutqlar (Convention)."}],
   rule:"Toifani to‘g‘ri aniqlash — rejaning asosi: buyurtmachi, hajm, format va davriylikka qarab hammasi o‘zgaradi."},
- {ch:1,m:"brif",type:"multi",n:6,who:"TB",title:"Brifda qaysi ma’lumotlar bo‘lishi shart?",
-  text:"Buyurtmachi bilan uchrashuvdan oldin brif-anketa tuzamiz. Qaysi <b>6 ta</b> savolni albatta so‘raymiz?",
+ {ch:1,m:"brif",w:"Samarqand jahon miqyosidagi tadbirlarni allaqachon o‘tkazgan: 2023-yil 16–20-oktabrda BMT Turizm tashkiloti Bosh assambleyasining 25-sessiyasi (130 dan ortiq davlat), 2025-yil 30-oktabr – 13-noyabrda esa YuNESKO Bosh konferensiyasining 43-sessiyasi bo‘lib o‘tdi. Bu sessiya 40 yilda birinchi marta Parijdan tashqarida o‘tkazilgan. Bunday tadbirlar ham buyurtmachining batafsil talablaridan (brifdan) boshlanadi.",type:"multi",n:6,who:"TB",title:"Brifda qaysi ma’lumotlar bo‘lishi shart?",
+  text:"Buyurtmachi bilan birinchi uchrashuv. Brif — tadbirning <b>talablari</b>, keyinchalik qabul qilinadigan qarorlar emas. Qaysi <b>6 ta</b> savolni hoziroq so‘rash shart?",
   opts:[{t:"🎯 Tadbir maqsadi va kutilgan natija",good:true,fb:"Maqsad — barcha qarorlarning asosi."},
    {t:"👥 Ishtirokchilar soni va profili (davlatlar, lavozimlar)",good:true,fb:"Zal sig‘imi, tarjima, mehmonxona shundan kelib chiqadi."},
    {t:"📅 Sana va davomiylik",good:true,fb:"Joy va mehmonxonani bron qilish uchun kerak."},
    {t:"💰 Byudjet chegarasi",good:true,fb:"Byudjetsiz taklif tayyorlab bo‘lmaydi."},
    {t:"🛡️ VIP mehmonlar va protokol talablari",good:true,fb:"Vazirlar kelsa — kortej, xavfsizlik, protokol."},
    {t:"♿ Tillar, ovqatlanish va maxsus ehtiyojlar (halol, vegetarian, nogironlik)",good:true,fb:"Tarjima, menyu va inklyuzivlik shunga qarab rejalanadi."},
-   {t:"🎨 Tashkilotchining sevimli rangi",fb:"Ahamiyatsiz: dizayn tadbir mazmuniga qarab tanlanadi."},
-   {t:"💵 Har bir delegatning oylik maoshi",fb:"Shaxsiy ma’lumot va keraksiz."},
-   {t:"📱 Boshlovchining Instagram obunachilari soni",fb:"Bu brif savoli emas."},
-   {t:"🏁 Raqobatchi tadbirning maxfiy byudjeti",fb:"Buni buyurtmachi bilmaydi."}],
+   {t:"🎤 Gala-kechada qaysi xonanda chiqishi",fb:"Bu keyingi bosqich qarori: brif talablarni yig‘adi, yechimlarni emas."},
+   {t:"🏨 Har delegat qaysi xonada yashashi (rooming list)",fb:"Rooming list tadbirdan 1–2 hafta oldin, ro‘yxat yopilganda tuziladi."},
+   {t:"🎨 Afisha va bejlarning rangi",fb:"Dizayn maqsad va auditoriya aniq bo‘lgandan keyin tanlanadi."},
+   {t:"🍛 Tushlikdagi taomlarning aniq nomlari",fb:"Menyu keyin tuziladi; brifda faqat cheklovlar (halol, parhez, allergiya) so‘raladi."}],
   rule:"Brif = maqsad + auditoriya + sana + byudjet + talablar. Hammasi yozma ravishda tasdiqlanadi."},
- {ch:1,m:"smart",type:"choice",who:"GR",title:"Forum maqsadini SMART shaklida yozing",
+ {ch:1,m:"smart",w:"Parij-2024 Olimpiadasi tashkilotchilari ariza bosqichidayoq raqamli maqsad qo‘ygan: o‘yinlarning uglerod izini oldingi o‘yinlarga nisbatan ikki baravar kamaytirish. Raqam bilan qo‘yilgan maqsadni keyin tekshirish va hisobot berish mumkin.",type:"choice",who:"GR",title:"Forum maqsadini SMART shaklida yozing",
   text:"Qo‘mita raisi: «Forum muvaffaqiyatli bo‘lsin». Buni o‘lchanadigan maqsadga aylantiring.",
-  hint:"SMART: aniq, o‘lchanadigan (raqam), erishiladigan, ahamiyatli, muddatli (sana).",
-  opts:[{t:"«Forumgacha 1 oy qolganda 40 davlatdan kamida 800 delegat ro‘yxatdan o‘tsin, yakuniy so‘rovnomada 85% ishtirokchi forumni «yaxshi» yoki «a’lo» deb baholasin»",best:true,fb:"Aniq, raqamli, muddatli va ahamiyatli — SMART."},
-   {t:"«Forumga 800 delegat kelsin»",ok:true,fb:"Raqam bor, lekin muddat va sifat ko‘rsatkichi yo‘q."},
-   {t:"«Ko‘p xorijiy mehmon kelsin va hamma mamnun bo‘lsin»",fb:"«Ko‘p», «mamnun» — o‘lchab bo‘lmaydi."},
-   {t:"«Forum dunyodagi eng zo‘r forum bo‘lsin»",fb:"Erishib bo‘lmaydigan va o‘lchanmaydigan maqsad."}],
+  hint:"Har variantni 5 harf bo‘yicha tekshiring: S — aniq, M — raqam bormi, A — real ishmi, R — forumga kerakmi, T — muddat bormi.",
+  opts:[{t:"«2027-yil 1-aprelgacha 40 davlatdan 800 delegat ro‘yxatdan o‘tsin; yakuniy so‘rovnomada kamida 85% «yaxshi» yoki «a’lo» desin»",best:true,fb:"Aniq (kim, nima), o‘lchanadigan (800, 85%), erishiladigan, ahamiyatli va muddatli (1-aprel) — to‘liq SMART."},
+   {t:"«800 ta delegat ro‘yxatdan o‘tsin va forum yuqori saviyada, xalqaro standartlar darajasida o‘tsin»",ok:true,fb:"Raqam bor, lekin muddat yo‘q, «yuqori saviya»ni esa o‘lchab bo‘lmaydi."},
+   {t:"«Forum 2027-yil may oyida bo‘lib o‘tsin va barcha xorijiy mehmonlarga juda-juda yoqsin»",fb:"Sana bor, lekin natija o‘lchanmaydi: «juda yoqsin» — bu his, ko‘rsatkich emas."},
+   {t:"«2027-yil 1-aprelgacha 5 000 delegat ro‘yxatdan o‘tsin va 100% ishtirokchi «a’lo» desin»",fb:"O‘lchanadi va muddatli, lekin erishib bo‘lmaydi: zal 800 kishilik, 100% mamnunlik esa real emas (A buzilgan)."}],
   rule:"O‘lchanmagan natijani baholab bo‘lmaydi: har maqsadda raqam va muddat bo‘lsin."},
  /* 2-bob REJA VA BYUDJET */
- {ch:2,m:"sikl",type:"order",who:"TB",title:"Tashkil etish bosqichlarini tartiblang",
+ {ch:2,m:"sikl",w:"Monreal-1976 Olimpiadasi — byudjet bosqichi yetarli o‘ylanmagan loyihaning klassik misoli: Kvebek o‘yinlar uchun olingan qarzni faqat 2006-yilda, 30 yildan keyin to‘lab bo‘lgan. Bosqichlarni tashlab o‘tish keyinchalik juda qimmatga tushadi.",type:"order",who:"TB",title:"Tashkil etish bosqichlarini tartiblang",
   text:"Butun loyihaning yo‘l xaritasi: hayotiy siklning 8 bosqichini to‘g‘ri ketma-ketlikka qo‘ying.",
   items:["G‘oya va maqsad (brif, SMART)","Byudjet va iqtisodiy asos","Joy va sana","Dastur va spikerlar","Marketing va ro‘yxatga olish","Logistika: turar joy, transport, ovqat, texnika","Tadbirni o‘tkazish","Baholash va hisobot"],
   fb:"Goldblatt mantiqi: tadqiqot → dizayn → rejalashtirish → muvofiqlashtirish → baholash.",
   rule:"Hech qachon joy yoki artistni maqsad va byudjetdan oldin band qilmang."},
- {ch:2,m:"gant",type:"sort",who:"TB",title:"Vaqt jadvali: qaysi ish qachon?",
+ {ch:2,m:"gant",w:"YuNESKO Bosh konferensiyasini 2025-yilda Samarqandda o‘tkazish to‘g‘risidagi qaror 2023-yil noyabrida qabul qilingan — tayyorgarlikka 2 yil berilgan. Olimpiada poytaxti esa odatda 7 yil oldin tanlanadi: Parij 2024-yil o‘yinlari uchun 2017-yilda saylangan.",type:"sort",who:"TB",title:"Vaqt jadvali: qaysi ish qachon?",
   text:"Forumgacha 12 oy bor. Har bir ishni Gant diagrammasidagi to‘g‘ri davrga joylang.",
   hint:"Eng uzoq tayyorgarlik talab qiladigan ishlar (joy, kontseptsiya) birinchi; montaj va repetitsiya — oxirida.",
   bins:[["12–9 oy oldin","kontseptsiya, joy"],["8–4 oy oldin","jalb qilish, bron"],["3–1 oy oldin","tayyorlash"],["Tadbir haftasi","montaj, mashq"]],
   cards:[["Kontseptsiya va byudjetni tasdiqlash",0],["Joy tanlash va shartnoma",0],["Spikerlar va homiylarni jalb qilish",1],["Veb-sayt va ro‘yxatdan o‘tishni ochish",1],["Mehmonxona bloki va transportni bron qilish",1],["Dastur, bosma materiallar, ssenariy",2],["Bejlar va yakuniy ro‘yxatlar",2],["Sahna montaji va repetitsiya",3],["Ko‘ngillilar uchun brifing",3]],
   rule:"Rejani orqadan hisoblang: tadbir sanasidan boshlab har bir ish uchun muddat qo‘ying."},
- {ch:2,m:"sana",type:"choice",who:"JR",title:"Sanani tanlang: mavsum va ob-havo",
+ {ch:2,m:"sana",w:"Qatar-2022 futbol bo‘yicha jahon chempionati yozgi jaziramadan qochish uchun tarixda birinchi marta noyabr–dekabr oylarida o‘tkazildi. Ob-havo va mavsum hatto eng katta tadbirlarning sanasini ham o‘zgartiradi.",type:"choice",who:"JR",title:"Sanani tanlang: mavsum va ob-havo",
   text:"Forum uch kun davom etadi, bir qismi ochiq havoda (gala-kecha, ekskursiyalar). Samarqand uchun to‘rt variant bor. Qaysi biri eng to‘g‘ri?",
   extra:"<div class=\"vcard\">"+wcard("🌤️","May o‘rtasi, seshanba–payshanba","Kunduzi +25…+28°C, kechqurun salqin; bayram yo‘q; mavsum boshlanishi")+wcard("🔥","Iyul o‘rtasi","Jazirama +38…+40°C; ochiq tadbirlar xavfli; turistlar kam")+wcard("🌷","20–22 mart","Navro‘z bayrami: mehmonxonalar band, mahalliy hamkorlar dam oladi")+wcard("🍂","Oktabr boshi","Ob-havo yaxshi, lekin turistik cho‘qqi: mehmonxonalar ~30% qimmat, boshqa xalqaro forum bilan bir vaqtda")+"</div>",
   hint:"Sana tanlashda: bayramlar, boshqa yirik tadbirlar, turistik mavsum, ob-havo, auditoriya kalendari va hafta kunlari.",
@@ -938,61 +958,68 @@ var SCENES=[
    {t:"🔥 Iyul o‘rtasi",e:{budget:-15000,sat:-8},fb:"+40°C da ochiq tadbirlar xavfli: qo‘shimcha konditsioner, suv, tibbiy punkt — xarajat va norozilik."},
    {t:"🌷 20–22 mart (Navro‘z)",e:{budget:-25000,sat:-6},fb:"Bayramda mehmonxonalar band va qimmat, mahalliy hamkorlar dam oladi."}],
   rule:"Sana: bayramlar, boshqa yirik tadbirlar, turistik mavsum, ob-havo, auditoriya kalendari; korporativ tadbir uchun eng yaxshisi seshanba–payshanba."},
- {ch:2,m:"xarajat",type:"sort",who:"MK",title:"Byudjet: doimiy va o‘zgaruvchan xarajatlar",
+ {ch:2,m:"xarajat",w:"Parij-2024: musobaqa obyektlarining 95% mavjud yoki vaqtinchalik inshootlar bo‘lgan. Yangi qurilish o‘rniga ijara olish katta doimiy xarajatni kamaytiradi.",type:"sort",who:"MK",title:"Byudjet: doimiy va o‘zgaruvchan xarajatlar",
   text:"Men moliya menejeriman. Byudjetni to‘g‘ri tuzish uchun xarajatlarni ajratib bering: qaysi biri ishtirokchilar soniga bog‘liq emas, qaysi biri har bir kishi hisobiga?",
   bins:[["Doimiy","ishtirokchilar soniga bog‘liq emas"],["O‘zgaruvchan","har bir ishtirokchi hisobiga"]],
   cards:[["Zal ijarasi",0],["Sahna va texnika",0],["Spikerlar gonorari",0],["Veb-sayt va dizayn",0],["Kofe-breyk va tushlik",1],["Bejlar",1],["Delegat sumkasi",1],["Transfer",1],["Sovg‘alar",1]],
   autoE:{budget:-130000,label:"Doimiy shartnomalar: spikerlar, texnika, xodimlar, sug‘urta, veb-sayt"},
   rule:"Doimiy xarajat odam soniga bog‘liq emas; o‘zgaruvchan — har kishi hisobiga. Daromadni pessimistik, xarajatni to‘liq hisoblang."},
- {ch:2,m:"zarar",type:"num",who:"MK",title:"Zaxira va zararsizlik nuqtasi",
-  text:"Forum byudjeti — <b>$450 000</b>. Delegat badali — <b>$500</b>, bir delegatga o‘zgaruvchan xarajat — <b>$200</b>. Doimiy xarajatlar — <b>$240 000</b>.",
-  hint:"Zararsizlik nuqtasi = doimiy xarajat ÷ (badal − o‘zgaruvchan xarajat).",
-  qs:[["Byudjetning 10% zaxirasi necha dollar?",45000,"450 000 × 0,1 = $45 000","$"],["Zararsizlik nuqtasi: necha delegat kerak?",800,"240 000 ÷ (500 − 200) = 800 delegat","delegat"],["Homiylar $60 000 bersa, zararsizlik nuqtasi necha delegat?",600,"(240 000 − 60 000) ÷ 300 = 600 delegat","delegat"]],
-  rule:"Zaxira 5–10% (Perk ~20% tavsiya qiladi). Homiylik zararsizlik nuqtasini pasaytiradi."},
+ {ch:2,m:"zarar",w:"Davosdagi Jahon iqtisodiy forumi asosan hamkor kompaniyalarning a’zolik va hamkorlik badallari hisobidan moliyalanadi. Homiy va hamkorlar tadbirni ishtirokchi badallariga bog‘liqlikdan qutqaradi va zararsizlik nuqtasini pasaytiradi.",type:"num",who:"MK",title:"Zaxira va zararsizlik nuqtasi",
+  text:"Qo‘mita talabi: xarajatlarning bir qismi delegat badallaridan qaytsin. Rejadagi doimiy xarajatlar — <b>$250 000</b> (shartnomalar $130 000 + joy ijarasi $120 000). Delegat badali — <b>$450</b>, bir delegatga o‘zgaruvchan xarajat — <b>$200</b> (ovqat, bej, sumka, transfer).",
+  hint:"Zararsizlik nuqtasi = doimiy xarajat ÷ (badal − o‘zgaruvchan xarajat). Bir delegat qoplaydigan summa = 450 − 200.",
+  qs:[["Umumiy byudjet $450 000. 10% zaxira necha dollar?",45000,"450 000 × 0,1 = $45 000","$"],["Zararsizlik nuqtasi: necha delegat kerak?",1000,"250 000 ÷ (450 − 200) = 1 000 delegat","delegat"],["Bizga 800 delegat keladi. Zararga kirmaslik uchun homiylardan necha dollar kerak?",50000,"250 000 − 800 × 250 = $50 000","$"]],
+  rule:"Delegatlar zararsizlik nuqtasiga yetmasa — homiy topiladi, badal oshiriladi yoki xarajat qisqartiriladi. Zaxira 5–10% (Perk ~20% tavsiya qiladi)."},
+ {ch:2,id:"homiy",lbl:"Homiylik tushumi",type:"decide",who:"MK",title:"⚖️ Qaror: qaysi homiy bilan ishlaymiz?",
+  text:"Siz hisobladingiz: zararsiz bo‘lish uchun taxminan <b>$50 000</b> homiylik kerak. Ikkita taklif keldi. Bu qarorga ball qo‘yilmaydi, lekin u byudjetga, mehmonlar mamnunligiga va forum obro‘siga ta’sir qiladi.",
+  extra:"<div class=\"vcard\">"+wcard("✈️","«SilkAir» aviakompaniyasi","$50 000 + delegatlarga 15% chegirmali reyslar. Logotip — press-wall, bej va saytda.")+wcard("⚡","«VoltX» energetik ichimligi","$90 000, lekin: sahna o‘rtasida katta logotip, har sessiya oldidan reklama roligi, kofe-breykda faqat ularning ichimligi.")+wcard("🚫","Homiysiz","Byudjet o‘zgarmaydi; forum o‘z mablag‘i va badallar hisobidan.")+"</div>",
+  opts:[{k:"air",t:"✈️ «SilkAir» — kamroq pul, lekin forum mavzusiga mos hamkor",best:true,e:{budget:50000,sat:2},fb:"Yaxshi qaror: homiy turizm forumiga mos, delegatlarga ham foyda (arzon reys). Homiylik zararsizlik nuqtasini qopladi."},
+   {k:"volt",t:"⚡ «VoltX» — ko‘proq pul, lekin qattiq reklama shartlari bilan",e:{budget:90000,sat:-8},fb:"Pul ko‘p, lekin vazirlar ishtirokidagi rasmiy forumda energetik ichimlik reklamasi imidjga zarba beradi; kofe-breykdagi cheklov mehmonlarni norozi qiladi."},
+   {k:"none",t:"🚫 Homiysiz ishlaymiz",fb:"Xavfsiz, lekin $50 000 lik bo‘shliq qoladi: zaxirani saqlash qiyinlashadi."}],
+  rule:"Homiyni pul miqdori bilan emas, tadbir maqsadi va auditoriyasiga mosligi bilan tanlang; homiylik shartlari (logotip, reklama, eksklyuzivlik) shartnomada yoziladi."},
  /* 3-bob ORGANIZATOR VA JAMOA */
- {ch:3,m:"org",type:"match",who:"JR",title:"Qaysi ishni qaysi organizatorga beramiz?",
+ {ch:3,m:"org",w:"Singapur Ko‘rgazma va kongress byurosi (SECB) — klassik CVB. U xalqaro tadbirlarni shaharga jalb qiladi va tashkilotchilarga yordam beradi, lekin tadbirni o‘zi o‘tkazmaydi: buni PCO, DMC va agentliklar qiladi.",type:"match",who:"JR",title:"Qaysi ishni qaysi organizatorga beramiz?",
   text:"Bitta kompaniya hammasini qila olmaydi. Har bir ish uchun mos vositachini tanlang.",
   options:["PCO","DMC","Event-agentlik","CVB"],keepOrder:true,
   rows:[["Kongress dasturi, delegatlarni ro‘yxatga olish, ko‘rgazma maydonini sotish","PCO"],["Aeroportda kutib olish, transfer, ekskursiya va tur paket","DMC"],["Gala-kecha shou g‘oyasi, sahna, artistlar","Event-agentlik"],["Samarqandni xalqaro MICE destinatsiyasi sifatida targ‘ib qilish","CVB"],["Barcha pudratchilarni muvofiqlashtiruvchi bosh tashkilotchi","PCO"]],
   rule:"PCO — kongress, DMC — joyidagi logistika va sayohat, agentlik — shou, CVB — shahar targ‘iboti."},
- {ch:3,m:"rol",type:"match",who:"TB",title:"Jamoa: kim nima bilan shug‘ullanadi?",
+ {ch:3,m:"rol",w:"London-2012 Olimpiadasida 70 000 ga yaqin ko‘ngilli («Games Makers») ishlagan. Har birining aniq vazifasi, formasi va o‘qitish dasturi bo‘lgan. Rollar qancha aniq bo‘lsa, katta jamoa shuncha yaxshi ishlaydi.",type:"match",who:"TB",title:"Jamoa: kim nima bilan shug‘ullanadi?",
   text:"Forum jamoasini tuzamiz. Har bir rolga uning asosiy vazifasini biriktiring.",
   options:["Tadbir menejeri","Moderator","Boshlovchi","Protokol xizmati","Texnik guruh","Ko‘ngillilar","Logist","Keytering menejeri"],
   rows:[["Sahna ortida hamma jarayonni muvofiqlashtiradi, tezkor qaror qabul qiladi","Tadbir menejeri"],["Panel sessiyani olib boradi, vaqt va savollarni boshqaradi","Moderator"],["Ochilish va gala-kechani ssenariy bo‘yicha olib boradi","Boshlovchi"],["VIP mehmonlarni kutib oladi, o‘rindiqlar tartibi va bayroqlar","Protokol xizmati"],["Ovoz, yorug‘lik, ekran, sinxron tarjima uskunalari","Texnik guruh"],["Ro‘yxatga olish, yo‘l ko‘rsatish, mehmonlarga yordam","Ko‘ngillilar"],["Transfer jadvali, avtobuslar, rooming list","Logist"],["Kofe-breyk, tushlik, menyu va parhezlar","Keytering menejeri"]],
   rule:"Har bir vazifaning bitta egasi bo‘lsin — «hamma javobgar» degani «hech kim javobgar emas»."},
  /* 4-bob JOY VA SHARTNOMA */
- {ch:4,m:"joy",type:"choice",who:"JR",title:"Forum uchun joyni tanlang",
+ {ch:4,m:"joy",w:"«Silk Road Samarqand» — Markaziy Osiyodagi eng yirik MICE majmuasi: kongress markazi, mehmonxonalar va «Abadiy shahar» bitta hududda joylashgan. BMT Turizm assambleyasi (2023) va YuNESKO sessiyasi (2025) aynan shu yerda o‘tgan.",type:"choice",who:"JR",title:"Forum uchun joyni tanlang",
   text:"Inspeksiya safarida uchta joyni ko‘rdik. Talablar: 800 kishilik plenar zal, kichik zallar, 60 stendlik ko‘rgazma maydoni, sinxron tarjima, mehmonxonalar yaqinligi, nogironlar uchun qulaylik.",
-  extra:"<div class=\"vcard\">"+wcard("🏛️","Kongress markazi","Plenar zal 900 o‘rin, 11 kichik zal, foyeda ko‘rgazma maydoni, tarjima kabinalari, pandus va liftlar; mehmonxonalar yonida. <b>$120 000</b>")+wcard("🏨","Shahar mehmonxonasi","Ballroom 450 o‘rin, 3 kichik zal, ko‘rgazma maydoni yo‘q. <b>$50 000</b>")+wcard("🕌","Tarixiy madrasa hovlisi","Ochiq osmon ostida, juda chiroyli; tarjima kabinasi va ko‘rgazma maydoni yo‘q, zinapoyalar ko‘p, ob-havoga bog‘liq. <b>$90 000</b> (chodir va texnika bilan)")+"</div>",
+  extra:"<div class=\"vcard\">"+wcard("🏛️","Turistik majmuadagi kongress markazi","Plenar zal 900 o‘rin, 11 kichik zal, foyeda ko‘rgazma maydoni, tarjima kabinalari, pandus va liftlar; mehmonxonalar yonida. <b>$120 000</b>")+wcard("🏨","Ikki mehmonxona","Ikkita ballroom (450 + 400 o‘rin) video-aloqa bilan; ko‘rgazma — avtoturargohdagi chodirda; mehmonxonalar orasi 1 km. <b>$70 000</b>")+wcard("🕌","Tarixiy madrasa hovlisi","Ochiq osmon ostida, juda chiroyli; tarjima kabinasi va ko‘rgazma maydoni yo‘q, zinapoyalar ko‘p, ob-havoga bog‘liq. <b>$90 000</b> (chodir va texnika bilan)")+"</div>",
   hint:"Joy tanlash mezonlari: sig‘im, texnik imkoniyat, joylashuv, qulaylik, xavfsizlik.",
-  opts:[{t:"🏛️ Kongress markazi",best:true,e:{budget:-120000,sat:3},fb:"To‘g‘ri: sig‘im, zallar, ko‘rgazma maydoni, tarjima va qulaylik — hammasi bitta joyda."},
+  opts:[{t:"🏛️ Turistik majmuadagi kongress markazi",best:true,e:{budget:-120000,sat:3},fb:"To‘g‘ri: sig‘im, zallar, ko‘rgazma maydoni, tarjima va qulaylik — hammasi bitta joyda."},
    {t:"🕌 Tarixiy madrasa hovlisi",ok:true,e:{budget:-90000,sat:-4},fb:"Gala-kecha uchun noodatiy joy sifatida ajoyib, lekin forumning o‘zi uchun mos emas."},
-   {t:"🏨 Shahar mehmonxonasi",e:{budget:-50000,sat:-10},fb:"450 o‘rin 800 delegatga yetmaydi, ko‘rgazma maydoni ham yo‘q."}],
+   {t:"🏨 Ikki mehmonxona",e:{budget:-70000,sat:-8},fb:"$50 000 tejaladi, lekin plenar zal ikkiga bo‘lindi (yarmi vazirlarni ekranda ko‘radi), chodirdagi ko‘rgazma ob-havoga bog‘liq, delegatlar binolar orasida adashadi."}],
   rule:"Joy 11 mezon bo‘yicha baholanadi va albatta borib ko‘riladi (inspeksiya safari)."},
- {ch:4,m:"shart",type:"match",who:"MK",title:"Shartnomani o‘qiymiz: bu qaysi band?",
+ {ch:4,m:"shart",w:"MWC Barselona (mobil texnologiyalar ko‘rgazmasi) 2020-yil fevralida epidemiya xavfi tufayli ochilishiga ikki haftacha qolganda bekor qilindi. Force majeure, bekor qilish shartlari va sug‘urta oldindan yozilmasa, bunday vaziyatda kim qancha yo‘qotishi noaniq qoladi.",type:"match",who:"MK",title:"Shartnomani o‘qiymiz: bu qaysi band?",
   text:"Kongress markazi va mehmonxona bilan shartnoma tuzamiz. Har bir bandning ma’nosini toping.",
   options:["Hajm va to‘lov","Cancellation","Attrition","Force majeure","Raqobat bandi"],keepOrder:true,
   rows:[["Xizmatlar ro‘yxati, narxlar va to‘lov jadvali","Hajm va to‘lov"],["Tadbir bekor qilinsa — jarima va muddatlar","Cancellation"],["Bron qilingan xonalarning qancha qismidan jarimasiz voz kechish mumkin","Attrition"],["Tabiiy ofat, epidemiya, davlat qarorida majburiyatlar","Force majeure"],["Shu kunlarda raqobatchi tadbirini o‘tkazmaslik","Raqobat bandi"]],
   rule:"Barcha kelishuvlar faqat yozma ravishda. Kamida 2–3 taklifni solishtiring."},
  /* 5-bob O'TIRISH */
- {ch:5,m:"sxema",type:"match",who:"TB",title:"Zal shakllari: rasmga qarab tanlang",
+ {ch:5,m:"sxema",w:"BMT Xavfsizlik Kengashi mashhur taqasimon (U-shakl) stol atrofida yig‘iladi: hamma a’zolar bir-birini ko‘radi. BMT Bosh assambleyasi zali esa teatr uslubida: hamma minbarga qarab o‘tiradi.",type:"match",who:"TB",title:"Zal shakllari: rasmga qarab tanlang",
   text:"Rasmlar zalni tepadan ko‘rsatadi (yuqorida — sahna, sariq nuqtalar — o‘rindiqlar). Har bir tadbirga mos shaklni tanlang.",
   options:["Teatr","Sinf (klass)","U-shakl","Boardroom","Banket","Kabare"],keepOrder:true,
   rows:[["Plenar ochilish: 800 delegat sahnaga qarab tinglaydi","Teatr",seat("teatr")],["40 nafar gid uchun trening: yozish uchun stol kerak","Sinf (klass)",seat("sinf")],["25 mutaxassisning muhokamasi: hamma bir-birini ko‘rsin","U-shakl",seat("u")],["Vazirlarning 12 kishilik yopiq uchrashuvi, bitta katta stol","Boardroom",seat("board")],["Gala-kecha: dumaloq stollarda kechki ovqat","Banket",seat("banket")],["Vorkshop: kichik guruhlar stol atrofida, sahnaga ham qaraydi","Kabare",seat("kabare")]],
   rule:"Tinglash — teatr, yozish — sinf, muloqot — U-shakl, muzokara — boardroom, ovqat — banket, guruh ishi — kabare."},
- {ch:5,m:"sigim",type:"num",who:"TB",title:"Zal sig‘imini hisoblang",
+ {ch:5,m:"sigim",w:"Duysburg (Germaniya), 2010-yil: «Love Parade» festivalida yagona tunnel-kirishdagi tiqilinchda 21 kishi halok bo‘lgan. Sig‘im faqat o‘rindiqlar soni emas: kirish-chiqish yo‘laklari va evakuatsiya yo‘llari ham hisoblanadi.",type:"num",who:"TB",title:"Zal sig‘imini hisoblang",
   text:"Me’yorlar: teatr — 1,1 m², sinf — 2 m² bir kishiga; banketda dumaloq stolga 10 kishi. Aravachadagi mehmonlar uchun ham joy qoldiramiz.",
   qs:[["Plenar zal 880 m². Teatr shaklida nechta o‘rin chiqadi?",800,"880 ÷ 1,1 = 800 o‘rin","o‘rin"],["Gala-kechaga 800 mehmon keladi. Nechta dumaloq stol kerak?",80,"800 ÷ 10 = 80 stol","stol"],["Trening zali 120 m². Sinf shaklida necha kishi sig‘adi?",60,"120 ÷ 2 = 60 kishi","kishi"]],
   rule:"Sahna, ekran, yo‘lak, aravacha joylari va yong‘in xavfsizligi sig‘imni kamaytiradi — capacity chart’ni so‘rang."},
  /* 6-bob DIZAYN VA STENDLAR */
- {ch:6,m:"dizayn",type:"choice",who:"DA",cls:"dsg",title:"Forumga mos dizayn konsepsiyasi",
+ {ch:6,m:"dizayn",w:"Expo 2020 Dubay logotipi Saruq al-Hadid qadimgi manzilgohidan topilgan taxminan 4 000 yillik oltin uzukdan ilhomlangan. Logotip tanlovida 19 000 dan ortiq kishi qatnashgan. Mahalliy meros + zamonaviy uslub — kuchli brendning formulasi.",type:"choice",who:"DA",cls:"dsg",title:"Forumga mos dizayn konsepsiyasi",
   text:"To‘rtta afisha eskizini tayyorladim. Xalqaro turizm forumiga qaysi biri mos?",
   opts:[{img:DSG.A,t:"«Ipak yo‘li»: lojuvard va oltin rang, milliy naqsh, o‘zbek va ingliz tilida",best:true,e:{sat:3},fb:"To‘g‘ri: uslub mavzuga mos, rasmiy, ikki tilda, sana va joy ko‘rinadi."},
    {img:DSG.C,t:"Qora-kulrang minimalizm, faqat «Forum.» yozuvi",ok:true,fb:"Toza, lekin ma’yus: na sana, na joy, na o‘ziga xoslik."},
    {img:DSG.B,t:"Neon «PARTY» uslubi",e:{sat:-4},fb:"Tungi klub uslubi — rasmiy forumga mos emas."},
    {img:DSG.D,t:"Kamalak va sharlar, bolalar bayrami uslubi",e:{sat:-4},fb:"Bolalar bayrami uchun yaxshi, xalqaro forum uchun emas."}],
   rule:"Dizayn mazmun, auditoriya va buyurtmachi imidjiga mos bo‘lsin; hamma joyda bir xil logotip, rang va shrift."},
- {ch:6,m:"brend",type:"multi",n:5,who:"DA",title:"Qaysi brend materiallari kerak?",
+ {ch:6,m:"brend",w:"ISO 20121 «barqaror tadbirlar» xalqaro standarti London-2012 Olimpiadasi tajribasi asosida yaratilgan. Parij-2024 esa ovqatlanishda bir martalik plastikni ikki baravar kamaytirishni maqsad qilgan.",type:"multi",n:5,who:"DA",title:"Qaysi brend materiallari kerak?",
   text:"Forum uslubini joyga olib chiqamiz. Qaysi <b>5 ta</b> materialni buyurtma qilamiz? Har biri byudjetdan pul oladi.",
   opts:[{t:"🪪 Bej: ism, mamlakat, QR-kod",good:true,cost:4000,fb:"Akkreditatsiya va xavfsizlik uchun shart."},
    {t:"📸 Press-wall (logotipli fotozona)",good:true,cost:3000,fb:"OAV va ijtimoiy tarmoqlar uchun asosiy kadr."},
@@ -1003,41 +1030,42 @@ var SCENES=[
    {t:"🎈 Har sessiyada konfetti to‘pi",cost:3000,fb:"Ortiqcha shovqin va axlat."},
    {t:"🛍️ 10 000 dona bir martalik plastik bayroqcha",cost:6000,fb:"Barqarorlik (ISO 20121) tamoyiliga zid."}],
   rule:"Brend materiallari: bej, banner, yo‘l ko‘rsatkich, dastur, sovg‘a — ekologik va qayta ishlatiladigan bo‘lsin."},
- {ch:6,m:"stend",type:"match",who:"DA",title:"Ko‘rgazma stendlari: rasmga qarab turini aniqlang",
+ {ch:6,m:"stend",w:"ITB Berlin har yili bitta «mezbon davlat»ni tanlaydi (2025-yilda — Albaniya) va unga eng ko‘zga ko‘rinadigan joy hamda ochilish marosimi beriladi. Milliy stend — mamlakat brendining vitrinasi.",type:"match",who:"DA",title:"Ko‘rgazma stendlari: rasmga qarab turini aniqlang",
   text:"Rasmlar tepadan: ★ — bizning stend, kulrang — qo‘shni stendlar, och fon — o‘tish yo‘lagi. Stend necha tomondan ochiq?",
   options:["Qator stend (1 tomoni ochiq)","Burchak stend (2 tomoni ochiq)","Yarim orol (3 tomoni ochiq)","Orol stend (4 tomoni ochiq)"],keepOrder:true,
   rows:[["Stend sxemasi","Qator stend (1 tomoni ochiq)",stand("qator")],["Stend sxemasi","Burchak stend (2 tomoni ochiq)",stand("burchak")],["Stend sxemasi","Yarim orol (3 tomoni ochiq)",stand("yarim")],["Stend sxemasi","Orol stend (4 tomoni ochiq)",stand("orol")],["O‘zbekiston milliy stendi: eng katta, hamma tomondan ko‘rinsin","Orol stend (4 tomoni ochiq)"],["Kichik startap, byudjeti kam","Qator stend (1 tomoni ochiq)"]],
   rule:"Stend qancha ko‘p tomondan ochiq bo‘lsa, shuncha ko‘rinadi va qimmat turadi. Yo‘laklar aravacha o‘tadigan kenglikda bo‘lsin."},
  /* 7-bob DASTUR VA MARKETING */
- {ch:7,m:"dastur",type:"order",who:"TB",title:"1-kun dasturini tuzing",
-  text:"Forumning birinchi kuni. Tadbirlarni vaqt bo‘yicha to‘g‘ri tartibga qo‘ying.",
-  items:["08:30 Ro‘yxatdan o‘tish va kutib olish qahvasi","09:30 Rasmiy ochilish marosimi","10:00 Plenar sessiya: vazirlar nutqi","11:30 Kofe-breyk va netvorking","12:00 Ko‘rgazmaning tantanali ochilishi","13:00 Tushlik va namoz vaqti","14:30 Parallel zallarda panel sessiyalar","19:00 Kutib olish ziyofati"],
-  fb:"Diqqat 45–60 daqiqada pasayadi: uzun nutqlardan keyin tanaffus va harakatli format qo‘yiladi.",
+ {ch:7,m:"dastur",w:"TED konferensiyalarida nutq 18 daqiqadan oshmasligi qoidasi bor: diqqatni ushlab turish uchun qisqa va lo‘nda format. Uzun nutqlardan keyin tanaffus yoki interaktiv blok qo‘yiladi.",type:"order",who:"TB",title:"1-kun dasturini tuzing",
+  text:"Forumning birinchi kuni, 08:30 dan 21:00 gacha. 8 ta tadbirni kun davomida qanday tartibda o‘tkazamiz?",
+  hint:"Ertalab — rasmiy qism, tushdan keyin — interaktiv formatlar, kechqurun — ziyofat. Ko‘rgazmani VIPlar plenardan keyin, tushlikdan oldin ochadi.",
+  items:["Ro‘yxatdan o‘tish va kutib olish qahvasi","Rasmiy ochilish marosimi","Plenar sessiya: vazirlar nutqi","Kofe-breyk va netvorking","Ko‘rgazmaning tantanali ochilishi","Tushlik va namoz vaqti","Parallel zallarda panel sessiyalar","Kutib olish ziyofati"],
+  fb:"Namunaviy vaqtlar: 08:30 ro‘yxat · 09:30 ochilish · 10:00 plenar · 11:30 kofe-breyk · 12:00 ko‘rgazma · 13:00 tushlik · 14:30 panellar · 19:00 ziyofat. Diqqat 45–60 daqiqada pasayadi: uzun nutqlardan keyin tanaffus va harakatli format qo‘yiladi.",
   rule:"Muhim masalalar ertalab, tushdan keyin — interaktiv formatlar; kofe-breyk 20–30 daq, tushlik 60–90 daq."},
- {ch:7,m:"boshl",type:"choice",who:"DA",title:"Boshlovchilarni tanlang",
+ {ch:7,m:"boshl",w:"«Yevrovidenie» tanlovi har yili bir nechta boshlovchi bilan va ikki rasmiy tilda — ingliz va frantsuz tillarida olib boriladi. Xalqaro auditoriyada til — boshlovchining asosiy mezoni.",type:"choice",who:"DA",title:"Boshlovchilarni tanlang",
   text:"Ochilish va gala-kechani kim olib boradi? Zalda 40 davlat vakillari va vazirlar.",
   opts:[{t:"Ikki professional boshlovchi (o‘zbek-ingliz va o‘zbek-rus), xalqaro forum tajribasi, rasmiy uslub; zaxira boshlovchi bilan",cost:"$8 000",best:true,e:{budget:-8000,sat:3},fb:"To‘g‘ri: til, tajriba, protokolni bilish va zaxira — hammasi bor."},
    {t:"Mashhur estrada xonandasi — taniqli, faqat o‘zbek tilida, protokolni bilmaydi",cost:"$25 000",ok:true,e:{budget:-25000},fb:"Gala-kechada chiqishi mumkin, lekin rasmiy ochilishni olib bora olmaydi."},
    {t:"Kompaniya xodimi — tekin, lekin hech qachon sahnaga chiqmagan",cost:"$0",e:{sat:-6},fb:"Xalqaro forumda tajribasiz boshlovchi — katta risk."},
    {t:"Faqat ingliz tilida gapiradigan blogger",cost:"$5 000",e:{budget:-5000,sat:-4},fb:"Mahalliy mehmonlar va rasmiy qism uchun mos emas."}],
   rule:"Boshlovchi ssenariy bo‘yicha ishlaydi, repetitsiyada qatnashadi va unga zaxira boshlovchi tayyorlanadi."},
- {ch:7,m:"ochil",type:"order",who:"DA",title:"Ochilish marosimi ssenariysi",
+ {ch:7,m:"ochil",w:"Oskar-2017: taqdimotchilarga noto‘g‘ri konvert berildi va «Eng yaxshi film» sifatida avval «La La Land» e’lon qilindi, holbuki g‘olib «Moonlight» edi. Ssenariy, konvert va repetitsiya ustidan sahna ortidagi nazorat — tadbir obro‘sining kafolati.",type:"order",who:"DA",title:"Ochilish marosimi ssenariysi",
   text:"Boshlovchilarga ochilish ssenariysini beramiz. Qadamlarni to‘g‘ri tartibga qo‘ying.",
   items:["Zal chirog‘i pasayadi, forum video-roligi","Boshlovchilar uch tilda salomlashadi","O‘zbekiston Respublikasi Davlat madhiyasi","Turizm qo‘mitasi raisining tabrik nutqi","Xalqaro tashkilot vakilining nutqi","Plenar sessiyaga taklif, moderatorga so‘z"],
   fb:"Run of show’da har qadam uchun vaqt, mikrofon, slayd va yorug‘lik yoziladi.",
   rule:"Ssenariy daqiqama-daqiqa yoziladi va repetitsiyada sinab ko‘riladi."},
- {ch:7,m:"oyin",type:"match",who:"TB",title:"Ishtirokchilarni faollashtiramiz: o‘yinlar",
+ {ch:7,m:"oyin",w:"ITB Berlinda «Buyers Circle» — 1 300 ta yirik xaridor uchun alohida uchrashuvlar va tanishuv dasturi bor. Ko‘rgazmada lid topish o‘z-o‘zidan bo‘lmaydi: uni rejalashtirilgan B2B formatlar ta’minlaydi.",type:"match",who:"TB",title:"Ishtirokchilarni faollashtiramiz: o‘yinlar",
   text:"Delegatlar zerikmasligi va tanishishi uchun interaktiv qismlar qo‘shamiz. Har bir o‘yinning maqsadini toping.",
   options:["Notanish delegatlarni tez tanishtirish","Zal fikrini real vaqtda bilish","Jamoaviy ruh (team-building)","Milliy madaniyatni his qilish","Biznes hamkor topish (lidlar)"],
   rows:[["«Ikki haqiqat, bir yolg‘on» (ice-breaker)","Notanish delegatlarni tez tanishtirish"],["Telefon orqali jonli so‘rov va savollar","Zal fikrini real vaqtda bilish"],["«Registon sirlari» kvesti — jamoa bo‘lib topshiriq bajarish","Jamoaviy ruh (team-building)"],["Osh tayyorlash master-klassi","Milliy madaniyatni his qilish"],["B2B speed-networking: 5 daqiqalik uchrashuvlar","Biznes hamkor topish (lidlar)"]],
   rule:"Har bir interaktiv qismning o‘lchanadigan maqsadi bo‘lsin (tanishuv, fikr, lidlar)."},
- {ch:7,m:"mark",type:"match",who:"JR",title:"Marketing: qaysi kanal nima uchun?",
+ {ch:7,m:"mark",w:"Fyre Festival (Bagama orollari, 2017): Instagramda «hashamatli festival» deb reklama qilindi, lekin mehmonlar chodirlar va qutidagi buterbrodlarni ko‘rdi; festival bekor qilindi, tashkilotchi firibgarlik uchun qamaldi. Marketing va’dasi haqiqiy imkoniyatdan katta bo‘lmasligi kerak.",type:"match",who:"JR",title:"Marketing: qaysi kanal nima uchun?",
   text:"Forumga 800 delegatni jalb qilishimiz kerak. Har bir kanalni vazifasiga moslang.",
   options:["Veb-sayt","Telegram kanal","LinkedIn","E-mail","CRM tahlili"],keepOrder:true,
   rows:[["Dastur, spikerlar, ro‘yxatdan o‘tish, narx va FAQ bir joyda","Veb-sayt"],["O‘zbekiston va MDH auditoriyasiga tezkor e’lonlar","Telegram kanal"],["Xalqaro B2B mutaxassislar va kompaniyalar","LinkedIn"],["«Erta qush» chegirmasi va eslatmalar","E-mail"],["Bitta ishtirokchini jalb qilish narxi va konversiya","CRM tahlili"]],
   rule:"Marketing va’dasi tadbirning haqiqiy imkoniyatidan katta bo‘lmasin (Fyre Festival saboqlari)."},
  /* 8-bob NOZIK VA INKLYUZIV MEHMONLAR */
- {ch:8,m:"vip",type:"multi",n:6,who:"SN",title:"Nozik mehmonlar: VIP va vazirlar uchun nima kerak?",
+ {ch:8,m:"vip",w:"BMT Bosh assambleyasida protokol an’anasi bor: umumiy munozarada birinchi bo‘lib Braziliya, keyin mezbon davlat — AQSh so‘zga chiqadi. VIP mehmonlar bilan ishlashda hamma narsa oldindan kelishilgan tartib bo‘yicha bo‘ladi.",type:"multi",n:6,who:"SN",title:"Nozik mehmonlar: VIP va vazirlar uchun nima kerak?",
   text:"Forumga 6 vazir va xalqaro tashkilot rahbarlari keladi. Ular uchun qaysi <b>6 ta</b> tadbirni rejalashtiramiz?",
   opts:[{t:"🤝 Shaxsiy kutib oluvchi (protokol xodimi) va VIP kutish zali",good:true,cost:6000,fb:"VIP navbatda turmaydi va alohida kutiladi."},
    {t:"🪑 Ism yozilgan o‘rin kartochkalari, protokol bo‘yicha joylashtirish",good:true,cost:500,fb:"Kim qayerda o‘tirishi oldindan kelishiladi."},
@@ -1050,7 +1078,7 @@ var SCENES=[
    {t:"Sovg‘a sifatida spirtli ichimlik (diniy cheklovlarni bilmay)",cost:2000,fb:"Mehmonning madaniyati va diniga mos bo‘lmasligi mumkin."}],
   e:{sat:2},
   rule:"Nozik mehmon: protokol, xavfsizlik, tarjima, diniy va ovqatlanish ehtiyojlari — hammasi brifda so‘raladi."},
- {ch:8,m:"prez",type:"choice",who:"SN",title:"Prezidium stolida faxriy mehmon qayerga o‘tiradi?",
+ {ch:8,m:"prez",w:"BMT Bosh assambleyasida har yili Bosh kotib qur’a tashlaydi: qaysi davlat birinchi o‘rinda o‘tirishini qur’a hal qiladi, qolganlar ingliz alifbosi tartibida joylashadi (2025-yilda — Niger, 2026-yilda — Marokash). Joylashtirishning shaffof qoidasi nizolarning oldini oladi.",type:"choice",who:"SN",title:"Prezidium stolida faxriy mehmon qayerga o‘tiradi?",
   text:"Ochilishda prezidium stolida 5 kishi. Markazda — mezbon (M), Turizm qo‘mitasi raisi. Eng hurmatli mehmon — xorijiy vazir. Uni qayerga o‘tqazamiz?",
   extra:"<div style=\"margin:0 0 12px\">"+headTable()+"</div>",
   hint:"Diplomatik protokolda eng sharafli joy — mezbonning o‘ng tomoni (mezbon zalga qarab o‘tiradi).",
@@ -1059,7 +1087,7 @@ var SCENES=[
    {t:"Stolning chetiga (4- yoki 5-o‘rin)",e:{sat:-3},fb:"Chekka o‘rin — eng past martaba; xalqaro protokolga zid."},
    {t:"Zaldagi birinchi qatorga",e:{sat:-3},fb:"Faxriy mehmon prezidiumda bo‘lishi kerak."}],
   rule:"O‘rinlar protokol xizmati bilan oldindan kelishiladi, kartochkalar bilan belgilanadi; bayroqlar ham shu tartibda."},
- {ch:8,m:"inkl",type:"multi",n:6,who:"TB",title:"Inklyuziv forum: hamma uchun qulaylik",
+ {ch:8,m:"inkl",w:"Parij-2024: keytering sohasidagi ish o‘rinlarining 10% (Olimpiya qishlog‘ida — 15%) nogironligi bor yoki ijtimoiy himoyaga muhtoj insonlar uchun ajratilgan, qishloqdagi barcha xizmatlar to‘liq qulay qilib qurilgan. Inklyuzivlik faqat mehmonlar uchun emas, jamoa uchun ham.",type:"multi",n:6,who:"TB",title:"Inklyuziv forum: hamma uchun qulaylik",
   text:"Delegatlar orasida aravachadagi, eshitishi va ko‘rishi zaif mehmonlar, yosh bolali ona va keksa mutaxassislar bor. Qaysi <b>6 ta</b> yechimni qo‘llaymiz?",
   opts:[{t:"♿ Pandus, lift va keng eshiklar; sahnaga ham pandus",good:true,cost:3000,fb:"Aravachadagi mehmon ham, spiker ham bemalol harakatlanadi."},
    {t:"🪑 Zalda aravacha uchun belgilangan joylar (sherigi yonida)",good:true,cost:500,fb:"Ular alohida emas, hamma bilan birga o‘tiradi."},
@@ -1073,73 +1101,96 @@ var SCENES=[
   e:{sat:3},
   rule:"Inklyuzivlik — hamma mehmon birga va teng qatnasha olishi: kirish, eshitish, ko‘rish, dam olish."},
  /* 9-bob GALA */
- {ch:9,m:"artist",type:"match",who:"DA",title:"Gala-kecha dasturi: artistlar",
+  {ch:9,id:"gala",lbl:"Gala-kecha joyi (ijara, bezak, B reja)",type:"decide",who:"DA",title:"⚖️ Qaror: gala-kecha qayerda bo‘ladi?",
+  text:"Gala-kecha — forumning eng yorqin xotirasi. May oqshomi: +14…+16°C, yomg‘ir ehtimoli bor. Uch variant bor — har birining narxi va oqibati boshqa. Bu qarorga ball qo‘yilmaydi, lekin u keyingi voqealarga ta’sir qiladi.",
+  extra:"<div class=\"vcard\">"+wcard("🕌","Ochiq hovli + B reja","Madrasa uslubidagi hovli, chiroqlar va naqshlar; zaxirada kongress markazi ballroomi band (depozit). <b>$40 000</b>")+wcard("🌙","Faqat ochiq hovli","Xuddi shu go‘zal hovli, zaxira zalsiz. <b>$35 000</b>")+wcard("🏛️","Kongress markazi ballroomi","Yopiq, ishonchli, lekin oddiy zal — «vau» effekti kam. <b>$20 000</b>")+"</div>",
+  opts:[{k:"ab",t:"🕌 Ochiq hovli + oldindan band qilingan B reja",best:true,e:{budget:-40000,sat:4},fb:"Professional qaror: unutilmas makon va ob-havo riskidan himoya. B rejaning narxi — sug‘urta kabi."},
+   {k:"a",t:"🌙 Faqat ochiq hovli — tejaymiz",e:{budget:-35000,sat:4},fb:"Chiroyli va $5 000 arzon, lekin ob-havo riski ochiq qoldi. Ko‘ramiz…"},
+   {k:"c",t:"🏛️ Yopiq ballroom — xavfsiz va arzon",e:{budget:-20000,sat:-2},fb:"Ishonchli va arzon, lekin xorijiy mehmonlar Samarqandning o‘ziga xos muhitini his qilmaydi."}],
+  rule:"Noodatiy makon (unique venue) taassurotni oshiradi, lekin ochiq havoda B rejasiz ishlash — qimor."},
+ {ch:9,m:"artist",w:"BMT Turizm assambleyasining (Samarqand, 2023) gala-kechasi «Silk Road Samarqand»dagi tarixiy uslubdagi «Abadiy shahar»da o‘tgan. Parij-2024 ochilishida esa xorijiy yulduz Ledi Gaga frantsuz klassik qo‘shig‘ini ijro etgan: mahalliy madaniyat + xalqaro yulduz.",type:"match",who:"DA",title:"Gala-kecha dasturi: artistlar",
   text:"Gala-kechada mehmonlarga O‘zbekiston madaniyatini ko‘rsatamiz, xorijiy mehmonlar uchun universal raqam ham bo‘ladi. Har bir chiqishga mos tavsifni tanlang.",
   options:["Mehmonlarni tantanali kutib olish signali","Xorazm xalq raqsi, YuNESKO merosi","Buxoro mumtoz musiqasi, YuNESKO merosi","Surxondaryo folklori, YuNESKO merosi","Xalqaro auditoriya uchun universal klassika"],
   rows:[["Karnay-surnay","Mehmonlarni tantanali kutib olish signali"],["Lazgi","Xorazm xalq raqsi, YuNESKO merosi"],["Shashmaqom","Buxoro mumtoz musiqasi, YuNESKO merosi"],["«Boysun» folklor ansambli","Surxondaryo folklori, YuNESKO merosi"],["Xorijiy skripkachi va kamer orkestri","Xalqaro auditoriya uchun universal klassika"]],
   autoE:{budget:-30000,label:"Gala-kecha shou dasturi (artistlar, sahna, yorug‘lik)"},
   rule:"Shou tadbir mavzusiga xizmat qiladi: milliy o‘ziga xoslik + xalqaro auditoriyaga tushunarli chiqishlar."},
- {ch:9,m:"kiyim",type:"sort",who:"DA",title:"Liboslar: kim nima kiyadi?",
-  text:"Artistlar, mezbonlar va mehmonlar uchun dress-code tuzamiz. Kiyimlarni guruhlarga ajrating.",
-  bins:[["Milliy libos","raqqosalar, mezbonlar"],["Xorijiy rasmiy kiyim","dress-code, xorijiy artist"],["Tadbirga mos emas","gala-kecha uchun"]],
-  cards:[["Atlas ko‘ylak",0],["Adras chopon",0],["Do‘ppi",0],["Zardo‘zi nimcha",0],["Frak (dirijyor, skripkachi)",1],["Smoking (black tie)",1],["Kechki ko‘ylak",1],["Sport kostyum",2],["Plyaj shortisi va shippak",2]],
-  rule:"Taklifnomada dress-code yoziladi: masalan «Black tie yoki milliy libos». Kechki salqin havo uchun ro‘mol/plashlar tayyorlanadi."},
- {ch:9,m:"ichim",type:"builder",who:"SN",title:"Kofe-breyk stolini to‘plang",
+ {ch:9,m:"kiyim",w:"Taklifnomada dress-code aniq yoziladi. Masalan, Stokgolmdagi Nobel mukofoti banketida dress-code — «white tie» (frak). Mehmon nima kiyishni bilmasa, noqulay ahvolga tushadi — bu tashkilotchining xatosi.",type:"match",who:"DA",title:"Dress-code: kim nima kiyadi?",
+  text:"Taklifnoma va ko‘rsatmalarda kiyinish qoidasini yozamiz. Har bir vaziyatga mos dress-code’ni tanlang. Diqqat: may oqshomlari salqin (+14…+16°C).",
+  options:["Business formal (rasmiy kostyum)","Black tie yoki milliy libos","Smart casual + qulay poyabzal","Milliy sahna libosi","Yagona forma (logotipli kiyim, bej)"],keepOrder:true,
+  rows:[["Plenar ochilish: delegatlar va vazirlar","Business formal (rasmiy kostyum)"],["Gala-kecha: mehmonlar (kechqurun salqin — ro‘mol va plash tayyorlanadi)","Black tie yoki milliy libos"],["Registon va Shohi Zinda bo‘ylab 3 soatlik piyoda ekskursiya","Smart casual + qulay poyabzal"],["Lazgi raqqosalari: atlas, adras, zardo‘zi","Milliy sahna libosi"],["Ko‘ngillilar: mehmonlar ularni olomon ichida tez topishi kerak","Yagona forma (logotipli kiyim, bej)"]],
+  rule:"Dress-code taklifnomada yoziladi (masalan: «Black tie yoki milliy libos»); ob-havo va faoliyat turini hisobga oling; ko‘ngillilar bir xil, yorqin formada."},
+ {ch:9,m:"ichim",w:"Parij-2024 «ovqatlanish konsepsiyasi»: o‘simlik asosidagi taomlar ulushi ikki baravar oshirildi, mahsulotlarning 80% Fransiyada yetishtirilgan, ovqat chiqindisi kamaytirildi. Menyu ham tadbir qadriyatlarini ko‘rsatadi.",type:"builder",who:"SN",title:"Kofe-breyk stolini to‘plang",
   text:"Rasmiy forumning ertalabki kofe-breyki. Bir kishiga chegara — <b>$8</b>. Forumda 6 ta kofe-breyk × 800 delegat — tanlovingiz byudjetga yoziladi. Halol, vegetarian va allergiya ehtiyojlarini hisobga oling.",
   B:8,unit:"Bir kishiga sarf",spend:4800,spendLabel:"Kofe-breyklar (6 × 800 delegat)",
   acts:[["💧 Ichimlik suvi (gazsiz)",0.5,["suv"]],["🍵 Ko‘k choy",0.5,["issiq","milliy"]],["🫖 Qora choy",0.5,["issiq"]],["☕ Qahva",1.5,["issiq","qahva"]],["🧃 Tabiiy meva sharbati",1,["sovuq"]],["🍬 Milliy shirinliklar (parvarda, holva, novvot)",1,["milliy"]],["🍇 Mevalar (uzum, anor)",1,["meva"]],["🥪 Halol mini-sendvichlar",2,["halol"]],["🥗 Vegetarian va allergensiz belgili taomlar",1,["parhez"]],["⚡ Energetik ichimliklar",2,["yomon"]],["🍸 Spirtli kokteyllar",4,["yomon"]],["🥤 Shirin gazli ichimliklar",1,["shakar"]]],
   CR:[["Chegaradan oshmagan ($8)",function(s,t){return s>0&&s<=8;}],["Suv bor",function(s,t){return t.suv>=1;}],["Choy va qahva bor",function(s,t){return t.qahva>=1&&t.issiq>=2;}],["Milliy ta’m bor",function(s,t){return t.milliy>=1;}],["Halol va vegetarian taomlar bor",function(s,t){return t.halol>=1&&t.parhez>=1;}],["Spirtli va energetik ichimlik yo‘q",function(s,t){return !t.yomon;}]],
   fb:"Ertalabki rasmiy kofe-breykda suv, choy, qahva, sharbat, milliy shirinliklar va yorliqli halol/vegetarian taomlar. Spirtli ichimlik faqat buyurtmachi ruxsati bilan va faqat kechki qabulda.",
   rule:"Har taomga yorliq (halol, vegetarian, allergen); issiq kunda suv va soya joylar ko‘proq."},
- {ch:9,m:"hisob",type:"num",who:"SN",title:"Ichimliklarni hisoblang",
+ {ch:9,m:"hisob",w:"Parij-2024 Olimpiadasida 4 hafta davomida 40 dan ortiq obyektda 13 million taom va yengil tamaddi berilishi rejalashtirilgan — dunyodagi eng katta tadbir keyteringi. Bunday hajmni faqat aniq hisob-kitob bilan boshqarish mumkin.",type:"num",who:"SN",title:"Ichimliklarni hisoblang",
   text:"Keytering kompaniyasiga aniq miqdorni yozib beramiz (may — iliq kunlar, suv ko‘proq kerak).",
   qs:[["Kuniga 2 kofe-breyk, har birida bir kishiga 1,5 chashka issiq ichimlik. 800 delegat uchun 1 kunda nechta chashka?",2400,"800 × 2 × 1,5 = 2 400 chashka","chashka"],["Har delegatga kuniga 2 shisha suv, forum 3 kun. Jami nechta shisha?",4800,"800 × 2 × 3 = 4 800 shisha","shisha"],["Gala: har stolga 2 litr sharbat, 80 stol. Jami necha litr?",160,"80 × 2 = 160 litr","litr"]],
   rule:"Raqamlar yozma ravishda (BEO varaqasida) beriladi va 5–10% zaxira qo‘shiladi."},
  /* 10-bob LOGISTIKA */
- {ch:10,m:"yol",type:"order",who:"SN",title:"Delegatning yo‘li: aeroportdan zalgacha",
+ {ch:10,m:"yol",w:"Dubayda Expo 2020 uchun metro liniyasi («Route 2020») qurildi: tashrif buyuruvchining yo‘li tadbir dizaynining bir qismi sifatida rejalashtirilgan. Delegat yo‘lining har bir nuqtasi oldindan o‘ylanadi.",type:"order",who:"SN",title:"Delegatning yo‘li: aeroportdan zalgacha",
   text:"Xorijiy delegat Samarqandga uchib keldi. Uning yo‘lini to‘g‘ri tartibda tuzing.",
   items:["Aeroportda ism yozilgan lavha bilan kutib olish","Transfer avtobusida mehmonxonaga","Mehmonxonaga joylashish (rooming list bo‘yicha)","Ertalab shatl avtobusda kongress markaziga","Akkreditatsiya: bej va delegat sumkasini olish","Plenar zalga kirish"],
   fb:"Inspeksiya safarida shu yo‘lni o‘zingiz bosib o‘tasiz: aeroport → mehmonxona → zal → restoran.",
   rule:"Har bir nuqtada ko‘ngilli yoki ko‘rsatkich; aravachadagi mehmon uchun pandusli transport."},
- {ch:10,m:"trans",type:"num",who:"SN",title:"Transportni hisoblang",
+ {ch:10,m:"trans",w:"Xitoyning Tiens kompaniyasi 2015-yilda 6 400 xodimini Fransiyaga insentiv safarga olib bordi: 84 ta aviareys, 140 dan ortiq mehmonxona, Nitstsada esa yuzdan ortiq avtobus kerak bo‘ldi. Transportni aniq hisoblamasdan bunday logistikani boshqarib bo‘lmaydi.",type:"num",who:"SN",title:"Transportni hisoblang",
   text:"Delegatlarni mehmonxonadan kongress markaziga tashiymiz. 3 kun, avtobus kuniga $350.",
   qs:[["800 delegat, avtobus 50 o‘rinli. Nechta avtobus kerak?",16,"800 ÷ 50 = 16 avtobus","avtobus"],["10% zaxira qo‘shing (yuqoriga yaxlitlang). Jami nechta avtobus?",18,"16 × 1,1 = 17,6 → 18 avtobus","avtobus"],["6 VIP vazirga alohida avtomobil va har 3 tasiga 1 zaxira. Jami nechta VIP avtomobil?",8,"6 + 2 = 8 avtomobil","avtomobil"]],
   autoE:{budget:-18900,label:"Transport: 18 avtobus × 3 kun × $350"},
   rule:"Transportda doim zaxira: buzilish, tirbandlik, kechikish; kamida 1 ta pandusli avtobus."},
- {ch:10,m:"kortej",type:"order",who:"SN",title:"VIP kortej tartibi",
+ {ch:10,m:"kortej",w:"London-2012 Olimpiadasida sportchilar, rasmiylar va xizmatlar uchun maxsus «Games Lanes» — ajratilgan yo‘l qatorlari tashkil etilgan. VIP va delegatlar harakati shahar transport rejasi bilan birga tuziladi.",type:"order",who:"SN",title:"VIP kortej tartibi",
   text:"Vazir aeroportdan forumga kortej bilan keladi. Avtomobillarni oldidan orqasigacha tartiblang.",
   hint:"Oldinda yo‘lni ochadigan va biladigan mashinalar, o‘rtada mehmon va qo‘riqchilar, oxirida yordam va yopuvchi.",
   items:["Yo‘l harakati xavfsizligi eskort mashinasi","Yo‘naltiruvchi (lider) avtomobil — marshrutni biladi","VIP mehmon avtomobili","Qo‘riqlash avtomobili","Zaxira VIP avtomobil","Tez tibbiy yordam","Yopuvchi eskort mashinasi"],
   fb:"Bu o‘quv namunasi: real kortej tarkibi va marshrutini davlat xavfsizlik va protokol xizmatlari belgilaydi. Tashkilotchi asosiy va zaxira marshrutni, vaqtni va kutib olish nuqtasini kelishadi.",
   rule:"Kortej uchun 2 marshrut (asosiy va zaxira) va aniq vaqt jadvali tuziladi."},
  /* 11-bob TUR PAKET */
- {ch:11,m:"paket",type:"builder",who:"SN",title:"Forumdan keyingi 2 kunlik tur paket",
+ {ch:11,m:"paket",w:"BMT Turizm assambleyasi delegatlari uchun (Samarqand, 2023-yil 20-oktabr) ekskursiyalar tashkil etilgan: Ulug‘bek rasadxonasi, Bibixonim masjidi, Shohi Zinda, Siyob bozori, «Konigil» turizm qishlog‘i. Forumdan keyingi tur — destinatsiya marketingining eng kuchli quroli.",type:"builder",who:"SN",title:"Forumdan keyingi 2 kunlik tur paket",
   text:"Delegatlarning bir qismi forumdan keyin sayohat qiladi (paketni ular o‘zi to‘laydi). Bir kishiga narx chegarasi — <b>$350</b>. May — sayohat uchun qulay mavsum.",
   B:350,unit:"Paket tannarxi (1 kishi)",
   acts:[["🕌 Registon, Bibixonim, Shohi Zinda — ingliz tilidagi gid bilan",40,["madaniyat"]],["🚄 «Afrosiyob» tezyurar poyezdida Buxoroga",45,["transport"]],["🏰 Buxoro: Ark, Poi Kalon, Labi hovuz",40,["madaniyat"]],["🏨 Butik mehmonxona, nonushta bilan (1 tun)",90,["turar"]],["🍚 Osh master-klassi va milliy kechki ovqat",35,["gastro"]],["🧵 Hunarmandlar ustaxonasi",20,["madaniyat"]],["🩺 Tibbiy sug‘urta",10,["sugurta"]],["🚌 10 soatlik avtobus safari Nukusga",120,["uzoq"]],["🍾 Tungi klubda VIP stol",150,["ortiqcha"]],["🚁 Vertolyotda sayr",300,["ortiqcha"]]],
   CR:[["Narx $350 dan oshmagan",function(s,t){return s>0&&s<=350;}],["Turar joy bor",function(s,t){return t.turar>=1;}],["Buxoroga transport bor",function(s,t){return t.transport>=1;}],["Kamida 2 madaniy obyekt",function(s,t){return t.madaniyat>=2;}],["Gastronomik taassurot bor",function(s,t){return t.gastro>=1;}],["Sug‘urta bor",function(s,t){return t.sugurta>=1;}]],
   fb:"Tur paket = turar joy + transport + ekskursiya + ovqat + sug‘urta, bitta narxda. 2 kunga 10 soatlik yo‘l sig‘maydi.",
   rule:"Paketni DMC bilan tuzing; har kun 8–10 soatdan oshmasin; keksa mehmonlar uchun dam olish vaqti."},
- {ch:11,m:"narx",type:"num",who:"MK",title:"Tur paket narxini hisoblang",
-  text:"Paket tannarxi bir kishiga <b>$280</b>. Agentlik ustamasi — <b>20%</b>.",
-  qs:[["Bir kishi uchun sotish narxi qancha?",336,"280 × 1,2 = $336","$"],["Guruh 20 kishi bo‘lsa, jami tushum qancha?",6720,"336 × 20 = $6 720","$"]],
-  rule:"Sotish narxi = tannarx + ustama; minimal guruh soni shartnomada yoziladi."},
+ {ch:11,m:"narx",w:"Tiens kompaniyasining Fransiyadagi insentiv safari 2014-yil dekabrida rejalashtirila boshlangan va 2015-yil mayida o‘tgan: guruh narxlari, mehmonxona bloklari va transport 5 oy oldin kelishilgan. Guruh tur narxi oldindan va yozma ravishda hisoblanadi.",type:"num",who:"MK",title:"Siz tuzgan paketning narxini hisoblang",
+  prep:function(sc){var pk=(S.pk>0&&S.pk<=350)?S.pk:280,own=pk===S.pk,sp=Math.round(pk*1.2);
+    sc.text=(own?"Siz tuzgan paket tannarxi":"Paketingiz chegaradan chiqdi, shuning uchun namunaviy paketni olamiz. Tannarx")+" — <b>$"+pk+"</b> bir kishiga. Agentlik (DMC) ustamasi — <b>20%</b>. Guruhda <b>20</b> kishi.";
+    sc.qs=[["Bir kishi uchun sotish narxi qancha? (butun dollargacha yaxlitlang)",sp,pk+" × 1,2 = "+(Math.round(pk*120)/100===sp?"$"+sp:String(Math.round(pk*120)/100).replace(".",",")+" ≈ $"+sp),"$",0.51],["20 kishilik guruhdan jami tushum qancha?",sp*20,sp+" × 20 = $"+(sp*20),"$",10.5],["Agentlikning shu guruhdan foydasi qancha?",(sp-pk)*20,"("+sp+" − "+pk+") × 20 = $"+((sp-pk)*20),"$",10.5]];},
+  text:"",qs:[],
+  rule:"Sotish narxi = tannarx + ustama; minimal guruh soni va bekor qilish shartlari shartnomada yoziladi."},
  /* 12-bob TADBIR KUNI */
- {ch:12,m:"risk1",type:"choice",who:"TB",title:"Gala-kecha kuni jala",crisis:"Gala-kecha madrasa hovlisida, ochiq osmon ostida. Prognoz: kechqurun 80% jala va +12°C.",
-  text:"Mehmonlar 3 soatdan keyin keladi. Nima qilamiz?",
-  opts:[{t:"B rejasi: oldindan kelishilgan kongress markazi ballroomiga o‘tamiz, mehmonlarga xabar beramiz, transfer yo‘nalishini o‘zgartiramiz",cost:"$10 000",best:true,e:{budget:-10000,sat:3},fb:"To‘g‘ri: yopiq zal oldindan band qilingan bo‘lsa, risk oldini olinadi (avoid)."},
-   {t:"Hovliga tezda chodir va isitgichlar o‘rnatamiz",cost:"$25 000",ok:true,e:{budget:-25000,sat:-3},fb:"Qisman: 3 soatda 800 kishilik chodir qurish va xavfsizlik juda qiyin va qimmat."},
-   {t:"Hech narsa qilmaymiz, balki yomg‘ir yog‘mas",e:{sat:-20},fb:"Risk «qabul qilish» faqat kichik risklarga mos — bu katta risk."},
-   {t:"Gala-kechani bekor qilamiz",e:{sat:-25},fb:"Buyurtmachi va homiylar oldidagi majburiyat buziladi."}],
-  rule:"Ochiq havodagi har bir tadbir uchun yopiq zal oldindan band qilinadi (B rejasi)."},
- {ch:12,m:"risk2",type:"choice",who:"SN",title:"Vazirning samolyoti kechikmoqda",crisis:"VIP mehmonning reysi 2 soatga kechikdi. Uning nutqi 10:00 da, plenar sessiyada.",
+ {ch:12,m:"risk1",w:"Parij-2024 Olimpiadasining ochilish marosimi tarixda birinchi marta stadiondan tashqarida — Sena daryosida o‘tdi va kuchli jala ostida qoldi. 1952-yildan beri yozgi Olimpiada ochilishida birinchi marta yomg‘ir yog‘gan. Ochiq havodagi tadbirda ob-havo — eng katta risk.",type:"choice",who:"TB",title:"Gala-kecha kuni jala",
+  prep:function(sc){var gv=S.gala||"ab";
+   if(gv==="c"){sc.crisis="Gala-kecha yopiq ballroomda — jala unga xalaqit bermaydi. Lekin avtobuslar to‘xtash joyidan zal eshigigacha 200 m ochiq yo‘lak, prognoz: 80% jala va +12°C.";
+    sc.text="Siz galani yopiq zalga qo‘ygansiz — bu to‘g‘ri edi. Endi kichik muammo: mehmonlar 200 metrni yomg‘ir ostida yuradi. Nima qilamiz?";
+    sc.opts=[{t:"Kirish yo‘lagiga vaqtinchalik soyabon-chodir, ko‘ngillilarga zontiklar, avtobuslarni eshik oldigacha olib kelish (xavfsizlik bilan kelishib)",cost:"$3 000",best:true,e:{budget:-3000,sat:2},fb:"To‘g‘ri: arzon va tez; mehmon «eshikdan eshikkacha» quruq yetib boradi."},
+     {t:"Mehmonlarga SMS: «Zontik olib keling»",ok:true,fb:"Qisman: xorijiy mehmonlarda zontik yo‘q, ayollar kechki libosda — 200 m yomg‘ir yoqimsiz."},
+     {t:"Hech narsa qilmaymiz — zal baribir yopiq",e:{sat:-6},fb:"Ho‘l kiyimdagi mehmon — buzilgan kayfiyat; tadbir kirishdan boshlanadi."},
+     {t:"Galani bir kunga ko‘chiramiz",e:{sat:-12},fb:"Mehmonlarning parvozlari, artistlar va keyteringni ko‘chirib bo‘lmaydi."}];return;}
+   sc.crisis="Gala-kecha madrasa uslubidagi ochiq hovlida. Prognoz: kechqurun 80% jala va +12°C. Mehmonlar 3 soatdan keyin keladi.";
+   if(gv==="ab"){sc.text="Siz oldindan B rejasini tayyorlagansiz: kongress markazi ballroomi zaxirada band qilingan. Qaror qabul qiling.";
+    sc.opts=[{t:"B rejasini ishga tushiramiz: ballroomga o‘tamiz, mehmonlarga SMS va Telegram orqali xabar beramiz, transfer yo‘nalishini o‘zgartiramiz",cost:"$3 000",best:true,e:{budget:-3000,sat:3},fb:"To‘g‘ri: oldindan tayyorlangan B rejasi tufayli 3 soatda hammasi joyida. Risk «chetlab o‘tildi» (avoid)."},
+     {t:"Hovliga tezda chodir va isitgichlar o‘rnatamiz",cost:"$25 000",ok:true,e:{budget:-25000,sat:-3},fb:"Qisman: 3 soatda 800 kishilik chodir qurish juda qiyin va qimmat, B rejasi esa tayyor turibdi."},
+     {t:"Hech narsa qilmaymiz, balki yomg‘ir yog‘mas",e:{sat:-20},fb:"Risk «qabul qilish» faqat kichik risklarga mos — bu katta risk."},
+     {t:"Gala-kechani bekor qilamiz",e:{sat:-25},fb:"Buyurtmachi va homiylar oldidagi majburiyat buziladi."}];return;}
+   sc.text="Siz B rejasini tayyorlamagansiz. Kongress markazi ballroomi hozircha bo‘sh, lekin shoshilinch bron ikki baravar qimmat. Qaror qabul qiling.";
+   sc.opts=[{t:"Ballroomni shoshilinch band qilamiz, mehmonlarga SMS va Telegram orqali xabar beramiz, transfer yo‘nalishini o‘zgartiramiz",cost:"$15 000",best:true,e:{budget:-15000,sat:1},fb:"To‘g‘ri yechim, lekin qimmat: oldindan B reja tuzilganda $3 000 ga tushardi. Saboq: ochiq havodagi tadbir = oldindan band qilingan yopiq zal."},
+    {t:"Hovliga tezda chodir va isitgichlar o‘rnatamiz",cost:"$25 000",ok:true,e:{budget:-25000,sat:-3},fb:"Qisman: 3 soatda 800 kishilik chodir qurish va xavfsizlik juda qiyin va qimmat."},
+    {t:"Hech narsa qilmaymiz, balki yomg‘ir yog‘mas",e:{sat:-20},fb:"Risk «qabul qilish» faqat kichik risklarga mos — bu katta risk."},
+    {t:"Gala-kechani bekor qilamiz",e:{sat:-25},fb:"Buyurtmachi va homiylar oldidagi majburiyat buziladi."}];},
+  crisis:"",text:"",opts:[],
+  rule:"Ochiq havodagi har bir tadbir uchun yopiq zal oldindan band qilinadi (B rejasi); kirish yo‘llari ham ob-havoga tayyorlanadi."},
+ {ch:12,m:"risk2",w:"Xalqaro forumlarda VIP nutqlar uchun dasturda «zaxira oyna» qoldiriladi va boshlovchiga muqobil matnlar oldindan beriladi. Aloqa zanjiri (kim kimga xabar beradi) bo‘lmasa, kechikish butun kun dasturini buzadi.",type:"choice",who:"SN",title:"Vazirning samolyoti kechikmoqda",crisis:"VIP mehmonning reysi 2 soatga kechikdi. Uning nutqi 10:00 da, plenar sessiyada.",
   text:"Zalda 800 delegat. Qaror qabul qiling.",
   opts:[{t:"Ssenariyni o‘zgartiramiz: nutqni tushlikdan keyingi blokka ko‘chiramiz, panel sessiyani oldinga suramiz, kortej va protokolni yangi vaqtga moslaymiz, boshlovchiga yangi matn beramiz",best:true,e:{sat:2},fb:"To‘g‘ri: dastur egiluvchan, hamma (boshlovchi, texnik guruh, protokol) bir vaqtda xabardor."},
    {t:"Zalni 2 soat kutdiramiz",e:{sat:-15},fb:"800 kishini kutdirish — forum obro‘siga zarba."},
    {t:"Vazirning nutqini bekor qilamiz",e:{sat:-8},fb:"Protokolni buzish: VIP nutqi buyurtmachi uchun muhim."},
    {t:"Musiqa qo‘yib, kutib turamiz",ok:true,e:{sat:-5},fb:"Qisman: 15–20 daqiqa uchun bo‘ladi, 2 soat uchun emas."}],
   rule:"Har VIP chiqish uchun zaxira vaqt oynasi va aloqa zanjiri (kim kimga xabar beradi) bo‘lsin."},
- {ch:12,m:"kpi",type:"match",who:"GR",title:"Forum muvaffaqiyatli o‘tdimi? Baholash",
+ {ch:12,m:"kpi",w:"NPS (Net Promoter Score) ko‘rsatkichini 2003-yilda Fred Rayxxeld taklif qilgan: «Bu tadbirni do‘stingizga tavsiya qilasizmi?» degan bitta savol. Bugun u dunyodagi tadbirlarni baholashning eng ommabop usullaridan biri.",type:"match",who:"GR",title:"Forum muvaffaqiyatli o‘tdimi? Baholash",
   text:"Forum tugadi. Hisobotda qaysi ko‘rsatkich nimani o‘lchaydi?",
   options:["NPS","Davomat","ROI","Lidlar"],keepOrder:true,
   rows:[["Ishtirokchilar forumni boshqalarga tavsiya qilish ehtimoli","NPS"],["Ro‘yxatdan o‘tganlarning necha foizi haqiqatan keldi","Davomat"],["Sarflangan pulga nisbatan olingan foyda","ROI"],["Ko‘rgazmada olingan potensial hamkor kontaktlari","Lidlar"]],
@@ -1152,8 +1203,8 @@ var FLOW=SCENES;
 function prog(){var p=$("prog");p.innerHTML=FLOW.slice(1,-1).map(function(s,i){var idx=i+1;var cls=idx<S.i?"done":idx===S.i?"cur":"";if(idx<S.i&&S.pts[s.m]===0)cls="zero";var gap=(i>0&&FLOW[idx-1].ch!==s.ch)?" style=\"margin-left:6px\"":"";return "<i class=\""+cls+"\""+gap+"></i>";}).join("");
   var sc=FLOW[S.i];$("whoStage").textContent=sc&&sc.ch?sc.ch+"-bob · "+CHAPS[sc.ch][0]:"";}
 function go(i){S.i=i;S.ans=false;stopTimer();var sc=FLOW[i];$("hudWrap").style.display=(sc.type==="intro"||sc.type==="final")?"none":"";if(sc.type!=="intro"){prog();hud();}
-  S.t0=Date.now();S.noFast=!!sc.noFast;S.fastMs=({choice:30,multi:45,sort:90,order:70,match:75,num:120,builder:120}[sc.type]||60)*1000;if(sc.type!=="intro")saveState();
-  ({intro:rIntro,choice:rChoice,multi:rMulti,sort:rSort,order:rOrder,match:rMatch,num:rNum,builder:rBuilder,final:rFinal})[sc.type](sc);
+  if(sc.prep)sc.prep(sc);S.t0=Date.now();S.noFast=!!sc.noFast||sc.type==="decide";S.fastMs=({choice:30,multi:45,sort:90,order:70,match:75,num:120,builder:120}[sc.type]||60)*1000;if(sc.type!=="intro")saveState();
+  ({intro:rIntro,decide:rDecide,choice:rChoice,multi:rMulti,sort:rSort,order:rOrder,match:rMatch,num:rNum,builder:rBuilder,final:rFinal})[sc.type](sc);
   if(sc.ch&&sc.ch!==S.lastChap){S.lastChap=sc.ch;saveState();stopTimer();chapIntro(sc.ch,function(){S.t0=Date.now();startTimer();});}
   else if(sc.type==="final"&&S.lastChap===NCH){S.lastChap=NCH+1;saveState();}
   if(sc.ch)bindTools(sc);
@@ -1166,11 +1217,11 @@ function rIntro(){var c=Object.keys(CAST).map(function(k){var x=CAST[k];var ini=
   var chaps=Object.keys(CHAPS).map(function(k){return "<li><b>"+CHAPS[k][0]+"</b> — "+CHAPS[k][1].toLowerCase()+"</li>";}).join("");
   $("stage").innerHTML="<div class=\"hero scene\"><div class=\"poster\"><span class=\"pill\">Amaliy mashg‘ulot · rolli o‘yin</span><h2 style=\"margin-top:10px\">Siz — forumning bosh tashkilotchisisiz</h2><p style=\"opacity:.92\">Turizm qo‘mitasi Samarqandda <b>Xalqaro turizm forumi</b>ni o‘tkazadi: 800 delegat, 40 davlat, 6 vazir, 60 stendli ko‘rgazma, gala-kecha va tur paket. Qo‘lingizda <b>$450 000</b> byudjet. Siz forumni brifdan hisobotgacha tashkil etasiz.</p><ol style=\"opacity:.92;font-size:14px;padding-left:20px;margin:10px 0 0\">"+chaps+"</ol></div>"+
    "<div class=\"card\">"+resume+
-   "<div class=\"howplay\"><b>Qanday o‘ynaladi?</b><ul style=\"margin:6px 0 0;padding-left:20px;font-size:14.5px\"><li>"+NCH+" bob, "+MISSIONS.length+" ta topshiriq — haqiqiy tadbir ketma-ketligida. Jami <b>100 ball</b>.</li><li>Har topshiriq — 1 dan 3 gacha <b>⭐ yulduz</b>; har bob oxirida bob yulduzlari.</li><li><b>💰 Byudjet:</b> har qaror pul sarflaydi. 10% zaxirani saqlab qoling!</li><li><b>😊 Mehmonlar mamnunligi:</b> to‘g‘ri qarorlar oshiradi, xatolar tushiradi.</li><li><b>🏅 Status:</b> Stajyor → Koordinator → Loyiha menejeri → Bosh menejer → Bosh tashkilotchi.</li><li>Oxirida <b>5 yulduzli tadbir reytingi</b>, byudjet hisoboti va <b>«Tadbir pasporti»</b> (yuklab olasiz).</li></ul></div>"+
+   "<div class=\"howplay\"><b>Qanday o‘ynaladi?</b><ol class=\"steps3\"><li><b>O‘qing.</b> Har sahnada jamoangizdan biri vaziyatni aytadi.</li><li><b>Qaror qiling.</b> Javobni tanlang, tartiblang yoki hisoblang.</li><li><b>O‘rganing.</b> Javobdan keyin — izoh, 📌 tashkilotchi qoidasi va 🌍 jahon tajribasi (haqiqiy tadbirlardan misol).</li></ol><ul style=\"margin:6px 0 0;padding-left:20px;font-size:14.5px\"><li>"+NCH+" bob, "+MISSIONS.length+" ta topshiriq — haqiqiy tadbir ketma-ketligida. Jami <b>100 ball</b>.</li><li><b>⚖️ Boshqaruv qarorlari</b> (homiy, gala-kecha joyi) — ball bermaydi, lekin oqibati keyinroq chiqadi.</li><li>Har topshiriq — 1 dan 3 gacha <b>⭐ yulduz</b>; har bob oxirida bob yulduzlari.</li><li><b>💰 Byudjet:</b> har qaror pul sarflaydi. 10% zaxirani saqlab qoling!</li><li><b>😊 Mehmonlar mamnunligi:</b> to‘g‘ri qarorlar oshiradi, xatolar tushiradi.</li><li><b>🏅 Status:</b> Stajyor → Koordinator → Loyiha menejeri → Bosh menejer → Bosh tashkilotchi.</li><li>Oxirida <b>5 yulduzli tadbir reytingi</b>, byudjet hisoboti va <b>«Tadbir pasporti»</b> (yuklab olasiz).</li></ul></div>"+
    "<div class=\"field\"><label for=\"tName\">Ism va familiyangiz</label><input type=\"text\" id=\"tName\" placeholder=\"Masalan: Aziza Karimova\" maxlength=\"60\" autocomplete=\"off\"></div>"+
    "<div class=\"field\"><label for=\"tGroup\">Guruh</label><input type=\"text\" id=\"tGroup\" placeholder=\"Masalan: 13-26\" maxlength=\"30\" autocomplete=\"off\"></div>"+
    "<button class=\"btn gold\" id=\"tGo\" style=\"width:100%;padding:13px\">🚀 Tashkil etishni boshlash</button>"+
-   "<h3>Siz bilan ishlaydiganlar</h3><div class=\"cast\">"+c+"</div><p class=\"muted\" style=\"font-size:13px\">Qahramonlar, narxlar va raqamlar shartli; faktlar 1–2-mavzu ma’ruzasidan.</p></div>";
+   "<h3>Siz bilan ishlaydiganlar</h3><div class=\"cast\">"+c+"</div><p class=\"muted\" style=\"font-size:13px\">Qahramonlar, kompaniyalar va narxlar shartli; nazariya — 1–2-mavzu ma’ruzasidan; «🌍 Jahon tajribasi» kartalaridagi faktlar — haqiqiy xalqaro tadbirlardan.</p></div>";
   var tn=$("tName"),tg=$("tGroup");if(saved&&saved.name){tn.value=saved.name;tg.value=saved.group||"";}
   if($("tResume"))$("tResume").addEventListener("click",function(){S=saved;if(S.budget==null){S.budget=BUDGET0;S.sat=70;S.blog=[];}hud();toast("Davom etamiz, "+S.name+"!");go(S.ans?S.i+1:Math.max(1,S.i));});
   $("tGo").addEventListener("click",function(){var n=tn.value.trim(),g=tg.value.trim();if(n.length<3){toast("Ism va familiyani yozing");tn.focus();return;}if(!g){toast("Guruhni yozing");tg.focus();return;}
@@ -1179,18 +1230,28 @@ function rIntro(){var c=Object.keys(CAST).map(function(k){var x=CAST[k];var ini=
 /* ---------- yakun: reyting, byudjet, Tadbir pasporti ---------- */
 var PASS={
  1:["Toifa: Convention + Exhibition (forum + ko‘rgazma), davlat buyurtmachisi","Brif: maqsad, ishtirokchilar, sana, byudjet, VIP/protokol, til, ovqat va maxsus ehtiyojlar","SMART maqsad: raqam + muddat + sifat ko‘rsatkichi"],
- 2:["Bosqichlar: g‘oya → byudjet → joy va sana → dastur → marketing → logistika → o‘tkazish → baholash","Gant: 12–9 oy kontseptsiya va joy · 8–4 oy spikerlar, homiylar, sayt, bron · 3–1 oy dastur, materiallar · tadbir haftasi montaj va repetitsiya","Sana: bayram, mavsum, ob-havo, to‘qnashuvlar; seshanba–payshanba","Byudjet: doimiy + o‘zgaruvchan xarajat, 10% zaxira; zararsizlik = doimiy ÷ (badal − o‘zgaruvchan)"],
+ 2:["Bosqichlar: g‘oya → byudjet → joy va sana → dastur → marketing → logistika → o‘tkazish → baholash","Gant: 12–9 oy kontseptsiya va joy · 8–4 oy spikerlar, homiylar, sayt, bron · 3–1 oy dastur, materiallar · tadbir haftasi montaj va repetitsiya","Sana: bayram, mavsum, ob-havo, to‘qnashuvlar; seshanba–payshanba","Byudjet: doimiy + o‘zgaruvchan xarajat, 10% zaxira; zararsizlik = doimiy ÷ (badal − o‘zgaruvchan); yetmasa — homiylik","Homiy: pul miqdori emas, tadbirga mosligi; shartlar shartnomada"],
  3:["PCO — kongress va bosh muvofiqlashtirish · DMC — transfer, ekskursiya, tur · Agentlik — shou · CVB — shahar targ‘iboti","Rollar: menejer, moderator, boshlovchi, protokol, texnik guruh, ko‘ngillilar, logist, keytering — har vazifaning bitta egasi"],
  4:["Joy: sig‘im, zallar, ko‘rgazma maydoni, tarjima, joylashuv, qulaylik, xavfsizlik; inspeksiya safari","Shartnoma: hajm va to‘lov, cancellation, attrition, force majeure, raqobat bandi — faqat yozma"],
  5:["Teatr — tinglash · sinf — yozish · U-shakl — muhokama · boardroom — muzokara · banket — ovqat · kabare — guruh ishi","Sig‘im: maydon ÷ me’yor; aravacha joylari va yo‘laklarni ayiring"],
  6:["Dizayn: mavzuga mos uslub, yagona brend, ikki tilda","Materiallar: bej, press-wall, yo‘l ko‘rsatkich, backdrop, bayroqlar — ekologik","Stendlar: qator (1), burchak (2), yarim orol (3), orol (4 tomoni ochiq)"],
  7:["Dastur: ro‘yxat → ochilish → plenar → kofe-breyk → ko‘rgazma → tushlik → panellar → ziyofat","Boshlovchi: 2 tilli professional + zaxira; ochilish ssenariysi daqiqama-daqiqa","O‘yinlar: ice-breaker, jonli so‘rov, kvest, master-klass, speed-networking","Marketing: sayt, Telegram, LinkedIn, e-mail, CRM — va’da haqiqatdan oshmasin"],
  8:["VIP: protokol xodimi va lounge, o‘rin kartochkalari, tarjimon, namozxona, alohida kirish, maxsus menyu","Prezidium: faxriy mehmon — mezbonning o‘ng tomonida","Inklyuzivlik: pandus va lift, aravacha joylari, imo-ishora tarjimoni va subtitr, katta shrift, ehtiyojlar so‘rovi, tinch xona"],
- 9:["Artistlar: karnay-surnay, Lazgi, Shashmaqom, folklor + xalqaro klassika","Dress-code: milliy libos yoki black tie","Kofe-breyk: suv, choy, qahva, sharbat, milliy shirinlik, halol va vegetarian; miqdor BEO’da + zaxira"],
+ 9:["Artistlar: karnay-surnay, Lazgi, Shashmaqom, folklor + xalqaro klassika","Dress-code: plenar — business formal · gala — black tie yoki milliy libos · ekskursiya — smart casual · ko‘ngillilar — yagona forma","Gala joyi: noodatiy makon + oldindan band qilingan B reja","Kofe-breyk: suv, choy, qahva, sharbat, milliy shirinlik, halol va vegetarian; miqdor BEO’da + zaxira"],
  10:["Delegat yo‘li: kutib olish → transfer → joylashish → shatl → akkreditatsiya → zal","Transport: ishtirokchilar ÷ o‘rinlar + 10% zaxira, pandusli avtobus","VIP kortej: eskort → lider → VIP → qo‘riqlash → zaxira VIP → tez yordam → yopuvchi; asosiy va zaxira marshrut"],
  11:["Tur paket: turar joy + transport + ekskursiyalar + gastronomiya + sug‘urta; kuniga 8–10 soatdan oshmasin","Narx: tannarx + ustama (masalan, 20%)"],
  12:["B rejasi: ochiq havo uchun yopiq zal, VIP uchun zaxira vaqt, zaxira boshlovchi","Baholash: NPS, davomat, ROI, lidlar → debrifing → hisobot"]};
 var CHECK=["Brif yozma tasdiqlandi","SMART maqsad va KPI belgilandi","Sana: bayram, mavsum, ob-havo tekshirildi","Byudjet + 10% zaxira, zararsizlik nuqtasi","Gant jadvali tuzildi","Organizator va pudratchilar bilan yozma shartnomalar","Har vazifaning bitta egasi bor","Joy inspeksiya qilindi","Zal shakllari va sig‘im (aravacha joylari bilan)","Dizayn va brend materiallari tayyor","Dastur, ssenariy va marketing rejasi","Boshlovchi va zaxira boshlovchi","VIP protokol va xavfsizlik kelishildi","Inklyuzivlik: pandus, tarjimon, subtitr, ehtiyojlar so‘rovi","Artistlar, dress-code, menyu va BEO","Transport, rooming list, kortej marshruti","Tur paket va sug‘urta","B rejasi (ob-havo, VIP, texnika) va aloqa zanjiri","Repetitsiya va brifing","So‘rovnoma, debrifing va hisobot"];
+function headline(){var ER=eventRating(),d=S.dec||{},h,sub=[];
+  h=ER.n>=5?"Samarqand forumi — yilning eng yaxshi xalqaro tadbiri":ER.n===4?"Samarqand forumi muvaffaqiyatli yakunlandi":ER.n===3?"Forum o‘tdi, lekin tashkilotchilarga savollar bor":"Forum: mehmonlar norozi, byudjet tanqid ostida";
+  if(d.homiy==="volt")sub.push("Vazirlar nutqi oldidan energetik ichimlik reklamasi ijtimoiy tarmoqlarda muhokama qilindi");
+  if(d.homiy==="air")sub.push("«SilkAir» hamkorligi: delegatlar arzon reyslardan mamnun");
+  if(S.gala==="ab")sub.push("Jala ham gala-kechani buzolmadi: B rejasi 3 soatda ishga tushdi");
+  if(S.gala==="a")sub.push("Gala-kecha kuni jala: tashkilotchilar zalni oxirgi daqiqada topdi");
+  if(S.gala==="c")sub.push("Gala-kecha yopiq zalda: ishonchli, ammo mehmonlar «Samarqand ruhini» kutgan edi");
+  if(S.budget<RESERVE)sub.push("Byudjet zaxirasi sarflab yuborildi — moliyaviy hisobot savol uyg‘otdi");
+  if(S.sat>=90)sub.push("Delegatlar: «Yana Samarqandga kelamiz!»");
+  return "<div class=\"news\"><div class=\"nm\">📰 «Forum xabarnomasi» · ertangi son <span>(o‘yin uchun to‘qilgan)</span></div><h3>"+h+"</h3>"+(sub.length?"<ul>"+sub.map(function(x){return "<li>"+x+"</li>";}).join("")+"</ul>":"")+"</div>";}
 function eventRating(){var t=know(),R=[["Forum o‘tkazildi",true],["Ball 71 va undan yuqori",t>=71],["Ball 86 va undan yuqori",t>=86],["10% zaxira saqlandi (≥ $45 000)",S.budget>=RESERVE],["Mehmonlar mamnunligi 80+",S.sat>=80]];return {n:R.filter(function(r){return r[1];}).length,R:R};}
 function rFinal(){stopTimer();S.done=true;S.finished=S.finished||Date.now();saveState();
   var t=know(),g=grade(t),xp=S.xp,rk=rankOf(xp),ER=eventRating(),stS=starsSum();if(ER.n>=4){confetti();beep("win");}else beep("good");
@@ -1198,13 +1259,13 @@ function rFinal(){stopTimer();S.done=true;S.finished=S.finished||Date.now();save
     return "<div class=\"sec\"><h4>"+k+". "+CHAPS[k][0]+"<span>"+starRow(r.stars)+" "+r.got+" / "+r.mx+"</span></h4><ul>"+PASS[k].map(function(l){return "<li>"+l+"</li>";}).join("")+"</ul></div>";}).join("");
   var spent=BUDGET0-S.budget;
   var blog="<div class=\"sec\"><h4>💰 Byudjet hisoboti<span>"+money(spent)+" sarflandi</span></h4><table class=\"gl\" style=\"font-size:14px\">"+S.blog.map(function(b){return "<tr><td>"+esc(b.t)+"</td><td style=\"text-align:right;white-space:nowrap\">"+money(b.v)+"</td></tr>";}).join("")+"<tr><td><b>Boshlang‘ich byudjet</b></td><td style=\"text-align:right\"><b>"+money(BUDGET0)+"</b></td></tr><tr><td><b>Qoldiq</b> (zaxira me’yori "+money(RESERVE)+")</td><td style=\"text-align:right;color:"+(S.budget>=RESERVE?"var(--teal)":"var(--red)")+"\"><b>"+money(S.budget)+"</b></td></tr></table></div>";
-  var mine=S.ch&&Object.keys(S.ch).length?"<div class=\"sec\"><h4>Sizning tanlovlaringiz</h4><ul>"+(S.ch.sana?"<li>Sana: "+esc(S.ch.sana)+"</li>":"")+(S.ch.joy?"<li>Joy: "+esc(S.ch.joy)+"</li>":"")+(S.ch.boshl?"<li>Boshlovchilar: "+esc(S.ch.boshl)+"</li>":"")+(S.ch.ichim?"<li>Kofe-breyk: "+esc(S.ch.ichim)+"</li>":"")+(S.ch.paket?"<li>Tur paket: "+esc(S.ch.paket)+"</li>":"")+"</ul></div>":"";
+  var mine=S.ch&&Object.keys(S.ch).length?"<div class=\"sec\"><h4>Sizning tanlovlaringiz</h4><ul>"+(S.ch.sana?"<li>Sana: "+esc(S.ch.sana)+"</li>":"")+(S.ch.homiy?"<li>Homiy: "+esc(S.ch.homiy)+"</li>":"")+(S.ch.joy?"<li>Joy: "+esc(S.ch.joy)+"</li>":"")+(S.ch.gala?"<li>Gala-kecha: "+esc(S.ch.gala)+"</li>":"")+(S.ch.boshl?"<li>Boshlovchilar: "+esc(S.ch.boshl)+"</li>":"")+(S.ch.ichim?"<li>Kofe-breyk: "+esc(S.ch.ichim)+"</li>":"")+(S.ch.paket?"<li>Tur paket: "+esc(S.ch.paket)+"</li>":"")+"</ul></div>":"";
   var lvl=ER.n>=5?"Mukammal forum":ER.n===4?"Juda muvaffaqiyatli forum":ER.n===3?"Muvaffaqiyatli forum":ER.n===2?"O‘rtacha forum":"Zaif forum";
   $("stage").innerHTML="<div class=\"card scene final\"><span class=\"pill\">Forum tashkil etildi</span><h2 style=\"margin-top:10px\">"+esc(S.name)+" · "+esc(S.group)+"</h2>"+
    "<div class=\"rating\"><div class=\"rs\">"+starRow(ER.n,5)+"</div><b>"+lvl+"</b><div class=\"muted\" style=\"font-size:13px\">Tadbir reytingi: "+ER.n+" / 5 yulduz</div></div>"+
    "<div class=\"sumrow\"><div class=\"sb tot\"><span>Ball</span><b>"+t+"</b><small>/ 100</small></div><div class=\"sb\"><span>Baho</span><b>"+g[0]+"</b><small>"+g[1]+"</small></div><div class=\"sb\"><span>⭐ Yulduzlar</span><b>"+stS+"</b><small>/ "+STARMAX+"</small></div><div class=\"sb\"><span>💰 Qoldiq</span><b style=\"font-size:17px\">"+money(S.budget)+"</b></div><div class=\"sb\"><span>😊 Mamnunlik</span><b>"+S.sat+"</b><small>/ 100</small></div></div>"+
    "<p class=\"muted\" style=\"margin-top:4px\">🏅 Status: "+rk.e+" "+rk.n+" · "+xp+" XP</p>"+
-   "<div class=\"rlist\">"+ER.R.map(function(r){return "<div>"+(r[1]?"⭐":"☆")+" "+r[0]+"</div>";}).join("")+"</div>"+
+   headline()+"<div class=\"rlist\">"+ER.R.map(function(r){return "<div>"+(r[1]?"⭐":"☆")+" "+r[0]+"</div>";}).join("")+"</div>"+
    (GS?"<div class=\"hint no-print\" id=\"fSync\" style=\"font-size:15px;font-weight:700\">⏳ Natijangiz o‘qituvchiga yuborilmoqda…</div>":"")+
    "<div class=\"row no-print\" style=\"justify-content:center;margin-top:6px\"><button class=\"btn gold\" id=\"fPrint\">📄 Tadbir pasportini yuklab olish (PDF)</button><button class=\"btn ghost\" id=\"fCw\">🧩 Krossvord</button><button class=\"btn ghost\" id=\"fAgain\">↺ Qaytadan o‘ynash</button></div>"+
    "<div class=\"pass\"><div class=\"ph\"><b>📋 Tadbir pasporti: yirik tadbirni tashkil etish rejasi</b><span>Samarqand xalqaro turizm forumi · "+t+"/100 · "+ER.n+"⭐</span></div>"+secs+blog+mine+
@@ -1223,7 +1284,7 @@ function tfetch(u,o,ms){o=o||{};var c=null,t=null;try{c=new AbortController();o.
 function ping(){try{tfetch(EXEC+"?action=ping&_="+Date.now(),{credentials:"omit"},15000).then(function(j){SV=(j&&j.v)||1;pump();}).catch(function(){SV=-1;pump();});}catch(e){SV=-1;}}
 ping();
 function sync(status){if(!GS||!S||!S.name)return;var t=know(),fin=status==="final";
-  syncNext={v:10,key:S.key,name:S.name,group:S.group,status:status,final:fin,stage:clamp(S.i,0,FLOW.length-2)+"/"+(FLOW.length-2),score:t,grade:fin?grade(t)[0]+" · "+grade(t)[1]:"",rating:fin?eventRating().n:"",stars:starsSum(),budget:S.budget,sat:S.sat,xp:S.xp,rank:rankOf(S.xp).n,attempt:S.attempt,b:MISSIONS.map(function(m){return S.pts[m.id]==null?null:S.pts[m.id];})};pump();}
+  syncNext={v:10,key:S.key,name:S.name,group:S.group,status:status,final:fin,stage:Object.keys(S.pts).length+"/"+MISSIONS.length,score:t,grade:fin?grade(t)[0]+" · "+grade(t)[1]:"",rating:fin?eventRating().n:"",stars:starsSum(),budget:S.budget,sat:S.sat,xp:S.xp,rank:rankOf(S.xp).n,attempt:S.attempt,b:MISSIONS.map(function(m){return S.pts[m.id]==null?null:S.pts[m.id];})};pump();}
 function syncNote(t){var e=$("fSync");if(e)e.textContent=t;}
 function pump(){if(syncBusy||!syncNext)return;
   if(SV===0)return;if(SV===-1){SV=0;setTimeout(ping,4000);return;}
