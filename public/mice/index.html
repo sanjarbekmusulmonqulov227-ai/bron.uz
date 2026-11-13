@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#132038">
+<title>MICE · Tashkilotchi missiyasi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&family=Unbounded:wght@600;800&display=swap">
+<style>
+:root{
+  --bg:#f5f1e8; --card:#fff; --ink:#1b2333; --muted:#5d6676; --line:#e3dccb;
+  --navy:#132038; --navy2:#1e3157; --gold:#c08f3e; --gold2:#e2b867; --gold-soft:#f5e8cc;
+  --teal:#1c8a78; --teal-soft:#dcf1ec; --red:#c2413b; --red-soft:#fbe3e1; --blue:#2c5ea8; --blue-soft:#e3ecf8;
+  --r:16px; --shadow:0 1px 2px rgba(20,30,50,.06),0 8px 24px rgba(20,30,50,.07);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:Onest,"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.5}
+button{font:inherit;cursor:pointer;color:inherit}
+input,select,textarea{font:inherit;color:inherit}
+.display{font-family:Unbounded,Onest,sans-serif;letter-spacing:-.01em}
+header.top{background:radial-gradient(1200px 300px at 80% -50%,#2b4677 0%,transparent 60%),var(--navy);color:#fff;padding:14px clamp(14px,4vw,40px) 0}
+.hrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand small{display:block;color:var(--gold2);letter-spacing:.14em;text-transform:uppercase;font-size:11px;font-weight:700}
+.brand h1{margin:2px 0 0;font-size:clamp(17px,2.2vw,24px);font-weight:800}
+.hbtns{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.hbtn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:10px;padding:7px 12px;font-size:14px;font-weight:600}
+.hbtn:hover{background:rgba(255,255,255,.18)}
+.tabs{display:flex;gap:4px;margin-top:12px;flex-wrap:wrap}
+.tab{background:transparent;border:0;color:#c3cde0;padding:10px 16px;border-radius:12px 12px 0 0;font-weight:700}
+.tab[aria-selected="true"]{background:var(--bg);color:var(--navy)}
+main{padding:20px clamp(12px,4vw,40px) 60px;max-width:1280px;margin:0 auto}
+.view{display:none}.view.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:20px 22px}
+h2{font-size:clamp(19px,2.2vw,25px);margin:0 0 6px;line-height:1.25}
+h3{font-size:17px;margin:0 0 8px}
+.muted{color:var(--muted)}
+.pill{display:inline-block;font-size:11px;font-weight:800;padding:4px 10px;border-radius:99px;background:var(--gold-soft);color:#7a5a1f;letter-spacing:.06em;text-transform:uppercase}
+.pill.navy{background:var(--navy);color:#fff}
+.btn{border:1px solid var(--navy);background:var(--navy);color:#fff;border-radius:12px;padding:10px 18px;font-weight:700}
+.btn.ghost{background:transparent;color:var(--navy)}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:#fff}
+.btn.red{background:var(--red);border-color:var(--red);color:#fff}
+.btn.sm{padding:6px 12px;font-size:14px;border-radius:9px}
+.btn:disabled{opacity:.4;cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+/* HUD */
+.hud{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+.meter{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px;position:relative}
+.meter .lab{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.meter .val{font-size:22px;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums}
+.meter.main{background:var(--navy);color:#fff;border-color:var(--navy)}
+.meter.main .lab{color:var(--gold2)}.meter.main .val{color:#fff;font-size:28px}
+.meter.main .val small{font-size:14px;opacity:.7;font-weight:600}
+.meter .bar{height:6px;background:var(--bg);border-radius:99px;overflow:hidden;margin-top:4px}
+.meter.main .bar{background:rgba(255,255,255,.15)}
+.meter .bar i{display:block;height:100%;border-radius:99px;background:var(--gold);transition:width .5s}
+.meter.rep .bar i{background:var(--blue)} .meter.sat .bar i{background:var(--teal)} .meter.main .bar i{background:var(--gold2)}
+.delta{position:absolute;right:10px;top:8px;font-weight:800;font-size:15px;animation:float 1.8s ease-out forwards;pointer-events:none}
+.delta.p{color:var(--teal)} .delta.n{color:var(--red)} .meter.main .delta.p{color:#9ff2d8}
+@keyframes float{0%{opacity:0;transform:translateY(6px)}15%{opacity:1}100%{opacity:0;transform:translateY(-22px)}}
+.who{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-size:14px}
+.who b{font-size:15px}
+.progress{display:flex;gap:3px;margin-bottom:14px;flex-wrap:wrap}
+.progress i{flex:1;min-width:14px;height:8px;border-radius:99px;background:#e2dccd;position:relative}
+.progress i.done{background:var(--gold)} .progress i.cur{background:var(--navy)} .progress i.zero{background:#d7c3c0}
+
+/* scene */
+.scene{animation:fadein .35s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.shead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.maxp{font-weight:800;background:var(--gold-soft);color:#7a5a1f;border-radius:10px;padding:6px 12px;font-size:14px;white-space:nowrap}
+.timer{font-weight:800;font-variant-numeric:tabular-nums;background:var(--navy);color:#fff;border-radius:10px;padding:6px 12px;font-size:15px}
+.timer.low{background:var(--red);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.6}}
+.msg{display:flex;gap:12px;align-items:flex-start;margin:14px 0 16px}
+.ava{flex:0 0 46px;height:46px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:15px}
+.bubble{background:var(--bg);border-radius:4px 16px 16px 16px;padding:12px 16px;max-width:860px}
+.bubble .whoName{font-size:13px;font-weight:700;color:var(--muted);margin-bottom:2px}
+.hint{background:var(--blue-soft);color:#1c3d73;border-radius:12px;padding:10px 14px;font-size:14px;margin:0 0 12px}
+.hint b{color:var(--blue)}
+.crisis{background:linear-gradient(90deg,#3a1414,#6b1f1b);color:#fff;border-radius:14px;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.crisis b{font-family:Unbounded,Onest,sans-serif;font-size:15px;letter-spacing:.04em}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.opt{border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:14px 16px;text-align:left;transition:transform .15s,border-color .15s}
+.opt:hover:not(:disabled){transform:translateY(-2px);border-color:var(--navy)}
+.opt .k{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;background:var(--navy);color:#fff;font-weight:800;font-size:13px;margin-right:8px}
+.opt .cost{display:block;margin-top:6px;font-size:13px;color:var(--muted)}
+.opt.sel{border-color:var(--navy);box-shadow:0 0 0 2px var(--navy) inset;background:var(--blue-soft)}
+.opt.good{border-color:var(--teal);background:var(--teal-soft)}
+.opt.bad{border-color:var(--red);background:var(--red-soft)}
+.opt.best{border-color:var(--teal);border-style:dashed}
+.opt:disabled{cursor:default}
+.fb{margin-top:14px;border-radius:14px;padding:14px 16px;font-size:15px;display:none}
+.fb.on{display:block;animation:fadein .3s}
+.fb.good{background:var(--teal-soft);color:#0d5348}
+.fb.mid{background:var(--gold-soft);color:#694c15}
+.fb.bad{background:var(--red-soft);color:#86251f}
+.fb .earned{display:inline-block;font-family:Unbounded,Onest,sans-serif;font-size:15px;background:#fff;border-radius:10px;padding:4px 12px;margin-bottom:8px}
+.next{margin-top:16px;display:none}.next.on{display:flex}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.chip{font-size:13px;font-weight:700;padding:3px 10px;border-radius:99px;background:#fff}
+.chip.p{color:var(--teal)} .chip.n{color:var(--red)}
+/* rounds */
+.rounds{display:flex;gap:6px;margin-bottom:12px}
+.rounds i{flex:1;height:8px;border-radius:99px;background:#e2dccd}
+.rounds i.ok{background:var(--teal)}.rounds i.bad{background:var(--red)}.rounds i.cur{background:var(--navy)}
+.rcard{background:linear-gradient(135deg,#1e3157,#132038);color:#fff;border-radius:16px;padding:18px 20px;margin-bottom:14px;font-size:17px;font-weight:600}
+.rcard small{display:block;color:var(--gold2);font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:800;margin-bottom:6px}
+.mice{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.mice button{border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:14px 10px;text-align:center}
+.mice button b{display:block;font-family:Unbounded,Onest,sans-serif;font-size:26px;color:var(--navy)}
+.mice button span{font-size:13px;color:var(--muted)}
+.mice button.good{border-color:var(--teal);background:var(--teal-soft)}.mice button.bad{border-color:var(--red);background:var(--red-soft)}
+/* sort */
+.pool{display:flex;flex-wrap:wrap;gap:8px;min-height:56px;padding:12px;border:2px dashed var(--line);border-radius:14px;margin-bottom:14px;background:#fbf9f4}
+.scard{background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14px;font-weight:600;cursor:grab;user-select:none}
+.scard.pick{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft)}
+.scard.ok{border-color:var(--teal);background:var(--teal-soft)} .scard.bad{border-color:var(--red);background:var(--red-soft)}
+.bins{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.bin{border:1.5px solid var(--line);border-radius:14px;background:#fff;padding:10px;min-height:150px;display:flex;flex-direction:column;gap:6px;transition:background .15s}
+.bin.over,.bin.target{background:var(--gold-soft);border-color:var(--gold)}
+.bin h4{margin:0;font-size:15px}
+.bin small{color:var(--muted);font-size:12px;line-height:1.3;margin-bottom:4px}
+/* order */
+.olist{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+.olist li{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:8px 10px}
+.olist li .ix{flex:0 0 28px;height:28px;border-radius:8px;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px}
+.olist li .tx{flex:1;font-weight:600}
+.olist li button{border:1px solid var(--line);background:var(--bg);border-radius:8px;width:34px;height:32px;font-weight:800}
+.olist li.ok{border-color:var(--teal);background:var(--teal-soft)} .olist li.bad{border-color:var(--red);background:var(--red-soft)}
+/* builder */
+.bgrid{display:grid;grid-template-columns:1.6fr 1fr;gap:18px;align-items:start}
+.acts{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.act{border:1.5px solid var(--line);border-radius:12px;background:#fff;padding:12px;text-align:left}
+.act .c{font-weight:800;color:var(--navy);margin-top:2px}
+.act .tags{margin-top:6px;display:flex;gap:4px;flex-wrap:wrap}
+.act .tags span{font-size:11px;padding:2px 7px;border-radius:99px;background:var(--bg);color:var(--muted)}
+.act[aria-pressed="true"]{border-color:var(--navy);box-shadow:0 0 0 2px var(--navy) inset;background:var(--blue-soft)}
+.budgetbox{position:sticky;top:12px;background:var(--navy);color:#fff;border-radius:16px;padding:16px}
+.budgetbox .big{font-size:34px;font-weight:800}
+.budgetbox .bar{height:8px;background:rgba(255,255,255,.15);border-radius:99px;overflow:hidden;margin:8px 0}
+.budgetbox .bar i{display:block;height:100%;background:var(--gold2);transition:width .3s}
+.checks{list-style:none;padding:0;margin:8px 0 0}
+.checks li{padding:5px 0;display:flex;gap:8px;align-items:center;font-size:14px}
+.checks li i{flex:0 0 20px;height:20px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:800;background:rgba(255,255,255,.15)}
+.checks li.ok i{background:var(--teal)}
+select,input[type=number],input[type=text],input[type=url],input[type=password],textarea{border:1.5px solid var(--line);border-radius:10px;padding:9px 10px;background:#fff;width:100%}
+select.ok,input.ok{border-color:var(--teal);background:var(--teal-soft)} select.bad,input.bad{border-color:var(--red);background:var(--red-soft)}
+.mrow{display:grid;grid-template-columns:1.2fr 1fr;gap:12px;align-items:center;padding:8px 0;border-bottom:1px dashed var(--line)}
+/* calc */
+.calc{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+.calc .pane{background:var(--bg);border-radius:14px;padding:14px 16px}
+.calc label{display:block;font-size:13px;font-weight:700;margin-top:8px}
+.calc input[type=range]{width:100%;accent-color:var(--gold)}
+.calc .out{font-size:32px;font-weight:800;color:var(--navy);font-family:Unbounded,Onest,sans-serif}
+.formula{background:#fff;border:1px dashed var(--line);border-radius:10px;padding:10px;font-family:ui-monospace,Menlo,monospace;font-size:14px;margin-top:8px}
+.qrow{display:grid;grid-template-columns:1fr 150px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px dashed var(--line)}
+.econ{display:grid;grid-template-columns:1fr 1.2fr;gap:20px;align-items:center;margin-bottom:12px}
+.econ .big{font-size:38px;font-weight:800;color:var(--navy)}
+.bars{display:flex;flex-direction:column;gap:7px}
+.bars .b{display:grid;grid-template-columns:150px 1fr 100px;gap:8px;align-items:center;font-size:14px}
+.bars .track{height:12px;background:var(--bg);border-radius:99px;overflow:hidden}
+.bars .track i{display:block;height:100%;background:var(--gold);border-radius:99px;width:0;transition:width .8s}
+.bars .v{text-align:right;font-variant-numeric:tabular-nums}
+.vote{display:flex;flex-direction:column;gap:10px;margin:14px 0}
+.vote .v{display:grid;grid-template-columns:110px 1fr 60px;gap:10px;align-items:center;font-weight:700}
+.vote .t{height:26px;background:var(--bg);border-radius:8px;overflow:hidden}
+.vote .t i{display:block;height:100%;width:0;border-radius:8px;background:#9aa4b5;transition:width 1.4s cubic-bezier(.2,.8,.2,1)}
+.vote .v.me .t i{background:var(--gold)}
+/* intro & final */
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:22px;align-items:stretch}
+.hero .poster{border-radius:18px;background:linear-gradient(160deg,#1e3157,#132038 60%,#3b2b12);color:#fff;padding:24px;position:relative;overflow:hidden}
+.hero .poster:after{content:"";position:absolute;right:-60px;bottom:-60px;width:260px;height:260px;border-radius:50%;border:30px solid rgba(226,184,103,.18)}
+.hero .poster h2{font-family:Unbounded,Onest,sans-serif;font-size:clamp(20px,2.4vw,28px);line-height:1.2}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.step{background:rgba(255,255,255,.08);border-radius:12px;padding:10px}
+.step b{display:block;font-size:22px;font-weight:800;color:var(--gold2)}
+.step span{font-size:13px;opacity:.9}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.field label{font-weight:700;font-size:14px}
+.toggle{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600;cursor:pointer}
+.toggle input{width:20px;height:20px;accent-color:var(--navy)}
+.cast{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.cast div{display:flex;gap:8px;align-items:center;font-size:13px}
+.cast .ava{flex:0 0 34px;height:34px;font-size:12px}
+.resume{background:var(--gold-soft);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:14px}
+.final{text-align:center}
+.medal{width:150px;height:150px;border-radius:50%;margin:8px auto 10px;display:grid;place-items:center;font-family:Unbounded,Onest,sans-serif;font-size:42px;font-weight:800;color:#fff;box-shadow:inset 0 -8px 0 rgba(0,0,0,.15),0 10px 30px rgba(0,0,0,.15);animation:pop .6s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:scale(.3);opacity:0}to{transform:none;opacity:1}}
+.grade{display:inline-block;font-family:Unbounded,Onest,sans-serif;font-size:20px;padding:6px 18px;border-radius:12px;background:var(--navy);color:#fff;margin:4px 0 10px}
+.fgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0;text-align:left}
+.codebox{background:var(--bg);border:2px dashed var(--gold);border-radius:14px;padding:14px;text-align:left;margin:14px 0}
+.codebox code{display:block;word-break:break-all;font-size:13px;background:#fff;padding:10px;border-radius:8px;margin:8px 0;user-select:all}
+table.gl{width:100%;border-collapse:collapse;font-size:14px}
+table.gl th,table.gl td{text-align:left;padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+table.gl th{background:var(--bg);position:sticky;top:0}
+table.gl td.grp{background:var(--gold-soft);font-weight:800;color:#6b4e17}
+table.gl tr.me{background:var(--teal-soft)}
+.tbl{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:12px}
+.scorepill{display:inline-block;font-weight:800;border-radius:8px;padding:2px 8px;background:var(--navy);color:#fff;font-variant-numeric:tabular-nums}
+.g5{background:#1c8a78}.g4{background:#2c5ea8}.g3{background:#c08f3e}.g2{background:#c2413b}
+/* rubric */
+.rubric{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.rub{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:14px}
+.rub b{font-family:Unbounded,Onest,sans-serif;color:var(--navy);font-size:15px}
+.rub small{display:block;color:var(--muted);font-size:12px}
+.rub.done{background:var(--teal-soft);border-color:var(--teal)}
+/* admin */
+.agrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.stat{background:var(--navy);color:#fff;border-radius:14px;padding:12px 14px}
+.stat b{display:block;font-size:26px;font-family:Unbounded,Onest,sans-serif}
+.stat span{font-size:12px;opacity:.75;text-transform:uppercase;letter-spacing:.06em}
+.asec{margin-top:18px}
+.live{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.lcard{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;font-size:14px}
+.lcard .bar{height:6px;background:var(--bg);border-radius:99px;overflow:hidden;margin-top:6px}
+.lcard .bar i{display:block;height:100%;background:var(--gold)}
+.lcard.fin{border-color:var(--teal);background:var(--teal-soft)}
+pre.code{background:#1b2333;color:#e6ecf5;border-radius:12px;padding:12px;font-size:12px;overflow:auto;max-height:260px;white-space:pre}
+details summary{cursor:pointer;font-weight:700}
+/* crossword */
+.cwtop{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:end;margin-bottom:14px}
+.levels{display:flex;gap:8px;flex-wrap:wrap}
+.lvl{border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:10px 14px;text-align:left;font-weight:700}
+.lvl small{display:block;font-weight:500;color:var(--muted);font-size:12px}
+.lvl[aria-pressed="true"]{border-color:var(--navy);box-shadow:0 0 0 2px var(--navy) inset}
+.score4{display:flex;gap:10px}
+.score4 div{background:var(--navy);color:#fff;border-radius:12px;padding:8px 14px;text-align:center;min-width:86px}
+.score4 b{display:block;font-size:22px;font-variant-numeric:tabular-nums}
+.score4 div>span{font-size:11px;opacity:.75;text-transform:uppercase;letter-spacing:.06em}
+.cw-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.cw-wrap{display:grid;grid-template-columns:auto minmax(320px,1fr);gap:22px;align-items:start}
+.grid{display:grid;gap:2px;user-select:none}
+.cell{position:relative;width:var(--cs);height:var(--cs)}
+.cell input{width:100%;height:100%;border:1px solid #a49c8b;border-radius:5px;text-align:center;text-transform:uppercase;font-weight:800;font-size:calc(var(--cs)*.5);padding:0;background:#fff;caret-color:transparent;outline:none;transition:background .2s}
+.cell input.hl{background:#fbefd2}
+.cell input.cur{background:var(--gold2)}
+.cell input.ok{background:var(--teal-soft);border-color:var(--teal);color:#0d5348}
+.cell input.bad{background:var(--red-soft);border-color:var(--red);color:var(--red)}
+.cell input.rev{color:var(--blue)}
+.cell input.flash{animation:flash .7s}
+@keyframes flash{0%{background:var(--teal);color:#fff;transform:scale(1.12)}100%{}}
+.cell .num{position:absolute;top:1px;left:3px;font-size:calc(var(--cs)*.27);font-weight:800;color:#5d6676;pointer-events:none;line-height:1}
+.clues{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-height:76vh;overflow:auto}
+.clues ol{list-style:none;padding:0;margin:0}
+.clues li{padding:6px 8px;border-radius:8px;cursor:pointer;font-size:14px;line-height:1.35}
+.clues li b{color:var(--navy);margin-right:4px}
+.clues li.on{background:#fbefd2}
+.clues li.solved{color:#8a93a3;text-decoration:line-through}
+.curclue{background:var(--navy);color:#fff;border-radius:12px;padding:10px 14px;margin-bottom:10px;min-height:46px;font-size:15px}
+.curclue b{color:var(--gold2)}
+/* overlays */
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:12px 18px;border-radius:12px;font-weight:700;opacity:0;transition:all .3s;z-index:60;max-width:90vw;text-align:center}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.modal{position:fixed;inset:0;background:rgba(10,16,30,.55);display:none;align-items:flex-start;justify-content:center;z-index:50;padding:40px 14px;overflow:auto}
+.modal.on{display:flex}
+.modal .box{background:#fff;border-radius:18px;max-width:900px;width:100%;padding:22px;position:relative}
+.modal .x{position:absolute;right:14px;top:12px;border:0;background:var(--bg);border-radius:10px;width:36px;height:36px;font-size:18px}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:70}
+@media (max-width:1000px){.cw-wrap{grid-template-columns:1fr}.clues{max-height:none}.bins{grid-template-columns:1fr 1fr}.hero{grid-template-columns:1fr}.bgrid{grid-template-columns:1fr}.budgetbox{position:static}.cwtop{grid-template-columns:1fr}.calc{grid-template-columns:1fr}}
+@media (max-width:720px){.hud{grid-template-columns:1fr 1fr}.meter.main{grid-column:1/-1}.econ,.mrow,.clues,.qrow{grid-template-columns:1fr}.fgrid{grid-template-columns:1fr 1fr}.steps{grid-template-columns:1fr}.bars .b{grid-template-columns:110px 1fr 84px}.hbtns{margin-left:0}.mice{grid-template-columns:1fr 1fr}.bins{grid-template-columns:1fr}}
+
+/* ===== v6: mobile-first + game layer ===== */
+html{-webkit-text-size-adjust:100%}
+button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+select,input,textarea{font-size:16px}
+.hud2{position:sticky;top:0;z-index:30;background:rgba(245,241,232,.97);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);padding:8px 0 4px;margin:0 0 10px}
+.hrow2{display:flex;gap:8px;align-items:stretch}
+.hmain{flex:1;background:var(--navy);color:#fff;border-radius:14px;padding:8px 14px;position:relative;min-width:0}
+.hmain .lab{font-size:11px;color:var(--gold2);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.hmain .val{font-size:26px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+.hmain .val small{font-size:13px;opacity:.7;font-weight:600}
+.hmain .sub{font-size:12px;opacity:.85}
+.hmain .bar{height:5px;background:rgba(255,255,255,.15);border-radius:99px;overflow:hidden;margin-top:5px}
+.hmain .bar i{display:block;height:100%;background:var(--gold2);transition:width .5s;width:0}
+.hchips{display:grid;grid-template-columns:repeat(4,auto);gap:6px;align-content:stretch}
+.hc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px 12px;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap;position:relative;font-variant-numeric:tabular-nums;transition:all .3s}
+.hc small{font-weight:600;color:var(--muted);font-size:11px}
+.hc.hot{background:#fff1e0;border-color:#f0a24a;color:#b4570b;animation:hot 1.2s infinite}
+@keyframes hot{50%{box-shadow:0 0 0 4px rgba(240,162,74,.25)}}
+.hc.rank{font-size:13px}
+.hmini{display:flex;gap:6px;margin-top:6px}
+.mm{flex:1;background:#fff;border:1px solid var(--line);border-radius:10px;padding:4px 10px;font-size:13px;position:relative;min-width:0;white-space:nowrap;overflow:visible}
+.mm small{color:var(--muted)}
+.mm .bar{height:4px;background:var(--bg);border-radius:99px;overflow:hidden;margin-top:2px}
+.mm .bar i{display:block;height:100%;background:var(--gold);transition:width .5s}
+.mm.rep .bar i{background:var(--blue)}.mm.sat .bar i{background:var(--teal)}
+.hud2 .progress{margin:6px 0 0}
+.delta{z-index:5}
+.hmain .delta.p{color:#9ff2d8}
+.speed{position:relative;height:22px;border-radius:99px;background:#f1ead9;overflow:hidden;margin:4px 0 12px;font-size:12px;font-weight:700;color:#7a5a1f}
+.speed i{position:absolute;left:0;top:0;bottom:0;width:100%;background:linear-gradient(90deg,#f6d27a,#e2b867);transition-property:width;transition-timing-function:linear}
+.speed span{position:relative;display:block;text-align:center;line-height:22px}
+.speed.off{opacity:.45}.speed.off span:after{content:" — tugadi"}
+.speed.won{background:var(--teal-soft);color:#0d5348}.speed.won i{background:#8fd9c6}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.tbtn{border:1.5px dashed var(--gold);background:#fffaf0;color:#7a5a1f;border-radius:10px;padding:7px 12px;font-weight:700;font-size:14px}
+.tbtn:disabled{opacity:.4}
+.opt.gone{opacity:.25;filter:grayscale(1);pointer-events:none;text-decoration:line-through}
+.stars{font-size:20px;letter-spacing:2px}
+.xpline{display:inline-block;margin-left:6px;font-weight:800;color:#7a5a1f;background:#fff;border-radius:10px;padding:4px 10px;font-size:14px}
+.formula2{background:var(--navy);color:#fff;border-radius:14px;padding:12px 16px;margin:6px 0 14px;font-size:16px}
+.tag{display:inline-block;border-radius:8px;padding:2px 8px;font-weight:800}.tag.t1{background:var(--gold2);color:#3b2b12}.tag.t2{background:#8fd9c6;color:#0d4a3f}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.xplist{padding-left:18px;font-size:14px;line-height:1.6}
+/* blitz */
+.blitz{text-align:center}
+.btop{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px;font-size:15px}
+.bq{min-height:120px;display:grid;place-items:center;background:linear-gradient(135deg,#1e3157,#132038);color:#fff;border-radius:18px;padding:18px;font-size:clamp(17px,2.4vw,22px);font-weight:700;line-height:1.35;transition:transform .15s}
+.bq.ok{background:linear-gradient(135deg,#1c8a78,#0f5c50)}.bq.no{background:linear-gradient(135deg,#c2413b,#7c201c)}
+.bq.pop{transform:scale(.97)}
+.tf{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.tfb{border:0;border-radius:16px;padding:20px 10px;font-size:20px;font-weight:800;color:#fff}
+.tfb.t{background:var(--teal)}.tfb.f{background:var(--red)}
+.tfb:disabled{opacity:.35}
+.bzrev{text-align:left;font-size:14px;margin-top:10px}
+.bzrev div{padding:6px 0;border-bottom:1px dashed var(--line)}
+/* badges, final */
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin:10px 0 4px;text-align:center}
+.badge{border:1px solid var(--line);border-radius:14px;padding:10px 8px;background:#fff;font-size:12px;color:var(--muted)}
+.badge .e{font-size:30px;display:block;filter:grayscale(1);opacity:.35}
+.badge b{display:block;color:var(--ink);font-size:13px}
+.badge.on{background:linear-gradient(160deg,#fff7e6,#fff);border-color:var(--gold2);color:#694c15}
+.badge.on .e{filter:none;opacity:1;animation:pop .6s cubic-bezier(.2,1.6,.4,1)}
+.kgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0;text-align:left}
+.kbox{border-radius:14px;padding:10px 12px;background:var(--bg)}
+.kbox .l{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.kbox .v{font-size:22px;font-weight:800;color:var(--navy)}
+.kbox .s{font-size:12px;color:var(--muted)}
+.sendbig{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.sendbig a,.sendbig button{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;padding:14px;border-radius:14px;font-weight:800;font-size:16px}
+.tgbtn{background:#2aa1da;color:#fff;border:0}
+.rankup{position:fixed;inset:0;display:grid;place-items:center;z-index:80;background:rgba(10,16,30,.55);animation:fadein .25s}
+.rankup div{background:#fff;border-radius:22px;padding:26px 30px;text-align:center;max-width:320px;animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+.rankup .e{font-size:64px;display:block}
+.pickbar,.bfloat{display:none}
+@media (max-width:720px){
+  header.top{padding:10px 12px 0;padding-top:max(10px,env(safe-area-inset-top))}
+  .brand small{font-size:10px}
+  .brand h1{font-size:16px}
+  .hbtn{padding:7px 10px}
+  .hbtn .lbl{display:none}
+  .tabs{margin-top:8px}.tab{padding:9px 12px;font-size:14px}
+  main{padding:10px 10px 110px}
+  .card{padding:14px 14px;border-radius:14px}
+  h2{font-size:18px}
+  .who{font-size:13px;margin-bottom:4px}
+  .hud2{margin:0 -10px 8px;padding:6px 10px 4px;border-bottom:1px solid var(--line)}
+  .hmain{padding:6px 10px}.hmain .val{font-size:22px}.hmain .sub{font-size:11px}
+  .hchips{grid-template-columns:1fr 1fr;gap:4px}
+  .hc{padding:3px 8px;font-size:13px;border-radius:10px}
+  .hc.rank{font-size:11px;white-space:normal;text-align:center;line-height:1.1}
+  .mm{font-size:12px;padding:3px 7px}.mm small{display:none}
+  .shead{gap:6px}.maxp{font-size:12px;padding:4px 9px}
+  .msg{gap:8px;margin:10px 0 12px}.msg .ava{flex-basis:36px;height:36px;font-size:12px}
+  .bubble{padding:10px 12px;font-size:15px}
+  .hint{font-size:13px}
+  .opts{grid-template-columns:1fr;gap:8px}
+  .opt{padding:13px 14px;font-size:15px}
+  .opt:hover:not(:disabled){transform:none}
+  .next.on{position:sticky;bottom:0;z-index:25;margin:12px -14px -14px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(255,255,255,0),#fff 30%);border-radius:0 0 14px 14px}
+  #sGo{width:100%;padding:15px;font-size:17px;border-radius:14px}
+  .mice{grid-template-columns:1fr 1fr}.mice button{padding:12px 6px}
+  .rcard{font-size:16px;padding:14px 16px}
+  .bins{grid-template-columns:1fr 1fr;gap:8px}.bin{min-height:90px;padding:8px}.bin h4{font-size:14px}.bin small{display:none}
+  .scard{font-size:13px;padding:8px 10px}
+  .pickbar.on{display:block;position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--navy);color:#fff;padding:10px 10px calc(10px + env(safe-area-inset-bottom));box-shadow:0 -8px 24px rgba(0,0,0,.2)}
+  .pickbar .pt{font-size:13px;margin-bottom:8px;opacity:.9}
+  .pickbar .pbb{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .pickbar .pbb button{background:#fff;color:var(--navy);border:0;border-radius:12px;padding:12px 6px;font-weight:800;font-size:15px}
+  .olist li{padding:8px}.olist li .tx{font-size:14px}.olist li button{width:40px;height:40px}
+  .bgrid{display:flex;flex-direction:column}.budgetbox{order:-1;position:static;padding:12px}.budgetbox .big{font-size:26px}.checks li{font-size:13px;padding:2px 0}
+  .acts{grid-template-columns:1fr 1fr;gap:8px}.act{padding:10px;font-size:14px}
+  .bfloat.on{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--navy);color:#fff;align-items:center;gap:10px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));font-weight:700;box-shadow:0 -8px 24px rgba(0,0,0,.2)}
+  .bfloat span.f{flex:1}
+  .calc .out{font-size:26px}
+  .qrow{grid-template-columns:1fr}
+  .hero .poster{padding:18px}.hero .poster h2{font-size:20px}
+  .kgrid{grid-template-columns:1fr 1fr}
+  .two{grid-template-columns:1fr}
+  .modal{padding:12px 8px}.modal .box{padding:16px;border-radius:16px}
+  .tbl{max-height:none}
+  table.gl{font-size:13px}
+  .tfb{padding:22px 6px;font-size:19px}
+  .score4 div{min-width:70px;padding:6px 10px}.score4 b{font-size:18px}
+  .cw-tools .btn{padding:8px 12px;font-size:14px}
+  .vote .v{grid-template-columns:84px 1fr 54px;font-size:14px}
+  .econ .big{font-size:28px}
+  .progress{gap:2px;flex-wrap:nowrap}.progress i{min-width:0;height:6px}
+  .hero .steps{display:none}
+  .codebox code{font-size:11px;max-height:64px;overflow:auto}
+  .hero .poster p{font-size:15px}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="hrow">
+    <div class="brand"><small>MICE turizmi · 1–2-mavzu · amaliy mashg‘ulot</small><h1>Tashkilotchi missiyasi: Samarqand kongressi</h1></div>
+    <div class="hbtns">
+      <button class="hbtn" id="btnRules">🎯<span class="lbl"> Ballar</span></button>
+      <button class="hbtn" id="btnGloss">📖<span class="lbl"> Lug‘at</span></button>
+      <button class="hbtn" id="btnSound" aria-pressed="true">🔊</button>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" data-view="keys" aria-selected="true">🎮 Missiya</button>
+    <button class="tab" role="tab" data-view="krossvord" aria-selected="false">🧩 Krossvord (bonus)</button>
+  </nav>
+</header>
+
+<main>
+<section class="view on" id="v-keys">
+  <div id="hudWrap" style="display:none">
+    <div class="who"><div>👤 <b id="whoName"></b> <span class="muted" id="whoGroup"></span></div><div class="muted" id="whoStage"></div></div>
+    <div class="hud2">
+      <div class="hrow2">
+        <div class="hmain" id="dPts"><div class="lab">Baho bali</div><div class="val"><span id="mPts">0</span><small> / 100</small></div><div class="sub">bilim <b id="mKnow">0</b>/80 · KPI <b id="mKpi">0</b>/20</div><div class="bar"><i id="bPts"></i></div></div>
+        <div class="hchips">
+          <div class="hc" id="cStreak" title="Ketma-ket mukammal javoblar">🔥 <span id="mStreak">0</span><small id="mMult"></small></div>
+          <div class="hc" id="dXp" title="Tajriba ochkolari">⭐ <span id="mXp">0</span><small> XP</small></div>
+          <div class="hc rank" id="mRank" title="Unvon">🎒 Stajyor</div>
+          <div class="hc" title="50/50 joker">🃏 <span id="mJok">2</span></div>
+        </div>
+      </div>
+      <div class="hmini">
+        <div class="mm" id="dBud">💰 <b id="mBud">$0</b><div class="bar"><i id="bBud"></i></div></div>
+        <div class="mm rep" id="dRep">🤝 <b id="mRep">0</b><small> obro‘</small><div class="bar"><i id="bRep"></i></div></div>
+        <div class="mm sat" id="dSat">😊 <b id="mSat">0</b><small> mamnun</small><div class="bar"><i id="bSat"></i></div></div>
+      </div>
+      <div class="progress" id="prog"></div>
+    </div>
+  </div>
+  <div id="stage"></div>
+</section>
+
+<section class="view" id="v-krossvord">
+  <div class="hint" style="margin-bottom:14px"><b>Bonus topshiriq.</b> Krossvord asosiy 100 ballga kirmaydi — bu mustahkamlash uchun. Yechgan talaba o‘qituvchiga natijani ko‘rsatadi (+ rag‘bat balli o‘qituvchi ixtiyorida).</div>
+  <div class="cwtop">
+    <div>
+      <div class="levels" id="levels">
+        <button class="lvl" data-l="l1" aria-pressed="true">1-daraja · Bugungi MICE<small>atamalar, ishtirokchilar, formatlar</small></button>
+        <button class="lvl" data-l="l2" aria-pressed="false">2-daraja · Tarix va dunyo<small>yarmarkalar, EXPO, tashkilotlar, shaharlar</small></button>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <label class="muted" for="cwTeam" style="font-size:14px;font-weight:600">Ism:</label>
+        <input type="text" id="cwTeam" placeholder="Ism familiya" style="width:220px">
+        <span class="muted" style="font-size:13px">So‘z: +10 · harf ochish: −3 · ochilgan so‘z: 0</span>
+      </div>
+    </div>
+    <div class="score4">
+      <div><b id="cwPts">0</b><span>ochko</span></div>
+      <div><b><span id="cwSolved">0</span>/<span id="cwTotal">0</span></b><span>so‘z</span></div>
+      <div><b id="cwTime">00:00</b><span>vaqt</span></div>
+    </div>
+  </div>
+  <div class="cw-tools">
+    <button class="btn" id="cwCheck">Tekshirish</button>
+    <button class="btn ghost" id="cwHint">💡 Harf ochish (−3)</button>
+    <button class="btn ghost" id="cwRevealWord">So‘zni ochish</button>
+    <button class="btn ghost" id="cwRestart">Qaytadan</button>
+  </div>
+  <div class="cw-wrap">
+    <div><div class="curclue" id="curClue">Boshlash uchun istalgan katakni yoki savolni bosing.</div><div class="grid" id="grid"></div></div>
+    <div class="card clues"><div><h3>Gorizontal →</h3><ol id="cluesA"></ol></div><div><h3>Vertikal ↓</h3><ol id="cluesD"></ol></div></div>
+  </div>
+</section>
+
+</main>
+
+<div class="modal" id="mRules"><div class="box"><button class="x" data-close>×</button>
+  <h2>🎯 Ballar qanday hisoblanadi</h2>
+  <div class="formula2"><div><b>Baho bali (100)</b> = <span class="tag t1">Bilim — 80</span> + <span class="tag t2">Tashkilotchi KPI — 20</span></div></div>
+  <div class="two">
+    <div><h3>📚 Bilim (80)</h3><p class="muted" style="margin-top:0;font-size:14px">Har topshiriqning maksimal bali oldindan ko‘rsatiladi. To‘g‘ri — to‘liq, qisman — qisman, xato — 0. Javob bir marta beriladi.</p></div>
+    <div><h3>📈 KPI (20)</h3><p class="muted" style="margin-top:0;font-size:14px">Haqiqiy tashkilotchi natija bilan baholanadi: <b>obro‘</b> (8), delegatlar <b>mamnunligi</b> (8), <b>byudjet</b> manfiyga tushmasa (4). Har bir qaroringiz ularni o‘zgartiradi.</p></div>
+  </div>
+  <div class="rubric" id="rubric"></div>
+  <h3 style="margin-top:16px">⭐ XP, unvon va nishonlar — o‘yin uchun (bahoga ta’sir qilmaydi)</h3>
+  <ul class="xplist">
+    <li><b>XP</b> = olingan ball × 10. Ketma-ket mukammal javoblar: <b>🔥3 → ×1,5</b>, <b>🔥5 → ×2</b>.</li>
+    <li><b>⚡ Tez javob</b>: sariq chiziq tugamasdan mukammal javob bersangiz — <b>+20 XP</b>.</li>
+    <li><b>💡 Maslahat</b> — bahoni kamaytirmaydi, faqat −20 XP. <b>🃏 50/50</b> — 2 marta, noto‘g‘ri variantlarni olib tashlaydi.</li>
+    <li><b>Unvonlar</b>: 🎒 Stajyor → 📋 Koordinator (250) → 🗂️ Loyiha menejeri (550) → 🎖️ Bosh menejer (900) → 👑 PCO direktori (1250).</li>
+    <li><b>9 ta nishon</b> (har biri +50 XP): 🔥 Olovli seriya, 🧯 Inqiroz ustasi, 💰 Byudjet qo‘riqchisi, ⚡ Chaqmoq, 🧠 Mustaqil, 🃏 Jokersiz, 🤝 Diplomat, 😊 Mehmondo‘st, 📜 Tarixchi.</li>
+  </ul>
+  <h3>Baholash</h3>
+  <table class="gl"><tr><th>Ball</th><th>Baho</th></tr>
+    <tr><td>86–100</td><td><span class="scorepill g5">5 · A’lo</span></td></tr>
+    <tr><td>71–85</td><td><span class="scorepill g4">4 · Yaxshi</span></td></tr>
+    <tr><td>56–70</td><td><span class="scorepill g3">3 · Qoniqarli</span></td></tr>
+    <tr><td>0–55</td><td><span class="scorepill g2">2 · Qayta</span></td></tr></table>
+</div></div>
+
+<div class="modal" id="mGloss"><div class="box"><button class="x" data-close>×</button>
+  <h2>📖 Lug‘at</h2>
+  <h3>MICE bozori ishtirokchilari (1.2-rasm)</h3>
+  <table class="gl">
+    <tr><th>Ishtirokchi</th><th>Vazifasi</th></tr>
+    <tr><td class="grp" colspan="2">Talab — kim buyurtma beradi va qatnashadi</td></tr>
+    <tr><td><b>Tashabbuskor</b> (korporatsiya, assotsiatsiya, davlat, SMERF)</td><td>Tadbir maqsadi, formati, byudjeti va auditoriyasini belgilaydi, moliyalashtiradi</td></tr>
+    <tr><td><b>Ishtirokchilar</b></td><td>Spikerlar, delegatlar, eksponentlar, mehmonlar, OAV vakillari</td></tr>
+    <tr><td><b>Homiy</b></td><td>Pul yoki natura evaziga reklama va brend ko‘rinishi oladi</td></tr>
+    <tr><td class="grp" colspan="2">Taklif — kim joy va xizmat beradi</td></tr>
+    <tr><td><b>Joylar</b></td><td>Kongress markazlari, ko‘rgazma majmualari, mehmonxona zallari, noodatiy joylar</td></tr>
+    <tr><td><b>Joylashtirish va transport</b></td><td>Mehmonxona (xonalar bloki), aviakompaniya (rasmiy tashuvchi), transfer</td></tr>
+    <tr><td><b>Xizmatlar</b></td><td>Keytering, AV-texnika, sinxron tarjima, stend qurilishi, poligrafiya, xavfsizlik</td></tr>
+    <tr><td class="grp" colspan="2">Vositachilar — kim tashkil qiladi</td></tr>
+    <tr><td><b>PCO</b> — Professional Congress Organizer</td><td>Kongressni boshidan oxirigacha boshqaradi: dastur, ro‘yxatga olish, moliya, joy, ko‘rgazma, homiylik</td></tr>
+    <tr><td><b>DMC</b> — Destination Management Company</td><td>Joyida transfer, ekskursiya, ijtimoiy dastur, gid va tarjimonlar</td></tr>
+    <tr><td><b>Event-agentlik</b></td><td>Taqdimot, gala-kecha, team-building — g‘oyadan amalga oshirishgacha</td></tr>
+    <tr><td><b>CVB</b> — Convention and Visitors Bureau</td><td>Shaharni targ‘ib qiladi, tadbirlarni jalb qiladi, bepul maslahat va inspeksiya safari (birinchisi — Detroyt, 1896)</td></tr>
+  </table>
+  <h3 style="margin-top:18px">Tashkil etish atamalari</h3>
+  <table class="gl">
+    <tr><td><b>MICE</b></td><td>Meetings, Incentives, Conferences (Conventions), Exhibitions</td></tr>
+    <tr><td><b>SMART maqsad</b></td><td>Specific (aniq), Measurable (o‘lchanadigan), Achievable (erishiladigan), Relevant (ahamiyatli), Time-bound (muddatli)</td></tr>
+    <tr><td><b>Zararsizlik nuqtasi</b></td><td>Doimiy xarajat ÷ (badal − bir kishiga o‘zgaruvchan xarajat) = kerakli ishtirokchilar soni</td></tr>
+    <tr><td><b>DDR</b></td><td>Day Delegate Rate — bir ishtirokchi uchun kunlik paket: zal + texnika + 2 kofe-breyk + tushlik</td></tr>
+    <tr><td><b>Attrition</b></td><td>Bron qilingan xonalarning qancha qismidan jarimasiz voz kechish mumkinligi</td></tr>
+    <tr><td><b>Cancellation / Force majeure</b></td><td>Bekor qilish jarimasi va muddatlari / ofat, epidemiya, davlat qarorlaridagi majburiyatlar</td></tr>
+    <tr><td><b>Run of show</b></td><td>Tadbir kunining daqiqama-daqiqa ssenariysi: kim, qachon, nima qiladi</td></tr>
+    <tr><td><b>BEO</b></td><td>Banquet Event Order — har bir xona va xizmat bo‘yicha funksional varaqa</td></tr>
+    <tr><td><b>Risk strategiyalari</b></td><td>Oldini olish (avoid), kamaytirish (reduce), o‘tkazish (transfer — sug‘urta), qabul qilish (accept — zaxira byudjet)</td></tr>
+    <tr><td><b>Goldblatt modeli</b></td><td>Tadqiqot → dizayn → rejalashtirish → muvofiqlashtirish → baholash</td></tr>
+    <tr><td><b>Bleisure</b></td><td>Business + leisure: tadbirdan keyin dam olishga qolish, hamrohlar dasturi, post-tour</td></tr>
+    <tr><td><b>ROI / KPI</b></td><td>Tadbir foydasi; davomat, qoniqish, NPS, lidlar, byudjet farqi</td></tr>
+    <tr><td><b>UN Tourism / ICCA mezonlari</b></td><td>UN Tourism: kamida 10 kishi, 4 soat, ijaraga olingan joy. ICCA: kamida 50 kishi, 3 davlat o‘rtasida almashib, muntazam</td></tr>
+  </table>
+</div></div>
+
+
+<div class="toast" id="toast"></div>
+<canvas id="confetti"></canvas>
+
+<script>
+(function(){
+"use strict";
+var $=function(id){return document.getElementById(id);};
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+function money(n){var s=Math.round(Math.abs(n)).toLocaleString("ru-RU").replace(/ /g," ");return (n<0?"−$":"$")+s;}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v);}catch(e){return null;}}
+
+/* ---------- settings ---------- */
+var SECRET="MICE-SM-2026";
+
+/* ---------- sound ---------- */
+var soundOn=true,actx=null;
+function beep(kind){if(!soundOn)return;try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();var seq=kind==="good"?[523,659,784]:kind==="bad"?[220,170]:kind==="win"?[523,659,784,1046]:[440];
+  seq.forEach(function(f,i){var o=actx.createOscillator(),g=actx.createGain();o.type="triangle";o.frequency.value=f;g.gain.setValueAtTime(0.0001,actx.currentTime+i*.11);g.gain.exponentialRampToValueAtTime(0.16,actx.currentTime+i*.11+.02);g.gain.exponentialRampToValueAtTime(0.0001,actx.currentTime+i*.11+.18);o.connect(g);g.connect(actx.destination);o.start(actx.currentTime+i*.11);o.stop(actx.currentTime+i*.11+.2);});}catch(e){}}
+$("btnSound").addEventListener("click",function(){soundOn=!soundOn;this.textContent=soundOn?"🔊":"🔇";this.setAttribute("aria-pressed",soundOn);});
+
+/* ---------- toast, confetti, modals ---------- */
+var tt=null;function toast(t){var e=$("toast");e.textContent=t;e.classList.add("on");clearTimeout(tt);tt=setTimeout(function(){e.classList.remove("on");},2800);}
+function confetti(){var c=$("confetti"),x=c.getContext("2d");c.width=innerWidth;c.height=innerHeight;var cols=["#c08f3e","#e2b867","#1c8a78","#2c5ea8","#c2413b","#132038"];
+  var P=[];for(var i=0;i<160;i++)P.push({x:Math.random()*c.width,y:-20-Math.random()*c.height*.5,vx:(Math.random()-.5)*3,vy:2+Math.random()*4,r:4+Math.random()*6,a:Math.random()*6,c:cols[i%cols.length]});
+  var t0=performance.now();(function f(t){x.clearRect(0,0,c.width,c.height);P.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.vy+=.05;p.a+=.1;x.save();x.translate(p.x,p.y);x.rotate(p.a);x.fillStyle=p.c;x.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);x.restore();});
+    if(t-t0<3200)requestAnimationFrame(f);else x.clearRect(0,0,c.width,c.height);})(t0);}
+function openM(id){$(id).classList.add("on");}
+function closeM(id){$(id).classList.remove("on");}
+[].forEach.call(document.querySelectorAll(".modal"),function(m){m.addEventListener("click",function(e){if(e.target===m||e.target.hasAttribute("data-close"))m.classList.remove("on");});});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")[].forEach.call(document.querySelectorAll(".modal.on"),function(m){m.classList.remove("on");});});
+$("btnGloss").addEventListener("click",function(){openM("mGloss");});
+$("btnRules").addEventListener("click",function(){renderRubric();openM("mRules");});
+
+/* ---------- routing ---------- */
+var tabs=[].slice.call(document.querySelectorAll(".tab"));
+function show(v){if(["keys","krossvord"].indexOf(v)<0)v="keys";tabs.forEach(function(t){t.setAttribute("aria-selected",t.dataset.view===v?"true":"false");});
+  ["keys","krossvord"].forEach(function(k){$("v-"+k).classList.toggle("on",v===k);});if(v==="krossvord")fitGrid();}
+tabs.forEach(function(t){t.addEventListener("click",function(){location.hash=t.dataset.view;show(t.dataset.view);});});
+window.addEventListener("hashchange",function(){show(location.hash.slice(1));});
+
+/* =====================================================================
+   MISSION — scoring
+   ===================================================================== */
+var MISSIONS=[
+ {id:"toifa",short:"Toifa",name:"Buyurtmani tanib olish (M·I·C·E)",max:5,bob:"1-bob · Brif"},
+ {id:"smart",short:"SMART",name:"SMART maqsadlar",max:4,bob:"1-bob · Brif"},
+ {id:"bid",short:"Bid",name:"Bid paketi",max:5,bob:"2-bob · Bid"},
+ {id:"insp",short:"Inspeksiya",name:"Inspeksiya safari",max:3,bob:"2-bob · Bid"},
+ {id:"jamoa",short:"Jamoa",name:"Kim nima qiladi (PCO·DMC·CVB·agentlik)",max:7,bob:"3-bob · Reja"},
+ {id:"sana",short:"Sana",name:"Sana tanlash",max:3,bob:"3-bob · Reja"},
+ {id:"zal",short:"Zal",name:"Zal sxemalari",max:4,bob:"3-bob · Reja"},
+ {id:"byudjet",short:"Byudjet",name:"Byudjet va zararsizlik nuqtasi",max:6,bob:"3-bob · Reja"},
+ {id:"joy",short:"Joylashtirish",name:"Delegatlarni joylashtirish",max:3,bob:"3-bob · Reja"},
+ {id:"shart",short:"Shartnoma",name:"Shartnoma bandlari",max:4,bob:"3-bob · Reja"},
+ {id:"ros",short:"Ssenariy",name:"Run of show (tadbir kuni ssenariysi)",max:4,bob:"4-bob · Tadbir kuni"},
+ {id:"inq",short:"Inqirozlar",name:"5 ta inqiroz (har biri 2 ball)",max:10,bob:"4-bob · Tadbir kuni"},
+ {id:"risk",short:"Risk",name:"Risk strategiyalari",max:3,bob:"4-bob · Tadbir kuni"},
+ {id:"ins",short:"Insentiv",name:"Insentiv dastur tuzish",max:4,bob:"5-bob · Meros"},
+ {id:"bleis",short:"Bleisure",name:"Bleisure choralar",max:3,bob:"5-bob · Meros"},
+ {id:"hisobot",short:"Hisobot",name:"Hokimlikka hisobot: MICE funksiyalari",max:3,bob:"5-bob · Meros"},
+ {id:"tarix",short:"Tarix",name:"Uchrashuvlar tarixi (xronologiya)",max:4,bob:"6-bob · Final"},
+ {id:"blitz",short:"Blitz",name:"Yakuniy blitz: to‘g‘ri yoki noto‘g‘ri",max:5,bob:"6-bob · Final"}
+];
+var MX={};MISSIONS.forEach(function(m){MX[m.id]=m;});
+function mPts(id){if(id!=="inq")return S.pts[id];var t=0,any=false;for(var i=1;i<=5;i++){if(S.pts["inq"+i]!==undefined){any=true;t+=S.pts["inq"+i];}}return any?t:undefined;}
+function renderRubric(){$("rubric").innerHTML=MISSIONS.map(function(m){var v=S?mPts(m.id):undefined;var got=v!==undefined;return "<div class=\"rub"+(got?" done":"")+"\"><div>"+m.name+"<small>"+m.bob+"</small></div><b>"+(got?v+"/":"")+m.max+"</b></div>";}).join("");}
+function know(){var t=0;for(var k in S.pts)t+=S.pts[k];return t;}
+function kpiParts(){return [Math.round(S.rep*8/100),Math.round(S.sat*8/100),S.budget>=0?4:S.budget>=-15000?2:0];}
+function kpi(){var p=kpiParts();return p[0]+p[1]+p[2];}
+function total(){return know()+kpi();}
+var RANKS=[[0,"Stajyor","🎒"],[250,"Koordinator","📋"],[550,"Loyiha menejeri","🗂️"],[900,"Bosh menejer","🎖️"],[1250,"PCO direktori","👑"]];
+function rankOf(x){var r=0;RANKS.forEach(function(R,i){if(x>=R[0])r=i;});return {i:r,n:RANKS[r][1],e:RANKS[r][2],next:RANKS[r+1]?RANKS[r+1][0]:null};}
+function rankUp(r){beep("win");confetti();var d=document.createElement("div");d.className="rankup";d.innerHTML="<div><span class=\"e\">"+r.e+"</span><div class=\"muted\" style=\"font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase\">Yangi unvon!</div><h2 style=\"margin:6px 0 4px\">"+r.n+"</h2><p class=\"muted\" style=\"margin:0 0 14px\">"+S.xp+" XP to‘pladingiz</p><button class=\"btn gold\" style=\"width:100%\">Zo‘r! Davom etamiz</button></div>";document.body.appendChild(d);d.addEventListener("click",function(){d.remove();});}
+function grade(t){return t>=86?[5,"A’lo","g5"]:t>=71?[4,"Yaxshi","g4"]:t>=56?[3,"Qoniqarli","g3"]:[2,"Qayta","g2"];}
+
+var CAST={
+  NK:{n:"Dr. Nodira Karimova",r:"MOKA prezidenti (buyurtmachi)",c:"#1c8a78"},
+  JR:{n:"Javlon Rashidov",r:"Samarqand MICE byurosi (CVB) rahbari",c:"#1e3157"},
+  MU:{n:"Madina Usmonova",r:"«NovaFarm» HR direktori (homiy)",c:"#c08f3e"},
+  TB:{n:"Temur Bakirov",r:"«Silk Road Events» PCO direktori — sizning rahbaringiz",c:"#2c5ea8"}
+};
+var S;
+function resetState(){S={xp:0,streak:0,best:0,jok:2,hints:0,fast:0,stars:{},t0:0,fastMs:30000,attempt:1,name:"",group:"",key:"",timerOn:false,budget:120000,rep:50,sat:60,bleisure:10,pts:{},log:[],i:0,won:true,started:Date.now(),done:false};}
+resetState();
+function saveState(){try{ls("mice6_state",JSON.stringify(S));}catch(e){}}
+function award(id,p,label){var mx=MX[id].max;p=clamp(Math.round(p),0,mx);S.pts[id]=p;
+  var full=p===mx;if(full){S.streak++;S.best=Math.max(S.best,S.streak);}else S.streak=0;
+  var mult=S.streak>=5?2:S.streak>=3?1.5:1;var xp=Math.round(p*10*mult);
+  var fast=full&&!S.noFast&&S.t0&&(Date.now()-S.t0)<S.fastMs;if(fast){xp+=20;S.fast++;var sp=$("spd");if(sp)sp.classList.add("won");}
+  var oldR=rankOf(S.xp).i;S.xp+=xp;S.lastXp={xp:xp,mult:mult,fast:fast};
+  S.stars[id]=full?3:p>=mx*.6?2:p>0?1:0;
+  if(p>0)deltaOn("main","+"+p,true);if(xp)deltaOn("dXp","+"+xp,true);
+  S.log.push({t:label||MX[id].name,p:p+"/"+MX[id].max});hud();
+  var nr=rankOf(S.xp);if(nr.i>oldR)setTimeout(function(){rankUp(nr);},900);
+  return p;}
+function apply(e,label){if(!e)return [];var chips=[];
+  if(e.budget){S.budget+=e.budget;chips.push([e.budget>0?"p":"n",(e.budget>0?"+":"")+money(e.budget)+" byudjet"]);deltaOn("bud",e.budget>0?"+"+money(e.budget):money(e.budget),e.budget>0);}
+  if(e.rep){S.rep=clamp(S.rep+e.rep,0,100);chips.push([e.rep>0?"p":"n",(e.rep>0?"+":"")+e.rep+" obro‘"]);deltaOn("rep",(e.rep>0?"+":"")+e.rep,e.rep>0);}
+  if(e.sat){S.sat=clamp(S.sat+e.sat,0,100);chips.push([e.sat>0?"p":"n",(e.sat>0?"+":"")+e.sat+" mamnunlik"]);deltaOn("sat",(e.sat>0?"+":"")+e.sat,e.sat>0);}
+  hud();return chips;}
+function chipsHtml(ch){return ch.length?"<div class=\"chips\">"+ch.map(function(c){return "<span class=\"chip "+c[0]+"\">"+c[1]+"</span>";}).join("")+"</div>":"";}
+function earned(p,id){var st=S.stars[id]||0,lx=S.lastXp||{xp:0};var stars="<span class=\"stars\">"+"⭐".repeat(st)+"<span style=\"opacity:.25\">"+"⭐".repeat(3-st)+"</span></span>";
+  var extra=lx.xp?"<span class=\"xpline\">+"+lx.xp+" XP"+(lx.mult>1?" · 🔥×"+String(lx.mult).replace(".",","):"")+(lx.fast?" · ⚡ tez":"")+"</span>":"";
+  return "<div class=\"row\" style=\"gap:6px;margin-bottom:8px\"><span class=\"earned\" style=\"margin:0\">+"+p+" / "+MX[id].max+" ball</span>"+stars+extra+"</div>";}
+function deltaOn(k,txt,pos){var m=$({main:"dPts",bud:"dBud",rep:"dRep",sat:"dSat"}[k]||k);if(!m)return;var d=document.createElement("span");d.className="delta "+(pos?"p":"n");d.textContent=txt;m.appendChild(d);setTimeout(function(){d.remove();},1900);}
+function hud(){var k=know(),kp=kpi(),t=k+kp;$("mPts").textContent=t;$("bPts").style.width=t+"%";$("mKnow").textContent=k;$("mKpi").textContent=kp;
+  var r=rankOf(S.xp);$("mXp").textContent=S.xp;$("mRank").textContent=r.e+" "+r.n;
+  $("mStreak").textContent=S.streak;$("cStreak").classList.toggle("hot",S.streak>=3);$("mMult").textContent=S.streak>=5?" ×2":S.streak>=3?" ×1,5":"";$("mJok").textContent=S.jok;
+  $("mBud").textContent=money(S.budget);$("bBud").style.width=clamp(S.budget/120000*100,0,100)+"%";$("mBud").style.color=S.budget<0?"var(--red)":"";
+  $("mRep").textContent=S.rep;$("bRep").style.width=S.rep+"%";$("mSat").textContent=S.sat;$("bSat").style.width=S.sat+"%";
+  $("whoName").textContent=S.name;$("whoGroup").textContent=S.group?"· "+S.group:"";}
+
+/* scene helpers */
+function msg(who,text){var c=CAST[who];var ini=c.n.replace("Dr. ","").split(" ").map(function(w){return w[0];}).join("");
+  return "<div class=\"msg\"><div class=\"ava\" style=\"background:"+c.c+"\">"+ini+"</div><div class=\"bubble\"><div class=\"whoName\">"+c.n+" · "+c.r+"</div>"+text+"</div></div>";}
+var timerH=null,timerLeft=0,timerPen=false;
+function startTimer(){var sp=$("spd");if(!sp||S.noFast)return;var i=sp.querySelector("i");i.style.transitionDuration=S.fastMs+"ms";requestAnimationFrame(function(){requestAnimationFrame(function(){i.style.width="0%";});});
+  timerH=setTimeout(function(){sp.classList.add("off");},S.fastMs);}
+function stopTimer(){if(timerH){clearTimeout(timerH);timerH=null;}var sp=$("spd");if(sp){var i=sp.querySelector("i");var w=getComputedStyle(i).width;i.style.transitionDuration="0ms";i.style.width=w;}}
+function frame(sc,body){var crisis=sc.crisis?"<div class=\"crisis\"><span style=\"font-size:26px\">⚡</span><div><b>INQIROZ</b><div style=\"font-size:14px;opacity:.9\">"+sc.crisis+"</div></div></div>":"";
+  var mx=sc.m?"<span class=\"maxp\">🎯 maks. "+MX[sc.m].max+" ball</span>":"";
+  var speed=sc.m&&!sc.noFast?"<div class=\"speed\" id=\"spd\"><i></i><span>⚡ Tez javob bonusi: +20 XP</span></div>":"";
+  var tools="";if(sc.hint||(sc.type==="choice"&&sc.opts&&sc.opts.length>2)){tools="<div class=\"tools\">"+(sc.hint?"<button class=\"tbtn\" id=\"hintBtn\">💡 Maslahat (−20 XP)</button>":"")+(sc.type==="choice"?"<button class=\"tbtn\" id=\"jokBtn\""+(S.jok>0?"":" disabled")+">🃏 50/50 (qoldi: "+S.jok+")</button>":"")+"</div>";}
+  return "<div class=\"card scene\">"+crisis+"<div class=\"shead\"><div><span class=\"pill\">"+sc.tag+"</span><h2 style=\"margin-top:8px\">"+sc.title+"</h2></div><div class=\"row\">"+mx+"</div></div>"+speed+(sc.who?msg(sc.who,sc.text):(sc.text?"<p>"+sc.text+"</p>":""))+tools+(sc.hint?"<div class=\"hint\" id=\"hintBox\" style=\"display:none\">💡 <b>Maslahat:</b> "+sc.hint+"</div>":"")+body+
+  "<div class=\"fb\" id=\"sFb\"></div><div class=\"next row\" id=\"sNext\"><button class=\"btn gold\" id=\"sGo\">Davom etish →</button></div></div>";}
+function bindTools(sc){var hb=$("hintBtn");if(hb)hb.addEventListener("click",function(){hb.disabled=true;$("hintBox").style.display="";S.hints++;S.xp=Math.max(0,S.xp-20);deltaOn("dXp","−20",false);hud();});
+  var jb=$("jokBtn");if(jb)jb.addEventListener("click",function(){if(S.jok<=0)return;S.jok--;jb.disabled=true;jb.textContent="🃏 50/50 ishlatildi";var bad=[];sc.opts.forEach(function(o,i){if(!o.best)bad.push([o.ok?1:0,i]);});bad.sort(function(a,b){return a[0]-b[0];});
+    var n=sc.opts.length>=4?2:1;var bs=document.querySelectorAll(".opt");bad.slice(0,n).forEach(function(x){bs[x[1]].classList.add("gone");bs[x[1]].disabled=true;});beep();hud();});}
+function finishScene(cls,html){stopTimer();var f=$("sFb");f.className="fb on "+cls;f.innerHTML=html;$("sNext").classList.add("on");$("sGo").onclick=function(){go(S.i+1);};
+  var jb=$("jokBtn");if(jb)jb.disabled=true;var hb=$("hintBtn");if(hb)hb.disabled=true;
+  setTimeout(function(){try{f.scrollIntoView({behavior:"smooth",block:"nearest"});}catch(e){}},80);beep(cls==="good"?"good":cls==="bad"?"bad":"");saveState();sync("progress");}
+
+/* ---------- scene types ---------- */
+function rBlitz(sc){var items=shuffle(sc.items),k=0,ok=0,left=sc.sec,ans=[],tH=null,busy=false;
+  $("stage").innerHTML=frame(sc,"<div class=\"blitz\"><div class=\"btop\"><span class=\"timer\" id=\"bzT\">⏱ "+left+" s</span><span>Savol <b id=\"bzK\">0</b>/"+items.length+"</span><span>✅ <b id=\"bzOk\">0</b></span></div><div class=\"bq\" id=\"bzQ\"><div>"+items.length+" ta fikr · "+sc.sec+" soniya.<br><span style=\"font-size:15px;opacity:.85;font-weight:500\">Har biriga «To‘g‘ri» yoki «Noto‘g‘ri» deb tez javob bering.</span><br><button class=\"btn gold\" id=\"bzGo\" style=\"margin-top:14px;padding:12px 26px;font-size:17px\">▶ Boshlash</button></div></div><div class=\"tf\"><button class=\"tfb t\" data-v=\"1\" disabled>✅ To‘g‘ri</button><button class=\"tfb f\" data-v=\"0\" disabled>❌ Noto‘g‘ri</button></div></div>");
+  var bs=[].slice.call(document.querySelectorAll(".tfb"));
+  function showQ(){if(k>=items.length){end();return;}$("bzK").textContent=k+1;$("bzQ").className="bq";$("bzQ").innerHTML="<div>"+items[k][0]+"</div>";busy=false;}
+  function end(){clearInterval(tH);bs.forEach(function(b){b.disabled=true;});for(var j=k;j<items.length;j++)ans[j]=null;
+    var p=award(sc.m,ok*MX[sc.m].max/items.length);$("bzQ").className="bq";$("bzQ").innerHTML="<div>🏁 "+ok+" / "+items.length+" to‘g‘ri"+(left<=0?" · vaqt tugadi":"")+"</div>";
+    var rev="<div class=\"bzrev\">"+items.map(function(it,j){var a=ans[j];return "<div>"+(a===undefined||a===null?"⏳":a===it[1]?"✅":"❌")+" "+it[0]+" — <b>"+(it[1]?"To‘g‘ri":"Noto‘g‘ri")+"</b>"+(it[2]?". <span class=\"muted\">"+it[2]+"</span>":"")+"</div>";}).join("")+"</div>";
+    finishScene(ok>=items.length*.9?"good":ok>=items.length*.6?"mid":"bad",earned(p,sc.m)+"<b>Blitz natijasi: "+ok+" / "+items.length+".</b>"+rev);}
+  $("bzGo").addEventListener("click",function(){bs.forEach(function(b){b.disabled=false;});showQ();tH=setInterval(function(){left--;$("bzT").textContent="⏱ "+left+" s";$("bzT").classList.toggle("low",left<=10);if(left<=0)end();},1000);});
+  bs.forEach(function(b){b.addEventListener("click",function(){if(busy||k>=items.length)return;busy=true;var v=b.dataset.v==="1",g=v===items[k][1];ans[k]=v;if(g){ok++;$("bzOk").textContent=ok;}
+    var q=$("bzQ");q.className="bq pop "+(g?"ok":"no");beep(g?"good":"bad");k++;setTimeout(showQ,g?420:900);});});}
+
+function rChoice(sc){var keys="ABCD";S.noFast=false;
+  $("stage").innerHTML=frame(sc,"<div class=\"opts\">"+sc.opts.map(function(o,i){return "<button class=\"opt\" data-i=\""+i+"\"><span class=\"k\">"+keys[i]+"</span>"+o.t+(o.cost?"<span class=\"cost\">"+o.cost+"</span>":"")+"</button>";}).join("")+"</div>");
+  [].forEach.call(document.querySelectorAll(".opt"),function(b){b.addEventListener("click",function(){var o=sc.opts[+b.dataset.i];
+    [].forEach.call(document.querySelectorAll(".opt"),function(x,j){x.disabled=true;if(sc.opts[j].best)x.classList.add("best");});
+    b.classList.add(o.best?"good":(o.ok?"sel":"bad"));
+    var mx=MX[sc.m].max,p=o.best?mx:o.ok?Math.round(mx/2):0;var ch=apply(o.e);var got=award(sc.m,p,sc.title+": "+o.t.replace(/<[^>]+>/g,""));if(sc.after)sc.after(o);
+    finishScene(o.best?"good":o.ok?"mid":"bad",earned(got,sc.m)+o.fb+chipsHtml(ch));});});
+  startTimer();}
+
+function rRounds(sc){var k=0,res=[];var MI=[["M","Meetings"],["I","Incentives"],["C","Conventions"],["E","Exhibitions"]];
+  $("stage").innerHTML=frame(sc,"<div class=\"rounds\" id=\"rr\"></div><div id=\"rbody\"></div>");
+  function draw(){$("rr").innerHTML=sc.rounds.map(function(r,i){return "<i class=\""+(res[i]===undefined?(i===k?"cur":""):(res[i]?"ok":"bad"))+"\"></i>";}).join("");
+    if(k>=sc.rounds.length){var ok=res.filter(Boolean).length;var p=award(sc.m,ok*MX[sc.m].max/sc.rounds.length);$("rbody").innerHTML="";
+      finishScene(ok===sc.rounds.length?"good":ok>=2?"mid":"bad",earned(p,sc.m)+"<b>"+ok+" / "+sc.rounds.length+" buyurtma to‘g‘ri tanildi.</b> "+sc.fb);return;}
+    var r=sc.rounds[k];$("rbody").innerHTML="<div class=\"rcard\"><small>Buyurtma "+(k+1)+" / "+sc.rounds.length+"</small>"+r[0]+"</div><div class=\"mice\">"+MI.map(function(m){return "<button data-l=\""+m[0]+"\"><b>"+m[0]+"</b><span>"+m[1]+"</span></button>";}).join("")+"</div><div class=\"fb\" id=\"rFb\"></div>";
+    [].forEach.call($("rbody").querySelectorAll(".mice button"),function(b){b.addEventListener("click",function(){var g=b.dataset.l===r[1];res[k]=g;[].forEach.call($("rbody").querySelectorAll(".mice button"),function(x){x.disabled=true;if(x.dataset.l===r[1])x.classList.add("good");});if(!g)b.classList.add("bad");
+      var f=$("rFb");f.className="fb on "+(g?"good":"bad");f.innerHTML=(g?"✅ ":"❌ ")+r[2];beep(g?"good":"bad");$("rr").innerHTML="";k++;setTimeout(draw,1700);});});}
+  draw();startTimer();}
+
+function rMulti(sc){var picked=[];
+  $("stage").innerHTML=frame(sc,"<p class=\"muted\" style=\"margin-top:0\">Aynan <b>"+sc.n+" ta</b> variant tanlang: <b id=\"mCnt\">0</b>/"+sc.n+"</p><div class=\"opts\">"+sc.opts.map(function(o,i){return "<button class=\"opt\" data-i=\""+i+"\" aria-pressed=\"false\">"+o.t+"</button>";}).join("")+"</div><div class=\"row\" style=\"margin-top:14px\"><button class=\"btn\" id=\"mOk\" disabled>Tasdiqlash</button></div>");
+  var bs=[].slice.call(document.querySelectorAll(".opt"));
+  bs.forEach(function(b){b.addEventListener("click",function(){var i=+b.dataset.i,k=picked.indexOf(i);if(k>=0)picked.splice(k,1);else{if(picked.length>=sc.n){toast("Faqat "+sc.n+" ta tanlash mumkin");return;}picked.push(i);}
+    bs.forEach(function(x,j){x.classList.toggle("sel",picked.indexOf(j)>=0);});$("mCnt").textContent=picked.length;$("mOk").disabled=picked.length!==sc.n;});});
+  $("mOk").addEventListener("click",function(){$("mOk").disabled=true;var good=0,eff={rep:0,sat:0},lines=[];
+    bs.forEach(function(b,j){b.disabled=true;var o=sc.opts[j];if(picked.indexOf(j)>=0){b.classList.remove("sel");b.classList.add(o.good?"good":"bad");if(o.good)good++;eff.rep+=o.rep||0;eff.sat+=o.sat||0;lines.push((o.good?"✅ ":"❌ ")+o.fb);}else if(o.good)b.classList.add("best");});
+    if(sc.after)sc.after(picked.map(function(j){return sc.opts[j];}));
+    var ch=apply(eff);var p=award(sc.m,good*MX[sc.m].max/sc.n);finishScene(good===sc.n?"good":good>0?"mid":"bad",earned(p,sc.m)+"<b>"+good+" / "+sc.n+" kuchli tanlov.</b><br>"+lines.join("<br>")+(sc.sum?"<br><br>"+sc.sum:"")+chipsHtml(ch));});
+  startTimer();}
+
+function rSort(sc){var cards=shuffle(sc.cards.map(function(c,i){return {t:c[0],b:c[1],id:i};})),place={},pick=null;
+  $("stage").innerHTML=frame(sc,"<p class=\"muted\" style=\"margin-top:0\">Kartani bosing, keyin ustunni bosing (yoki sudrab olib boring). Ustundagi kartani bossangiz, qaytib chiqadi.</p><div class=\"pool\" id=\"pool\"></div><div class=\"bins\">"+sc.bins.map(function(b,i){return "<div class=\"bin\" data-b=\""+i+"\"><h4>"+b[0]+"</h4><small>"+b[1]+"</small></div>";}).join("")+"</div><div class=\"row\" style=\"margin-top:14px\"><button class=\"btn\" id=\"sOk\" disabled>Tekshirish</button></div><div class=\"pickbar\" id=\"pickbar\"><div class=\"pt\">«<b id=\"pbT\"></b>» → qaysi ustunga?</div><div class=\"pbb\">"+sc.bins.map(function(b,i){return "<button data-b=\""+i+"\">"+b[0]+"</button>";}).join("")+"</div></div>");
+  [].forEach.call(document.querySelectorAll("#pickbar button"),function(x){x.addEventListener("click",function(){if(pick===null||locked)return;place[pick]=+x.dataset.b;pick=null;beep();draw();});});
+  var pool=$("pool"),bins=[].slice.call(document.querySelectorAll(".bin")),locked=false;
+  function draw(){pool.innerHTML="";bins.forEach(function(b){[].slice.call(b.querySelectorAll(".scard")).forEach(function(x){x.remove();});});
+    cards.forEach(function(c){var e=document.createElement("div");e.className="scard"+(pick===c.id?" pick":"");e.textContent=c.t;e.draggable=!locked;e.dataset.id=c.id;
+      e.addEventListener("click",function(ev){ev.stopPropagation();if(locked)return;if(place[c.id]!==undefined){delete place[c.id];pick=null;}else pick=(pick===c.id?null:c.id);draw();});
+      e.addEventListener("dragstart",function(ev){pick=c.id;ev.dataTransfer.setData("text/plain",String(c.id));});
+      if(locked)e.classList.add(place[c.id]===c.b?"ok":"bad");
+      (place[c.id]===undefined?pool:bins[place[c.id]]).appendChild(e);});
+    bins.forEach(function(b){b.classList.toggle("target",pick!==null&&!locked);});var pb=$("pickbar");pb.classList.toggle("on",pick!==null&&!locked);if(pick!==null)$("pbT").textContent=cards.filter(function(c){return c.id===pick;})[0].t;
+    $("sOk").disabled=Object.keys(place).length!==cards.length||locked;}
+  bins.forEach(function(b,i){b.addEventListener("click",function(){if(pick===null||locked)return;place[pick]=i;pick=null;beep();draw();});
+    b.addEventListener("dragover",function(e){e.preventDefault();b.classList.add("over");});b.addEventListener("dragleave",function(){b.classList.remove("over");});
+    b.addEventListener("drop",function(e){e.preventDefault();b.classList.remove("over");var id=+e.dataTransfer.getData("text/plain");if(locked)return;place[id]=i;pick=null;draw();});});
+  draw();
+  $("sOk").addEventListener("click",function(){locked=true;var ok=cards.filter(function(c){return place[c.id]===c.b;}).length;draw();
+    var ch=apply(sc.eff?sc.eff(ok):null);var p=award(sc.m,ok*MX[sc.m].max/cards.length);
+    finishScene(ok===cards.length?"good":ok>=cards.length*.6?"mid":"bad",earned(p,sc.m)+"<b>"+ok+" / "+cards.length+" to‘g‘ri.</b> "+sc.fb+chipsHtml(ch));});
+  startTimer();}
+
+function rOrder(sc){var items=shuffle(sc.items.map(function(t,i){return {t:t,i:i};}));var locked=false;
+  $("stage").innerHTML=frame(sc,"<ol class=\"olist\" id=\"olist\"></ol><div class=\"row\" style=\"margin-top:14px\"><button class=\"btn\" id=\"oOk\">Tekshirish</button></div>");
+  function draw(){$("olist").innerHTML=items.map(function(it,k){return "<li class=\""+(locked?(it.i===k?"ok":"bad"):"")+"\"><span class=\"ix\">"+(k+1)+"</span><span class=\"tx\">"+it.t+(locked&&it.i!==k?" <span class=\"muted\" style=\"font-weight:500\">→ to‘g‘ri o‘rni: "+(it.i+1)+"</span>":"")+"</span>"+(locked?"":"<button data-k=\""+k+"\" data-d=\"-1\" aria-label=\"Yuqoriga\">↑</button><button data-k=\""+k+"\" data-d=\"1\" aria-label=\"Pastga\">↓</button>")+"</li>";}).join("");
+    [].forEach.call($("olist").querySelectorAll("button"),function(b){b.addEventListener("click",function(){var k=+b.dataset.k,d=+b.dataset.d,j=k+d;if(j<0||j>=items.length)return;var t=items[k];items[k]=items[j];items[j]=t;draw();});});}
+  draw();
+  $("oOk").addEventListener("click",function(){locked=true;$("oOk").disabled=true;var ok=items.filter(function(it,k){return it.i===k;}).length;draw();var ch=apply({rep:ok>=items.length*.75?5:0});var p=award(sc.m,ok*MX[sc.m].max/items.length);
+    finishScene(ok===items.length?"good":ok>=items.length*.6?"mid":"bad",earned(p,sc.m)+"<b>"+ok+" / "+items.length+" element o‘z o‘rnida.</b> "+sc.fb+chipsHtml(ch));});
+  startTimer();}
+
+function rMatch(sc){
+  $("stage").innerHTML=frame(sc,sc.rows.map(function(r,i){return "<div class=\"mrow\"><div>"+(i+1)+". "+r[0]+"</div><select data-f=\""+i+"\"><option value=\"\">— tanlang —</option>"+sc.options.map(function(x){return "<option>"+x+"</option>";}).join("")+"</select></div>";}).join("")+
+   "<div class=\"row\" style=\"margin-top:14px\"><button class=\"btn\" id=\"rOk\">Tekshirish</button></div>");
+  $("rOk").addEventListener("click",function(){var sels=[].slice.call(document.querySelectorAll("[data-f]"));if(sels.some(function(s){return !s.value;})){toast("Hamma qatorlarni to‘ldiring");return;}
+    $("rOk").disabled=true;var ok=0;sels.forEach(function(s,i){var g=s.value===sc.rows[i][1];if(g)ok++;s.className=g?"ok":"bad";s.disabled=true;});
+    var ch=apply(sc.eff?sc.eff(ok):null);var p=award(sc.m,ok*MX[sc.m].max/sc.rows.length);
+    finishScene(ok===sc.rows.length?"good":ok>=sc.rows.length/2?"mid":"bad",earned(p,sc.m)+"<b>"+ok+" / "+sc.rows.length+" to‘g‘ri.</b> To‘g‘ri javoblar: "+sc.rows.map(function(r,i){return (i+1)+" — "+r[1];}).join("; ")+". "+(sc.fb||"")+chipsHtml(ch));});
+  startTimer();}
+
+function rCalc(sc){
+  $("stage").innerHTML=frame(sc,"<div class=\"calc\"><div class=\"pane\"><b>🧮 Kalkulyator — o‘ynab ko‘ring</b><label>Doimiy xarajatlar: $<span id=\"cF\">60 000</span></label><input type=\"range\" id=\"rF\" min=\"20000\" max=\"120000\" step=\"5000\" value=\"60000\"><label>Ro‘yxatdan o‘tish badali: $<span id=\"cP\">300</span></label><input type=\"range\" id=\"rP\" min=\"100\" max=\"600\" step=\"10\" value=\"300\"><label>Bir kishiga o‘zgaruvchan xarajat: $<span id=\"cV\">100</span></label><input type=\"range\" id=\"rV\" min=\"20\" max=\"300\" step=\"10\" value=\"100\"><label>Homiylik daromadi: $<span id=\"cS\">0</span></label><input type=\"range\" id=\"rS\" min=\"0\" max=\"60000\" step=\"5000\" value=\"0\"><div class=\"formula\">(Doimiy − Homiylik) ÷ (Badal − O‘zgaruvchan)<br>= <span id=\"cFormula\"></span></div><div style=\"margin-top:8px;font-size:13px\" class=\"muted\">Zararsizlik nuqtasi:</div><div class=\"out\" id=\"cOut\">300 kishi</div></div>"+
+   "<div><p style=\"margin-top:0\"><b>Temurning savollari (kalkulyator sizga yordam beradi):</b></p>"+sc.qs.map(function(q,i){return "<div class=\"qrow\"><div>"+(i+1)+". "+q[0]+"</div><input type=\"number\" data-q=\""+i+"\" placeholder=\"kishi\" inputmode=\"numeric\"></div>";}).join("")+"<div class=\"row\" style=\"margin-top:14px\"><button class=\"btn\" id=\"cOk\">Javobni topshirish</button></div></div></div>");
+  function calc(){var F=+$("rF").value,P=+$("rP").value,V=+$("rV").value,Sp=+$("rS").value;$("cF").textContent=F.toLocaleString("ru-RU");$("cP").textContent=P;$("cV").textContent=V;$("cS").textContent=Sp.toLocaleString("ru-RU");
+    var d=P-V;var be=d>0?Math.ceil(Math.max(0,F-Sp)/d):Infinity;$("cFormula").textContent="("+F.toLocaleString("ru-RU")+" − "+Sp.toLocaleString("ru-RU")+") ÷ ("+P+" − "+V+")";$("cOut").textContent=isFinite(be)?be+" kishi":"badal xarajatni qoplamaydi!";}
+  ["rF","rP","rV","rS"].forEach(function(id){$(id).addEventListener("input",calc);});calc();
+  $("cOk").addEventListener("click",function(){var ins=[].slice.call(document.querySelectorAll("[data-q]"));if(ins.some(function(x){return x.value==="";})){toast("Ikkala savolga javob yozing");return;}
+    $("cOk").disabled=true;var ok=0;ins.forEach(function(x,i){var g=+x.value===sc.qs[i][1];if(g)ok++;x.className=g?"ok":"bad";x.disabled=true;});
+    var p=award(sc.m,ok*MX[sc.m].max/sc.qs.length);var ch=apply({rep:ok===2?4:0});
+    finishScene(ok===2?"good":ok===1?"mid":"bad",earned(p,sc.m)+"<b>"+ok+" / 2 to‘g‘ri.</b> Javoblar: "+sc.qs.map(function(q,i){return (i+1)+" — "+q[1]+" kishi ("+q[2]+")";}).join("; ")+". "+sc.fb+chipsHtml(ch));});
+  startTimer();}
+
+function rBuilder(sc){var picked={};var B=900;
+  $("stage").innerHTML=frame(sc,"<div class=\"bgrid\"><div class=\"acts\">"+sc.acts.map(function(a,i){return "<button class=\"act\" data-i=\""+i+"\" aria-pressed=\"false\"><div>"+a[0]+"</div><div class=\"c\">"+(a[1]?"$"+a[1]:"bepul")+" / kishi</div><div class=\"tags\">"+a[2].map(function(t){return "<span>"+t+"</span>";}).join("")+"</div></button>";}).join("")+
+  "</div><div class=\"budgetbox\"><div style=\"font-size:13px;opacity:.8\">Bir kishiga sarf</div><div class=\"big\" id=\"bSp\">$0</div><div class=\"bar\"><i id=\"bBar\"></i></div><div style=\"font-size:13px;opacity:.8\" id=\"bNote\"></div><ul class=\"checks\" id=\"bChk\"></ul><button class=\"btn gold\" id=\"bOk\" style=\"width:100%;margin-top:12px\">Dasturni topshirish</button></div></div><div class=\"bfloat on\" id=\"bFloat\"><span class=\"f\">💵 <span id=\"bfS\">$0</span> / $900 · ✓ <span id=\"bfC\">0</span>/5</span><button class=\"btn sm gold\" id=\"bfOk\">Topshirish</button></div>");
+  var CR=[["Byudjetdan oshmagan ($900)",function(s,t){return s>0&&s<=B;}],["Team-building (jamoaviy) tadbir bor",function(s,t){return t.jamoaviy>=1;}],["«Unutilmas» eksklyuziv tadbir bor",function(s,t){return t.eksklyuziv>=1;}],["Mukofotlash marosimi bor",function(s,t){return t.motivatsiya>=1;}],["Kamida 2 ta madaniy tadbir",function(s,t){return t.madaniyat>=2;}]];
+  function st(){var s=0,t={};sc.acts.forEach(function(a,i){if(picked[i]){s+=a[1];a[2].forEach(function(x){t[x]=(t[x]||0)+1;});}});return [s,t];}
+  function upd(){var r=st();$("bSp").textContent="$"+r[0];$("bSp").style.color=r[0]>B?"#ff8a80":"";$("bBar").style.width=Math.min(100,r[0]/B*100)+"%";$("bBar").style.background=r[0]>B?"#ff8a80":"";
+    $("bNote").textContent="Byudjet $900 · 50 kishi uchun jami $"+(r[0]*50).toLocaleString("ru-RU").replace(/ /g," ");
+    $("bChk").innerHTML=CR.map(function(c){var ok=c[1](r[0],r[1]);return "<li class=\""+(ok?"ok":"")+"\"><i>"+(ok?"✓":"·")+"</i>"+c[0]+"</li>";}).join("");
+    $("bfS").textContent="$"+r[0];$("bfS").style.color=r[0]>B?"#ff8a80":"";$("bfC").textContent=CR.filter(function(c){return c[1](r[0],r[1]);}).length;}
+  [].forEach.call(document.querySelectorAll(".act"),function(b){b.addEventListener("click",function(){var i=+b.dataset.i;picked[i]=!picked[i];b.setAttribute("aria-pressed",picked[i]?"true":"false");upd();});});
+  upd();
+  $("bfOk").addEventListener("click",function(){$("bOk").click();});
+  $("bOk").addEventListener("click",function(){var r=st();if(!r[0]){toast("Avval tadbirlarni tanlang");return;}$("bFloat").classList.remove("on");$("bOk").disabled=true;[].forEach.call(document.querySelectorAll(".act"),function(b){b.disabled=true;});
+    var ok=CR.filter(function(c){return c[1](r[0],r[1]);}).length;var extra=r[1]["o‘qitish"]?" Eslatma: 8 soatlik trening insentiv safarni «ish safari»ga aylantiradi — insentivda rag‘bat va taassurot ustun bo‘lishi kerak.":"";
+    var ch=apply({rep:ok>=4?6:-4});var p=award(sc.m,ok);
+    finishScene(ok===5?"good":ok>=3?"mid":"bad",earned(p,sc.m)+"<b>"+ok+" / 5 mezon bajarildi.</b> "+(ok>=4?msgInline("MU","Ajoyib! Menejerlarimiz bu safarni yillar davomida eslaydi. Keyingi yil ham Samarqandni tanlaymiz."):msgInline("MU","Dastur o‘rtacha chiqdi. Menejerlar uchun bu oddiy sayohatdan farq qilmaydi."))+" Insentiv — pul bilan emas, unutilmas taassurot bilan mukofotlash: motivatsiya, sodiqlik, jamoaviy ruh."+extra+chipsHtml(ch));});
+  startTimer();}
+function msgInline(w,t){return "<i>«"+t+"» — "+CAST[w].n+"</i>";}
+
+function rReport(sc){var P=1200,D=4,T=120,K=2.5;var mice=P*D*T*K,bl=P*(S.bleisure/100)*2*T,tot=mice+bl;
+  var SH=[["Mehmonxona",.40],["Restoran va keytering",.20],["Transport",.15],["Savdo va suvenirlar",.10],["Madaniyat va ekskursiya",.10],["Boshqa xizmatlar",.05]];
+  var F=["Iqtisodiy","Mavsumiylikni kamaytirish","Imij","Bilim («bilim turizmi»)","Savdo va investitsiya","Infratuzilma","Ijtimoiy-madaniy"];
+  $("stage").innerHTML=frame(sc,"<div class=\"econ\"><div><div class=\"muted\" style=\"font-size:14px\">Delegatlarning to‘g‘ridan-to‘g‘ri xarajati</div><div class=\"big\">"+money(tot)+"</div><div class=\"muted\" style=\"font-size:14px\">Kongress: "+money(mice)+" · bleisure ("+S.bleisure+"% delegat qoldi): "+money(bl)+"<br>Hisob: 1 200 kishi × 4 kun × $120 × 2,5 (MICE delegati oddiy turistdan 2–3 baravar ko‘p sarflaydi). Ulushlar shartli.</div></div><div class=\"bars\">"+
+   SH.map(function(s){return "<div class=\"b\"><span>"+s[0]+"</span><span class=\"track\"><i data-w=\""+(s[1]/.4*100)+"\"></i></span><span class=\"v\">"+money(tot*s[1])+"</span></div>";}).join("")+"</div></div>"+
+   "<h3 style=\"margin-top:18px\">Hisobotga qo‘shing: har bir natija MICE’ning qaysi funksiyasi?</h3>"+sc.facts.map(function(f,i){return "<div class=\"mrow\"><div>"+(i+1)+". "+f[0]+"</div><select data-f=\""+i+"\"><option value=\"\">— funksiyani tanlang —</option>"+F.map(function(x){return "<option>"+x+"</option>";}).join("")+"</select></div>";}).join("")+
+   "<div class=\"row\" style=\"margin-top:14px\"><button class=\"btn\" id=\"rOk\">Hisobotni yuborish</button></div>");
+  setTimeout(function(){[].forEach.call(document.querySelectorAll(".bars i"),function(i){i.style.width=i.dataset.w+"%";});},60);
+  $("rOk").addEventListener("click",function(){var sels=[].slice.call(document.querySelectorAll("[data-f]"));if(sels.some(function(s){return !s.value;})){toast("Hamma qatorlarni to‘ldiring");return;}
+    $("rOk").disabled=true;var ok=0;sels.forEach(function(s,i){var g=s.value===sc.facts[i][1];if(g)ok++;s.className=g?"ok":"bad";s.disabled=true;});
+    var ch=apply({rep:ok>=3?5:0});var p=award(sc.m,ok);
+    finishScene(ok===4?"good":ok>=2?"mid":"bad",earned(p,sc.m)+"<b>"+ok+" / 4 to‘g‘ri.</b> To‘g‘ri javoblar: "+sc.facts.map(function(f,i){return (i+1)+" — "+f[1];}).join("; ")+". MICE destinatsiyaga yettita foyda beradi: iqtisodiy, mavsumiylikni kamaytirish, imij, bilim, savdo va investitsiya, infratuzilma, ijtimoiy-madaniy."+chipsHtml(ch));});
+  startTimer();}
+
+function rVote(sc){var me=clamp(Math.round(5+(S.rep-50)/4),2,11),rest=15-me,a=Math.ceil(rest*0.55),b=rest-a;S.won=me>a&&me>b;
+  var rows=[["Samarqand",me,true],["Olmaota",a],["Tbilisi",b]];
+  $("stage").innerHTML=frame(sc,"<div class=\"vote\">"+rows.map(function(r){return "<div class=\"v"+(r[2]?" me":"")+"\"><span>"+r[0]+"</span><span class=\"t\"><i data-w=\""+(r[1]/15*100)+"\"></i></span><span>"+r[1]+" ovoz</span></div>";}).join("")+"</div>");
+  setTimeout(function(){[].forEach.call(document.querySelectorAll(".vote i"),function(i){i.style.width=i.dataset.w+"%";});},80);
+  setTimeout(function(){if(S.won){confetti();beep("win");var ch=apply({rep:5});finishScene("good","🎉 <b>Samarqand g‘olib!</b> MOKA kengashi 15 ovozdan "+me+" tasini berdi. Kuchli bid paketi va inspeksiya safari o‘z ishini qildi. Endi kongressni tashkil etish «Silk Road Events» PCO’ga, ya’ni sizga topshirildi."+chipsHtml(ch));}
+    else{var ch2=apply({budget:-12000,rep:-5});finishScene("mid","😬 <b>Birinchi turda yutib bo‘lmadi.</b> Ikkinchi turda Samarqand g‘olib bo‘ldi, lekin kengash qo‘shimcha kafolat so‘radi: kongress markazi ijarasiga chegirma. Saboq: bid paketiga faqat kuchli dalillarni kiriting va kengashni shaharga taklif qiling. Kongressni tashkil etish baribir sizga topshirildi."+chipsHtml(ch2));}},1500);}
+
+/* ---------- content ---------- */
+var CRISES=[
+ {title:"Sinxron tarjimon kasal bo‘lib qoldi",crisis:"Kongressning 2-kuni, 08:10. Asosiy zalda 09:00 da plenar sessiya.",who:"TB",
+  text:"Ingliz–rus juftligidagi sinxron tarjimonimiz kasal. Zal to‘la, 28 davlatdan delegatlar. Siz loyiha menejerisiz — nima qilamiz?",
+  opts:[{t:"PCO zaxira ro‘yxatidagi tarjimonni chaqiramiz, u kelguncha masofaviy tarjima platformasini ulaymiz",cost:"−$2 000",e:{budget:-2000,sat:5},best:true,fb:"To‘g‘ri! Professional PCO doimo zaxira kadrlar ro‘yxatiga ega (B rejasi). Raqamli texnologiyalar — bugungi MICE’ning odatiy vositasi."},
+        {t:"Ingliz tilini biladigan talaba-ko‘ngillini kabinaga o‘tqazamiz",cost:"$0",e:{sat:-10,rep:-5},fb:"Xavfli: tibbiy terminologiyadagi xato butun sessiyani buzadi. Sinxron tarjima — professional xizmat."},
+        {t:"Sessiyani tarjimasiz o‘tkazamiz, slaydlar ingliz tilida bor",cost:"$0",e:{sat:-14},fb:"Delegatlarning bir qismi ma’ruzani tushunmaydi — mamnunlik keskin pasayadi."}]},
+ {title:"To‘g‘ridan-to‘g‘ri reys yo‘q",crisis:"Kongressdan 2 hafta oldin. 300 delegat Toshkent orqali keladi.",who:"JR",
+  text:"300 delegatning shahridan Samarqandga to‘g‘ridan-to‘g‘ri reys yo‘q, ular Toshkentga qo‘nadi. Qanday yechim?",
+  opts:[{t:"DMC Toshkent aeroportidan vokzalgacha transfer va tezyurar poyezdda guruh chiptalarini tashkil qiladi; rasmiy tashuvchi aviakompaniya chegirma beradi",cost:"−$6 000",e:{budget:-6000,sat:10},best:true,fb:"To‘g‘ri! Transfer — DMC vazifasi, chegirma — rasmiy tashuvchi bilan kelishuv. Tomas Kuk ham 1851-yilda aynan shunday ish qilgan: tadbir va sayohatni birlashtirgan."},
+        {t:"Delegatlarga «o‘zingiz yetib kelasiz» deb xabar yuboramiz",cost:"$0",e:{sat:-18},fb:"Tadbirning o‘zi yetmaydi — odamlarni unga olib borish kerak. Delegatlar adashadi va norozi bo‘ladi."},
+        {t:"Har bir delegatga taksi pulini qaytaramiz",cost:"−$25 000",e:{budget:-25000,sat:4},ok:true,fb:"Ishlaydi, lekin juda qimmat va tartibsiz: 300 ta alohida taksi o‘rniga guruhli transfer arzon va qulay."}]},
+ {title:"Gala-kecha kuni kuchli yomg‘ir",crisis:"Kongressning 3-kuni, 15:00. Gala-kecha Registonda, ochiq osmon ostida, 19:00 da.",who:"TB",
+  text:"Ob-havo xizmati kechqurun kuchli yomg‘ir bo‘lishini aytdi. 1 200 kishilik gala-kecha xavf ostida!",
+  opts:[{t:"Oldindan kelishilgan B-reja: «Abadiy shahar» majmuasidagi yopiq zalga ko‘chamiz, event-agentlik sahnani ko‘chiradi",cost:"−$4 000",e:{budget:-4000,sat:6,rep:5},best:true,fb:"To‘g‘ri! Ochiq havodagi har bir tadbir uchun B-reja bo‘lishi shart (risk strategiyasi: oldini olish). Event-agentlik g‘oyadan amalga oshirishgacha javob beradi."},
+        {t:"Delegatlarga soyabon tarqatib, rejani o‘zgartirmaymiz",cost:"−$1 500",e:{budget:-1500,sat:-15},fb:"Ho‘l kiyimli, sovqotgan delegatlar — kongressning eng yomon xotirasi."},
+        {t:"Gala-kechani bekor qilamiz",cost:"$0",e:{sat:-10,rep:-8},fb:"Homiy va delegatlar uchun gala-kecha — netvorkingning eng muhim joyi. Bekor qilish obro‘ga zarar."}]},
+ {title:"220 delegat kela olmaydi",crisis:"Kongressdan 1 oy oldin.",who:"NK",
+  text:"Viza va byudjet muammolari tufayli 220 delegat Samarqandga kela olmasligini yozdi. Ular baribir ma’ruzalarni eshitmoqchi.",
+  opts:[{t:"Gibrid format: asosiy sessiyalarni onlayn translyatsiya qilamiz, onlayn ishtirok uchun alohida pullik ro‘yxat ochamiz",cost:"−$3 000, lekin onlayn badallardan +$9 000",e:{budget:6000,rep:6},best:true,fb:"To‘g‘ri! Pandemiyadan keyin gibrid format odatiy bo‘ldi: jonli muloqot qaytdi, onlayn esa to‘ldiruvchi sifatida qoldi."},
+        {t:"Ularni ishtirokchilar ro‘yxatidan chiqaramiz",cost:"$0",e:{rep:-6},fb:"Assotsiatsiya a’zolarini yo‘qotish — keyingi kongresslar uchun ham xavf."},
+        {t:"Kongressni 2 yilga ko‘chirishni taklif qilamiz",cost:"$0",e:{rep:-18,sat:-5},fb:"Juda keskin: assotsiatsiya tadbiri yillar oldin rejalashtirilgan, ko‘chirish hammaning rejasini buzadi."}]},
+ {title:"Homiy foydani so‘rayapti",crisis:"Kongressdan keyin 1 hafta.",who:"MU",
+  text:"Biz kongressga katta homiylik qildik. Direktorlar kengashi so‘rayapti: bu pul o‘zini oqladimi?",
+  opts:[{t:"ROI hisobotini tayyorlaymiz: stendga kelganlar soni, yig‘ilgan kontaktlar (lidlar), OAVdagi eslatmalar, delegatlar so‘rovnomasi (NPS)",cost:"$0",e:{rep:8},best:true,fb:"To‘g‘ri! 2008-yilgi moliyaviy inqirozdan keyin har bir tadbir foydasini — ROI’ni — o‘lchash talab qilinadi. KPI: davomat, qoniqish, NPS, lidlar."},
+        {t:"«Tadbir juda yaxshi o‘tdi, rahmat» degan xat yuboramiz",cost:"$0",e:{rep:-8},fb:"Raqamlarsiz minnatdorlik xati homiyni ishontirmaydi — keyingi yil u boshqa tadbirni tanlaydi."},
+        {t:"Keyingi yil homiylik narxiga 50% chegirma va’da qilamiz",cost:"−$5 000",e:{budget:-5000,rep:-2},fb:"Chegirma savolga javob emas: homiy foydani ko‘rmoqchi."}]}
+];
+
+var SCENES=[
+ {type:"intro"},
+ {type:"rounds",m:"toifa",tag:"1-bob · Brif",title:"Ofisga 4 ta buyurtma keldi — bu qaysi toifa?",who:"TB",
+  text:"Xush kelibsiz, «Silk Road Events»ga! Siz bugundan loyiha menejerisiz. Ertalab 4 ta so‘rov keldi. Har birini MICE’ning qaysi toifasiga kirishini aniqlang — shunda kim bilan qanday ishlashni bilamiz.",
+  hint:"<b>M</b> — kompaniya uchrashuvi (tez, yopiq); <b>I</b> — mukofot safari (ishsiz!); <b>C</b> — assotsiatsiya kongressi (badal, yillar oldin); <b>E</b> — stend va eksponentlar.",
+  rounds:[["«UzMedExpo»: 180 kompaniya stendlarda yangi tibbiy uskunalarni shifokorlarga ko‘rsatmoqchi, joy ijaraga olinadi","E","Exhibitions: eksponent stendda namunani ko‘rsatadi va buyurtma oladi (B2B)."],
+          ["Bankning 15 kishilik rahbariyati yopiq zalda yillik strategiyani muhokama qiladi, 2 hafta ichida tashkil etish kerak","M","Meetings: kichik, tez rejalashtiriladi, maxfiylik yuqori, kompaniya to‘laydi."],
+          ["Savdo rejasini oshirib bajargan 20 nafar diler Xivaga 4 kunlik mukofot safariga yuboriladi — hech qanday trening yo‘q","I","Incentives: mukofot sifatida beriladigan safar; maqsad — motivatsiya va sodiqlik."],
+          ["Markaziy Osiyo kardiologlari assotsiatsiyasi 2027-yilgi yillik kongressini 1 200 delegat uchun o‘tkazmoqchi; har delegat badal to‘laydi","C","Conventions: assotsiatsiya tadbiri, ishtirok ixtiyoriy, badal, joy yillar oldin tanlanadi."]],
+  fb:"MICE’ning to‘rt segmenti turlicha tashkil etiladi: uchrashuv kichik va tez, insentiv — mukofot, kongress yillar oldin rejalashtiriladi, ko‘rgazma eng ko‘p odam yig‘adi."},
+ {type:"match",m:"smart",tag:"1-bob · Brif",title:"Kongress maqsadlarini SMART qiling",who:"NK",
+  text:"MOKA (Markaziy Osiyo kardiologlari assotsiatsiyasi) kongress o‘tkazmoqchi. Men maqsadni «ko‘p odam kelsin, hamma mamnun bo‘lsin» deb yozdim. Siz esa professional: har bir noaniq maqsadga SMART variantini tanlang.",
+  hint:"SMART = aniq, o‘lchanadigan (raqam!), erishiladigan, ahamiyatli, muddatli (sana!).",
+  options:["15 mamlakatdan kamida 1 200 nafar pullik delegat 2027-yil 1-sentabrgacha ro‘yxatdan o‘tadi","Kongressdan 3 oy oldin jami 80 000 dollarlik homiylik shartnomalari imzolanadi","So‘rovnomada delegatlarning 85 foizi umumiy bahoni «yaxshi» yoki «a’lo» deb belgilaydi","Kongress juda yaxshi o‘tadi va hammaga yoqadi"],
+  rows:[["«Ko‘p odam kelsin»","15 mamlakatdan kamida 1 200 nafar pullik delegat 2027-yil 1-sentabrgacha ro‘yxatdan o‘tadi"],["«Homiylarni jalb qilish»","Kongressdan 3 oy oldin jami 80 000 dollarlik homiylik shartnomalari imzolanadi"],["«Ishtirokchilar mamnun bo‘lsin»","So‘rovnomada delegatlarning 85 foizi umumiy bahoni «yaxshi» yoki «a’lo» deb belgilaydi"]],
+  fb:"SMART maqsadsiz tadbirni baholab bo‘lmaydi: oxirida «maqsadga erishdikmi?» savoliga raqam bilan javob berish kerak.",
+  eff:function(ok){return {rep:ok===3?4:0};}},
+ {type:"multi",m:"bid",tag:"2-bob · Bid",title:"Bid paketini tayyorlang",who:"JR",n:3,
+  text:"MOKA kengashi 2027-yilgi kongress uchun uchta shaharni ko‘rib chiqmoqda: <b>Samarqand, Olmaota va Tbilisi</b>. Byuro (CVB) va PCO birga bid tayyorlaydi. Paketga eng kuchli <b>3 ta dalilni</b> kiriting — kengash a’zolari uzun matn o‘qimaydi.",
+  hint:"Kongress joyini tanlashda hal qiluvchi: joy va sig‘im, tajriba, qulay kirish, imij.",
+  opts:[{t:"«Silk Road Samarkand» kongress markazi: 12 zal, ~18 000 m², tarixiy markazgacha 7 km",good:true,rep:8,fb:"Kongress uchun avvalo joy va sig‘im muhim."},
+        {t:"Xalqaro tajriba: ShHT sammiti (2022), UN Tourism Bosh assambleyasi (2023), YuNESKO Bosh konferensiyasi (2025)",good:true,rep:8,fb:"Shahar yirik tadbirlarni o‘tkaza olishini isbotlagan."},
+        {t:"«Ming yillik uchrashuvlar chorrahasi» — Buyuk Ipak yo‘li brendi",good:true,rep:8,fb:"Imij g‘oyasi: bunday tarix raqib shaharlarda yo‘q."},
+        {t:"Vizasiz rejim, elektron viza va tezyurar poyezdlar",good:true,rep:8,fb:"28 davlatdan keladigan delegatlar uchun kirish oson."},
+        {t:"Samarqand noni dunyoda eng mazali",rep:-4,fb:"Yoqimli, lekin kongress joyini tanlashda hal qiluvchi emas."},
+        {t:"Shaharda yangi savdo markazi ochildi",rep:-4,fb:"Delegatlar uchun ikkinchi darajali, kengashni ishontirmaydi."},
+        {t:"Kongress joyini oxirgi oyda ham tayyorlab bera olamiz",rep:-8,fb:"Assotsiatsiya tadbirlari 2–7 yil oldin rejalashtiriladi; shoshilinchlik ishonchsizlik belgisi."}],
+  sum:"Bid — assotsiatsiya tadbiri uchun shaharlar o‘rtasidagi tanlov. Bu yerda joy, tajriba, imij va qulaylik hal qiladi."},
+ {type:"choice",m:"insp",tag:"2-bob · Bid",title:"Kengash shaharni ko‘rmoqchi",who:"JR",
+  text:"MOKA kengashidan 6 kishi qaror qilishdan oldin Samarqandni o‘z ko‘zi bilan ko‘rmoqchi. Byuro sifatida nima taklif qilamiz?",
+  hint:"«Hech qanday fotosurat joyida ko‘rishning o‘rnini bosa olmaydi» — site inspection.",
+  opts:[{t:"Byuro hisobidan bepul inspeksiya safari: kongress markazi, mehmonxonalar, DMC va gala-kecha joylarini ko‘rsatamiz, ishtirokchi yo‘lini bosib o‘tamiz",cost:"−$8 000",e:{budget:-8000,rep:12},best:true,fb:"To‘g‘ri! Bepul maslahat va inspeksiya safari — konvensiya byurosining asosiy vositasi. Byuro shaharni «sotadi»."},
+        {t:"Faqat PDF-taqdimot va video yuboramiz",cost:"$0",e:{rep:-6},ok:true,fb:"Tejamkor, lekin raqib shaharlar kengashni o‘ziga taklif qilsa, siz yutqazasiz."},
+        {t:"Kengash a’zolariga qimmatbaho sovg‘alar jo‘natamiz",cost:"−$15 000",e:{budget:-15000,rep:-12},fb:"Xavfli: tanlov (tender) shaffof bo‘lishi kerak. Bu obro‘ga jiddiy zarar."}]},
+ {type:"vote",tag:"2-bob · Bid",title:"MOKA kengashi ovoz bermoqda…",text:"15 kengash a’zosi uch shahar uchun ovoz beradi. Natija sizning obro‘ingizga bog‘liq (bu bosqichda ball yo‘q)."},
+ {type:"sort",m:"jamoa",tag:"3-bob · Reja",title:"Kim nima qiladi?",who:"TB",
+  text:"Tabriklayman! Endi kongressni tayyorlaymiz. Siz loyiha menejeri sifatida har bir vazifani to‘g‘ri ijrochiga topshiring — xato taqsimot tartibsizlikka olib keladi.",
+  hint:"PCO — kongressning o‘zi; DMC — shahar ichidagi xizmatlar; CVB — shaharni targ‘ib qilish; event-agentlik — shou.",
+  bins:[["PCO","Kongressni boshqaradi"],["DMC","Joyidagi xizmatlar"],["CVB (byuro)","Shaharni targ‘ib qiladi"],["Event-agentlik","Shou va tadbirlar"]],
+  cards:[["Ilmiy dastur va spikerlar jadvali",0],["Delegatlarni ro‘yxatga olish va badallar",0],["Homiylik paketlari va ko‘rgazma zonasi",0],["Aeroport va vokzaldan transfer",1],["Registon va Shohi Zinda ekskursiyalari",1],["Gid-tarjimonlar va hamrohlar dasturi",1],["Keyingi xalqaro tadbirlarni shaharga jalb qilish",2],["Tashkilotchini mahalliy hamkorlar bilan tanishtirish",2],["Gala-kecha sahnasi, yorug‘lik va shou",3],["Delegatlar uchun team-building o‘yinlari",3]],
+  fb:"PCO tadbirning o‘zini boshqaradi, DMC shahar ichidagi xizmatlarni, CVB shaharni targ‘ib qiladi, event-agentlik shou va tadbirlarni amalga oshiradi. Karvonsaroyning barcha vazifalari bugun shu tomonlar o‘rtasida bo‘lingan.",
+  eff:function(ok){return {sat:Math.round((ok-5)*1.5)};}},
+ {type:"choice",m:"sana",tag:"3-bob · Reja",title:"Kongress sanasini tanlang",who:"NK",
+  text:"Kengash to‘rtta sanani muhokama qilmoqda. Siz qaysi birini tavsiya qilasiz?",
+  hint:"Sana tanlashda: bayramlar, turistik mavsum, ob-havo, auditoriya kalendari, hafta kunlari (seshanba–payshanba qulay).",
+  opts:[{t:"<b>2027-yil iyul</b>, juma–dushanba",e:{sat:-10},fb:"Yoz — dam olish turizmining mavsumi: mehmonxonalar qimmat va band, havo issiq. Dam olish kunlari delegatlar ishdan tashqarida."},
+        {t:"<b>2027-yil oktyabr</b>, seshanba–juma",e:{sat:8},best:true,fb:"To‘g‘ri! MICE tadbirlari bahor (mart–may) va kuzda (sentyabr–noyabr), ish kunlarida o‘tadi. Shunda mehmonxonalar yil bo‘yi to‘la ishlaydi."},
+        {t:"<b>2028-yil yanvar</b>, ish kunlari",e:{sat:-6},ok:true,fb:"Past mavsum mehmonxonalarga foydali, lekin qishki ob-havo 28 davlatdan keladigan delegatlar uchun noqulay."},
+        {t:"<b>21–24-mart</b>, Navro‘z bayrami kunlari",e:{sat:-10},fb:"Bayram — dam olish turizmining cho‘qqisi: joy yo‘q, narxlar yuqori."}]},
+ {type:"match",m:"zal",tag:"3-bob · Reja",title:"Har bir sessiyaga zal sxemasini tanlang",who:"TB",
+  text:"Kongress markazi bizdan har bir sessiya uchun o‘tirish sxemasini so‘rayapti. Noto‘g‘ri sxema — kam sig‘im yoki noqulay ish.",
+  hint:"Teatr — maksimal sig‘im, stol yo‘q; sinf — yozish uchun stol; U-shakl — 20–40 kishilik muhokama; boardroom — bitta katta stol; banket — dumaloq stollar; kabare — guruh ishi.",
+  options:["Teatr","Sinf (klass)","U-shakl","Boardroom","Banket","Kabare"],
+  rows:[["Plenar sessiya: 1 200 delegat, ma’ruzalar","Teatr"],["Vorkshop: 30 shifokor yozib boradi, stol kerak","Sinf (klass)"],["MOKA boshqaruvi: 12 kishi, bitta katta stol atrofida muzokara","Boardroom"],["Gala-kecha: 8–10 kishilik dumaloq stollar, taqdirlash","Banket"]],
+  fb:"Sxema maqsadga qarab tanlanadi. Eslab qoling: 100 m² zalga teatrda ~90 kishi, sinfda ~50 kishi, banketda ~60 kishi sig‘adi."},
+ {type:"calc",m:"byudjet",tag:"3-bob · Reja",title:"Byudjet: nechta delegat kerak?",who:"TB",
+  text:"Moliya bo‘limi raqamlarni berdi: <b>doimiy xarajatlar $60 000</b> (zal $25 000, texnika $15 000, spikerlar $12 000, marketing $8 000), <b>badal $300</b>, <b>bir delegatga o‘zgaruvchan xarajat $100</b> (ovqat, bej, sumka). Zararsizlik nuqtasini hisoblang.",
+  hint:"Doimiy xarajat ishtirokchi soniga bog‘liq emas; o‘zgaruvchan — har bir kishi uchun. Homiylik doimiy xarajatni qoplaydi.",
+  qs:[["Homiysiz kongress zararsiz bo‘lishi uchun kamida nechta pullik delegat kerak?",300,"60 000 ÷ (300 − 100)"],["«NovaFarm» $20 000 homiylik berdi. Endi kamida nechta delegat kerak?",200,"(60 000 − 20 000) ÷ 200"]],
+  fb:"Byudjetning oltin qoidalari: daromadni pessimistik, xarajatni to‘liq hisoblang; 5–10% (Perk: ~20%) zaxira qoldiring; reja va haqiqatni muntazam solishtiring."},
+ {type:"choice",m:"joy",tag:"3-bob · Reja",title:"1 200 delegatni qayerga joylashtiramiz?",who:"TB",
+  text:"Kongressgacha bir yil qoldi. Joylashtirish bo‘yicha qaror kerak.",
+  hint:"Yirik tadbir uchun xonalar bloki (room block) oldindan bron qilinadi; rooming list — mehmonlarni xonalarga taqsimlash ro‘yxati.",
+  opts:[{t:"Hozirdan turli toifadagi 4 ta mehmonxonada 650 xonalik blokni kafolat bilan bron qilamiz",cost:"−$10 000 depozit",e:{budget:-10000,sat:10},best:true,fb:"To‘g‘ri! Yirik tadbirlar uchun xonalar bloki oldindan bron qilinadi — narx va joy kafolatlanadi. Turli toifa — turli byudjetli delegatlar uchun."},
+        {t:"Delegatlar o‘zlari bron qilishsin",cost:"$0",e:{sat:-15},fb:"Kongress kunlari narxlar oshadi va joy qolmaydi — delegatlar norozi."},
+        {t:"Faqat bitta 5 yulduzli mehmonxonada 150 xona",cost:"−$4 000",e:{budget:-4000,sat:-8},ok:true,fb:"Sig‘im yetmaydi va ko‘pchilik uchun qimmat: turli toifadagi mehmonxonalar kerak."}]},
+ {type:"match",m:"shart",tag:"3-bob · Reja",title:"Mehmonxona shartnomasi: bu qaysi band?",who:"TB",
+  text:"Mehmonxona shartnoma loyihasini yubordi. Yurist yo‘q, siz borsiz. Har bir tavsifga shartnoma bandining nomini tanlang.",
+  hint:"Hamma kelishuv faqat yozma. Diqqat: cancellation, attrition, force majeure, DDR, sug‘urta, raqobat bandi.",
+  options:["Attrition","Cancellation (bekor qilish)","Force majeure","DDR (Day Delegate Rate)","Raqobat bandi"],
+  rows:[["Bron qilingan 650 xonaning 20 foizidan jarimasiz voz kechish mumkin","Attrition"],["Tadbir 90 kundan kam vaqt qolganda bekor qilinsa — 50% jarima","Cancellation (bekor qilish)"],["Epidemiya, tabiiy ofat yoki davlat qarorida tomonlar majburiyatdan ozod","Force majeure"],["Bir delegatga bir kunlik paket: zal + texnika + 2 kofe-breyk + tushlik = $45","DDR (Day Delegate Rate)"]],
+  fb:"Shartnomada hajm va to‘lov jadvali, cancellation, attrition, force majeure, sug‘urta va raqobat bandi alohida tekshiriladi."},
+ {type:"order",m:"ros",tag:"4-bob · Tadbir kuni",title:"Gala-kecha ssenariysi (run of show)",who:"TB",
+  text:"Gala-kecha ertaga. Event-agentlik daqiqama-daqiqa ssenariyni so‘rayapti. Bosqichlarni to‘g‘ri tartibga keltiring (birinchi — yuqorida).",
+  hint:"Run of show: kim, qachon, qayerda, nima qiladi. Avval jamoa tayyorlanadi, keyin mehmonlar kiradi, so‘ng rasmiy qism, oxirida ovqat va shou.",
+  items:["Xodimlar brifingi va texnik repetitsiya (ovoz, yorug‘lik, mikrofon)","Mehmonlarni kutib olish, ro‘yxatdan o‘tkazish, stollarga yo‘naltirish","Zal chirog‘i pasayadi, kirish musiqasi","Boshlovchi chiqadi va kechani ochadi","Rais (mezbon) tabrik nutqi · mikrofon 1","Video-rolik: kongress natijalari · zal qorong‘i","Taqdirlash marosimi · fanfar musiqa","Kechki ovqat servisi va shou-dastur"],
+  fb:"Tadbir kunining 6 vositasi: ssenariy (run of show), funksional varaqa (BEO), aloqa tizimi, brifing, repetitsiya, B rejasi."},
+ "CRISES",
+ {type:"sort",m:"risk",tag:"4-bob · Tadbir kuni",title:"Risk matritsasi: qaysi strategiya?",who:"TB",
+  text:"Kongressdan keyin tahlil qilamiz: har bir risk va unga javobni to‘g‘ri strategiya ustuniga joylang.",
+  hint:"Oldini olish — xavfli variantdan voz kechish; kamaytirish — zaxira va tayyorgarlik; o‘tkazish — sug‘urta va shartnoma; qabul qilish — kichik risk, zaxira byudjet.",
+  bins:[["Oldini olish","avoid"],["Kamaytirish","reduce"],["O‘tkazish","transfer"],["Qabul qilish","accept"]],
+  cards:[["Yomg‘ir xavfi — gala-kechani boshidanoq yopiq zalga rejalashtirish",0],["Siyosiy notinch mintaqada tadbir — o‘tkazmaslik",0],["Internet uzilishi — zaxira kanal va generator",1],["Spiker kelmasligi — zaxira spiker va yozib olingan ma’ruza",1],["Uskuna buzilishi yoki o‘g‘irlanishi — sug‘urta",2],["Mehmon jarohat olsa — javobgarlik sug‘urtasi va shartnoma bandi",2],["Kofe-breykka 5% ko‘proq odam kelishi — zaxira byudjetdan",3],["Dasturda kichik bosma xato — tuzatib, davom etish",3]],
+  fb:"Ehtimollik va ta’sir kuchi bo‘yicha baholang: katta va ehtimoli yuqori risklar — oldini olish yoki kamaytirish; qimmat, lekin kam uchraydigan — o‘tkazish (sug‘urta); kichik — qabul qilish."},
+ {type:"builder",m:"ins",tag:"5-bob · Meros",title:"«NovaFarm» uchun 5 kunlik insentiv safar",who:"MU",
+  text:"Biz kongress homiysimiz va shu kunlarda eng yaxshi <b>50 menejerimizni</b> Samarqand, Buxoro va Xivaga 5 kunlik insentiv safarga olib kelamiz. Mehmonxona va transport to‘langan. Qo‘shimcha tadbirlar uchun byudjet — <b>bir kishiga $900</b>. Bizga motivatsiya, sodiqlik va jamoaviy ruh kerak!",
+  hint:"Insentiv — mukofot: ish mashg‘ulotisiz, unutilmas taassurot, jamoaviy ruh, taqdirlash. O‘ng tomondagi 5 mezonni bajaring.",
+  acts:[["Registon maydonida yopiq gala-kecha",260,["eksklyuziv","gala"]],["Palov tayyorlash master-klassi",60,["jamoaviy","madaniyat"]],["G‘ijduvon kulolchilik master-klassi",70,["madaniyat"]],["Xiva Ichan qal’asida jamoaviy kvest",80,["jamoaviy"]],["Buxoro toqlarida xususiy ziyofat",180,["eksklyuziv","madaniyat"]],["Havo sharida parvoz",300,["eksklyuziv"]],["Yillik natijalar va mukofotlash marosimi",40,["motivatsiya"]],["Shahrisabz ekskursiyasi",120,["madaniyat"]],["Mehmonxonada 8 soatlik savdo treningi",50,["o‘qitish"]],["Chorsu va hunarmandlar bozorida erkin vaqt",0,["dam olish"]],["Vertolyotda Samarqand ustidan parvoz",450,["eksklyuziv"]],["Mehmonxonada oddiy kechki ovqat",30,[]]]},
+ {type:"multi",m:"bleis",tag:"5-bob · Meros",title:"Delegatlarni qanday qoldiramiz?",who:"JR",n:2,
+  text:"Hokimlik so‘rayapti: delegatlar kongressdan keyin ham qolib, shaharda pul sarflashi uchun nima taklif qilamiz? <b>2 ta eng samarali</b> chorani tanlang.",
+  hint:"Bleisure = business + leisure: post-tour, hamrohlar dasturi, qaytib kelish.",
+  opts:[{t:"Kongressdan keyingi 3 kunlik Buxoro–Xiva turi (post-tour) maxsus narxda",good:true,sat:4,fb:"Post-tour — bleisure’ning klassik vositasi."},
+        {t:"Hamrohlar dasturi: delegatlarning oila a’zolari uchun ekskursiyalar",good:true,sat:4,fb:"Delegat oilasini olib keladi va ko‘proq qoladi."},
+        {t:"Beyjni ko‘rsatgan delegatlarga muzey va restoranlarda chegirma",good:true,sat:3,fb:"Shahar bo‘ylab xarajatni rag‘batlantiradi."},
+        {t:"Kongress tugashi bilan delegatlarni mehmonxonadan chiqarish",sat:-6,fb:"Teskari natija: delegat shaharni ko‘rmasdan ketadi."},
+        {t:"Post-tourni kongressdan bir kun oldin e’lon qilish",sat:-2,fb:"Juda kech: delegatlar chiptalarini allaqachon olgan."}],
+  sum:"MICE — destinatsiya uchun «eshik ochuvchi» segment: delegat keyin oilasi bilan qaytib keladi.",
+  after:function(sel){S.bleisure=10+sel.filter(function(o){return o.good;}).length*15;}},
+ {type:"report",m:"hisobot",tag:"5-bob · Meros",title:"Hokimlikka hisobot",who:"JR",
+  text:"Kongress tugadi. Hokim kongress shaharga nima berganini bilmoqchi. Raqamlar va xulosalarni tayyorlang.",
+  hint:"MICE’ning 7 funksiyasi: iqtisodiy, mavsumiylikni kamaytirish, imij, bilim, savdo-investitsiya, infratuzilma, ijtimoiy-madaniy.",
+  facts:[["Mehmonxonalar oktyabrda ham, ya’ni past mavsumda ham to‘la bo‘ldi","Mavsumiylikni kamaytirish"],["Kongress haqida 28 davlat OAVida yozildi","Imij"],["Samarqandlik kardiologlar chet elga chiqmasdan yangi usullarni o‘rgandi","Bilim («bilim turizmi»)"],["Kongress markazi va yangi yo‘llar keyin ham aholiga xizmat qiladi","Infratuzilma"]]},
+ {type:"order",m:"tarix",tag:"6-bob · Tarix",title:"«Uchrashuvlar tarixi» videoroligi",who:"NK",
+  text:"Keyingi kongress ochilishida «Agoradan gibrid kongressgacha» videoroligini ko‘rsatamiz. Voqealarni <b>xronologik tartibga</b> keltiring (eng qadimgisi yuqorida).",
+  hint:"1-2-mavzu: agora → karvonsaroy va yarmarkalar → Temuriylar → Billur saroy (1851) → konvensiya byurosi (1896) → ICCA (1963) → Samarqand (2023).",
+  items:["Agora — Qadimgi Yunonistonda savdo va muhokama maydoni","Leypsig yarmarkasi boshlandi (1165)","Klavixo Amir Temur saroyida (1404)","Vena kongressi (1815)","London: Buyuk ko‘rgazma va Billur saroy (1851)","Detroyt: birinchi konvensiya byurosi (1896)","ICCA tuzildi (1963)","Samarqand: UN Tourism Bosh assambleyasi (2023)"],
+  fb:"Xulosa: odamlar doim uchrashgan va savdo qilgan — faqat shakli o‘zgargan: agora va karvonsaroydan kongress markazi va gibrid tadbirgacha."},
+ {type:"blitz",m:"blitz",noFast:true,tag:"6-bob · Final",title:"⚡ Yakuniy blitz: to‘g‘ri yoki noto‘g‘ri?",who:"TB",sec:75,
+  text:"Oxirgi sinov! Kongress muvaffaqiyatli o‘tdi, endi esa direktor sifatida meni tez fikrlashingizga ishontiring. 12 ta fikr — 75 soniya.",
+  items:[["ICCA tadbirni hisobga olishi uchun kamida 50 ishtirokchi va kamida 3 davlat o‘rtasida almashib o‘tishi kerak",true,""],
+   ["Insentiv safarda asosiy vaqt treninglarga ajratiladi",false,"insentiv — mukofot va taassurot"],
+   ["DMC — destinatsiyani boshqarish kompaniyasi",true,""],
+   ["Birinchi konvensiya byurosi 1896-yilda Detroytda tuzilgan",true,""],
+   ["Teatr sxemasida har bir o‘rindiq oldida stol bo‘ladi",false,"stolli — sinf (klass) sxemasi"],
+   ["Assotsiatsiya kongressida ishtirokchi odatda badal to‘laydi",true,""],
+   ["MICE tadbirlari asosan yozgi ta’til mavsumida o‘tadi",false,"bahor va kuz, ish kunlari"],
+   ["Attrition — tadbir bekor qilinganda to‘lanadigan jarima",false,"bu cancellation; attrition — xonalardan jarimasiz voz kechish ulushi"],
+   ["«Billur saroy» 1851-yilgi London ko‘rgazmasi uchun qurilgan",true,""],
+   ["Zararsizlik nuqtasi = doimiy xarajat ÷ (badal − o‘zgaruvchan xarajat)",true,""],
+   ["Force majeure — raqobatchi tadbirini taqiqlovchi band",false,"bu raqobat bandi; force majeure — ofat, epidemiya"],
+   ["UN Tourism mezoni: kamida 10 kishi, kamida 4 soat, ijaraga olingan joy",true,""]]},
+ {type:"final"}
+];
+var FLOW;
+function buildFlow(){FLOW=[];SCENES.forEach(function(s){if(s==="CRISES"){CRISES.forEach(function(c,i){var x=Object.assign({},c);x.type="choice";x.m="inq"+(i+1);x.tag="4-bob · Inqiroz "+(i+1)+"/5";FLOW.push(x);});}else FLOW.push(s);});}
+/* inqirozlar: 5 ta alohida 3 ballik */
+for(var ci=1;ci<=5;ci++)MX["inq"+ci]={id:"inq"+ci,name:"Inqiroz "+ci,max:2};
+buildFlow();
+
+function prog(){var p=$("prog");p.innerHTML=FLOW.slice(1,-1).map(function(s,i){var idx=i+1;var cls=idx<S.i?"done":idx===S.i?"cur":"";if(idx<S.i&&s.m&&S.pts[s.m]===0)cls="zero";return "<i class=\""+cls+"\" title=\""+esc(s.title||"")+"\"></i>";}).join("");
+  $("whoStage").textContent=S.i>0&&S.i<FLOW.length-1?"Bosqich "+S.i+" / "+(FLOW.length-2):"";}
+function go(i){S.i=i;stopTimer();var sc=FLOW[i];$("hudWrap").style.display=(sc.type==="intro")?"none":"";prog();
+  S.t0=Date.now();S.noFast=!!sc.noFast;S.fastMs=({choice:30,rounds:70,multi:45,sort:100,order:75,match:70,calc:110,builder:150,report:100}[sc.type]||60)*1000;if(sc.type!=="intro")saveState();
+  ({intro:rIntro,choice:rChoice,multi:rMulti,sort:rSort,order:rOrder,builder:rBuilder,report:rReport,vote:rVote,rounds:rRounds,match:rMatch,calc:rCalc,blitz:rBlitz,final:rFinal})[sc.type](sc);
+  if(sc.type!=="intro"&&sc.type!=="final")bindTools(sc);
+  var top=$("v-keys").getBoundingClientRect().top+scrollY-10;if(scrollY>top)scrollTo({top:top,behavior:"smooth"});}
+
+function rIntro(){var c=Object.keys(CAST).map(function(k){var x=CAST[k];var ini=x.n.replace("Dr. ","").split(" ").map(function(w){return w[0];}).join("");return "<div><span class=\"ava\" style=\"background:"+x.c+"\">"+ini+"</span><span><b>"+x.n+"</b><br><span class=\"muted\">"+x.r+"</span></span></div>";}).join("");
+  var saved=null;try{saved=JSON.parse(ls("mice6_state")||"null");}catch(e){}
+  var resume=saved&&saved.i>0&&!saved.done&&saved.name?"<div class=\"resume\">⏸ <b>"+esc(saved.name)+"</b>, sizning tugallanmagan missiyangiz bor ("+saved.i+"-bosqich, "+(function(){var t=0;for(var k in saved.pts)t+=saved.pts[k];return t;})()+" ball). <button class=\"btn sm gold\" id=\"tResume\">Davom ettirish</button></div>":"";
+  $("stage").innerHTML="<div class=\"hero scene\"><div class=\"poster\"><span class=\"pill\">Amaliy mashg‘ulot · rolli o‘yin</span><h2 style=\"margin-top:10px\">Siz — «Silk Road Events» PCO loyiha menejerisiz</h2><p style=\"opacity:.9\">Samarqand 2027-yilgi xalqaro kardiologlar kongressi uchun kurashmoqda. Siz buyurtmani qabul qilasiz, bid tayyorlaysiz, jamoani, byudjetni va tadbir kunini boshqarasiz, inqirozlarni yechasiz. Har bir qaror ball beradi.</p>"+
+   "<div class=\"steps\"><div class=\"step\"><b>1</b><span>Ism va guruhni yozing, «Boshlash»ni bosing</span></div><div class=\"step\"><b>2</b><span>"+(FLOW.length-2)+" ta bosqichni bosib o‘ting — har birida maksimal ball ko‘rsatilgan</span></div><div class=\"step\"><b>3</b><span>Natijangiz o‘qituvchiga avtomatik boradi</span></div></div>"+
+   "<p style=\"font-size:13px;opacity:.85;margin-top:14px\">🎯 <b>Baho</b> = bilim (80) + tashkilotchi KPI (20): obro‘, mamnunlik, byudjet. ⭐ <b>XP</b>, 🔥 seriya, unvon va nishonlar — o‘yin uchun. 💡 maslahat bahoni kamaytirmaydi.</p></div>"+
+   "<div class=\"card\">"+resume+"<div class=\"field\"><label for=\"tName\">Ism va familiyangiz</label><input type=\"text\" id=\"tName\" placeholder=\"Masalan: Aziza Karimova\" maxlength=\"60\" autocomplete=\"off\"></div>"+
+   "<div class=\"field\"><label for=\"tGroup\">Guruh</label><input type=\"text\" id=\"tGroup\" placeholder=\"Masalan: TM-23-1\" maxlength=\"30\" autocomplete=\"off\"></div>"+
+   "<h3>Siz bilan ishlaydiganlar</h3><div class=\"cast\">"+c+"</div>"+
+   "<p class=\"muted\" style=\"font-size:13px\">MOKA, «NovaFarm», qahramonlar va raqamlar shartli; faktlar 1–2-mavzu va «Biznes tadbirlarni tashkil etish» ma’ruzasidan.</p>"+
+   "<button class=\"btn gold\" id=\"tGo\" style=\"width:100%;padding:13px\">🚀 Missiyani boshlash</button></div></div>";
+  var tn=$("tName"),tg=$("tGroup");if(saved&&saved.name){tn.value=saved.name;tg.value=saved.group||"";}
+  if($("tResume"))$("tResume").addEventListener("click",function(){S=saved;buildFlow();hud();toast("Davom etamiz, "+S.name+"!");go(S.i);});
+  $("tGo").addEventListener("click",function(){var n=tn.value.trim(),g=tg.value.trim();if(n.length<3){toast("Ism va familiyani yozing");tn.focus();return;}if(!g){toast("Guruhni yozing");tg.focus();return;}
+    resetState();S.name=n;S.group=g;S.key=(g+"_"+n).toLowerCase().replace(/[^a-z0-9а-яёўқғҳ‘’']+/gi,"_");S.attempt=(+ls("mice6_attempt")||0)+1;ls("mice6_attempt",String(S.attempt));$("cwTeam").value=$("cwTeam").value||n;buildFlow();hud();beep("good");sync("start");go(1);});}
+
+function rFinal(){var t0=total(),k=know(),kp=kpiParts(),g0;S.done=true;S.finished=S.finished||Date.now();
+  var inqAll=[1,2,3,4,5].every(function(i){return S.pts["inq"+i]===2;});
+  var BD=[["🔥","Olovli seriya","5 ta ketma-ket mukammal javob",S.best>=5],["🧯","Inqiroz ustasi","5 inqirozda ham eng to‘g‘ri qaror",inqAll],["💰","Byudjet qo‘riqchisi","Byudjet manfiyga tushmadi",S.budget>=0],["⚡","Chaqmoq","8+ tez javob",S.fast>=8],["🧠","Mustaqil","Birorta maslahat olinmadi",S.hints===0],["🃏","Jokersiz","50/50 ishlatilmadi",S.jok===2],["🤝","Diplomat","Obro‘ 90+",S.rep>=90],["😊","Mehmondo‘st","Mamnunlik 90+",S.sat>=90],["📜","Tarixchi","Tarix va blitz mukammal",S.pts.tarix===MX.tarix.max&&S.pts.blitz===MX.blitz.max]];
+  if(!S.badgeXp){var nb=BD.filter(function(b){return b[3];}).length;S.badgeXp=nb*50;S.xp+=S.badgeXp;}
+  S.badges=BD.filter(function(b){return b[3];}).map(function(b){return b[0];}).join("");saveState();hud();
+  var t=t0,g=grade(t),rk=rankOf(S.xp);var nStars=0;for(var q in S.stars)nStars+=S.stars[q];
+  var m=t>=86?["linear-gradient(145deg,#e9c36f,#b8862f)","Oltin karvon"]:t>=71?["linear-gradient(145deg,#c9d1dc,#8793a6)","Kumush karvon"]:t>=56?["linear-gradient(145deg,#d49a6a,#9a5b2e)","Bronza karvon"]:["linear-gradient(145deg,#9aa4b5,#5d6676)","Yana bir urinish"];
+  var rec=makeRecord();if(!S.saved){saveLocalResult(rec);S.saved=true;saveState();}var code=encodeResult(rec);
+  if(t>=71){confetti();beep("win");}
+  var inq=0;for(var i=1;i<=5;i++)inq+=S.pts["inq"+i]||0;
+  var rows=MISSIONS.map(function(mm){var v=mm.id==="inq"?inq:(S.pts[mm.id]||0);return "<tr><td>"+mm.name+"</td><td style=\"text-align:right;white-space:nowrap\"><b>"+v+"</b> / "+mm.max+"</td></tr>";}).join("");
+  var msgTxt="📊 MICE · Tashkilotchi missiyasi\n👤 "+S.name+" ("+S.group+")\n🎯 Baho bali: "+t+"/100 → "+g[0]+" ("+g[1]+")\n⭐ "+S.xp+" XP · "+rk.e+" "+rk.n+(S.badges?" · "+S.badges:"")+"\n🔐 "+code;
+  $("stage").innerHTML="<div class=\"card scene final\"><span class=\"pill\">Missiya yakunlandi · "+S.attempt+"-urinish</span><h2 style=\"margin-top:10px\">"+esc(S.name)+" · "+esc(S.group)+"</h2><div class=\"medal\" style=\"background:"+m[0]+"\">"+t+"</div><div class=\"grade "+g[2]+"\">Baho: "+g[0]+" · "+g[1]+"</div><p class=\"muted\" style=\"margin-top:0\">"+m[1]+" · "+rk.e+" "+rk.n+" · "+S.xp+" XP</p>"+
+   (GS?"<div class=\"hint\" id=\"fSync\" style=\"font-size:15px;font-weight:700\">⏳ Natijangiz o‘qituvchiga yuborilmoqda…</div>":"")+"<div class=\"codebox\"><b>📨 "+(GS?"Zaxira: Telegram orqali ham yuborish mumkin":"Natijani o‘qituvchiga yuboring")+"</b><div class=\"muted\" style=\"font-size:13px\">«Telegram» tugmasini bosing va o‘qituvchini tanlang. Xabarda himoyalangan kod bor — o‘qituvchi uni o‘z paneliga qo‘yadi.</div><div class=\"sendbig\"><a class=\"tgbtn\" id=\"fTg\" target=\"_blank\" rel=\"noopener\">✈️ Telegram</a><button class=\"btn gold\" id=\"fCopy\">📋 Nusxalash</button></div><code id=\"resCode\" style=\"margin-top:10px\">"+code+"</code></div>"+
+   "<div class=\"kgrid\"><div class=\"kbox\"><div class=\"l\">📚 Bilim</div><div class=\"v\">"+k+" / 80</div><div class=\"s\">topshiriqlar</div></div><div class=\"kbox\"><div class=\"l\">📈 KPI</div><div class=\"v\">"+(kp[0]+kp[1]+kp[2])+" / 20</div><div class=\"s\">obro‘ "+kp[0]+"/8 · mamnun "+kp[1]+"/8 · byudjet "+kp[2]+"/4</div></div><div class=\"kbox\"><div class=\"l\">⭐ Yulduzlar</div><div class=\"v\">"+nStars+" / "+(Object.keys(MX).length-1)*3+"</div><div class=\"s\">eng uzun seriya: 🔥"+S.best+"</div></div><div class=\"kbox\"><div class=\"l\">⏱ Vaqt</div><div class=\"v\" style=\"font-size:18px\">"+dur(S.started,S.finished)+"</div><div class=\"s\">tez javoblar: ⚡"+S.fast+"</div></div></div>"+
+   "<h3 style=\"text-align:left\">🏅 Nishonlar ("+BD.filter(function(b){return b[3];}).length+" / 9, har biri +50 XP)</h3><div class=\"badges\">"+BD.map(function(b){return "<div class=\"badge"+(b[3]?" on":"")+"\"><span class=\"e\">"+b[0]+"</span><b>"+b[1]+"</b>"+b[2]+"</div>";}).join("")+"</div>"+
+   "<details style=\"text-align:left;margin-top:14px\"><summary>📋 Ballar taqsimoti</summary><div class=\"tbl\"><table class=\"gl\">"+rows+"<tr><td>KPI (obro‘, mamnunlik, byudjet)</td><td style=\"text-align:right\"><b>"+(kp[0]+kp[1]+kp[2])+"</b> / 20</td></tr><tr><td><b>Jami</b></td><td style=\"text-align:right\"><b>"+t+"</b> / 100</td></tr></table></div></details>"+
+   "<details style=\"text-align:left;margin-top:10px\"><summary>🗒 Qarorlar jurnali</summary><div class=\"tbl\"><table class=\"gl\">"+S.log.map(function(l){return "<tr><td>"+esc(l.t)+"</td><td style=\"text-align:right;white-space:nowrap\">"+esc(l.p)+"</td></tr>";}).join("")+"</table></div></details>"+
+   "<div class=\"row\" style=\"justify-content:center;margin-top:16px\"><button class=\"btn ghost\" id=\"fAgain\">🔁 Qayta o‘ynash</button><button class=\"btn ghost\" id=\"fCw\">🧩 Bonus: krossvord</button></div></div>";
+  sync("final");
+  $("fTg").href="https://t.me/share/url?url="+encodeURIComponent("MICE natija")+"&text="+encodeURIComponent(msgTxt);
+  $("fCopy").addEventListener("click",function(){try{navigator.clipboard.writeText(msgTxt).then(function(){toast("Nusxalandi — Telegramda o‘qituvchiga yuboring");},function(){toast("Kodni qo‘lda belgilab nusxalang");});}catch(e){toast("Kodni qo‘lda belgilab nusxalang");}});
+  $("fAgain").addEventListener("click",function(){ls("mice6_state",null);var n=S.name,gr=S.group;resetState();S.name=n;S.group=gr;buildFlow();hud();go(0);});
+  $("fCw").addEventListener("click",function(){location.hash="krossvord";show("krossvord");});}
+function dur(a,b){var s=Math.max(0,Math.round(((b||Date.now())-a)/1000));return Math.floor(s/60)+" daq "+(s%60)+" s";}
+
+/* ---------- result record, code, local store ---------- */
+function makeRecord(){var inq=0;for(var i=1;i<=5;i++)inq+=S.pts["inq"+i]||0;var br=MISSIONS.map(function(m){return m.id==="inq"?inq:(S.pts[m.id]||0);});
+  var d=new Date(S.finished||Date.now());return {v:2,n:S.name,g:S.group,s:total(),k:know(),p:kpi(),b:br,x:S.xp,rk:rankOf(S.xp).n,bd:S.badges||"",st:S.best,r:S.rep,m:S.sat,bu:S.budget,a:S.attempt,
+  d:d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"),t:Math.max(1,Math.round(((S.finished||Date.now())-S.started)/60000))};}
+function hash(str){var h=5381;for(var i=0;i<str.length;i++)h=((h<<5)+h+str.charCodeAt(i))|0;return (h>>>0).toString(36);}
+function b64e(s){return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");}
+function b64d(s){s=s.replace(/-/g,"+").replace(/_/g,"/");while(s.length%4)s+="=";return decodeURIComponent(escape(atob(s)));}
+function encodeResult(rec){var p=b64e(JSON.stringify(rec));return "MICE2-"+p+"."+hash(p+"|"+SECRET);}
+function decodeResult(){return {err:"n/a"};}
+function loadLocal(k){try{return JSON.parse(ls(k)||"[]");}catch(e){return [];}}
+function saveLocalResult(rec){var L=loadLocal("mice_results");L.push(Object.assign({src:"qurilma"},rec));ls("mice_results",JSON.stringify(L));}
+
+var EXEC="https://script.google.com/macros/s/AKfycbz6wKfg292iYReiI7-a4J09KtYJ51fN1--5jDn8UUh88hWS05sWtqpOpjyhLXoyJiz3HQ/exec";var GS=true;function gasRun(){try{return (window.google&&google.script&&google.script.run)?google.script.run:null;}catch(e){return null;}}
+var syncBusy=false,syncNext=null;
+function sync(status){if(!GS||!S||!S.name)return;var fin=status==="final",t=total(),g=grade(t),rec=makeRecord(),N=FLOW.length-2;
+  syncNext={key:S.key,name:S.name,group:S.group,status:status,final:fin,stage:(fin?N:clamp(S.i,0,N))+"/"+N,score:t,grade:g[0]+" · "+g[1],know:know(),kpi:kpi(),xp:S.xp,rank:rankOf(S.xp).n,badges:S.badges||"",attempt:S.attempt,b:rec.b};pump();}
+function syncNote(t){var e=$("fSync");if(e)e.textContent=t;}
+function pump(){if(syncBusy||!syncNext)return;var d=syncNext;syncNext=null;syncBusy=true;var tries=0;
+  function ok(){syncBusy=false;if(d.final)syncNote("✅ Natijangiz o‘qituvchiga avtomatik yuborildi");pump();}
+  function fail(){if(++tries<5)setTimeout(send,2500*tries);else{syncBusy=false;if(d.final)syncNote("⚠️ Internet bilan muammo — «Telegram» tugmasi orqali yuboring");pump();}}
+  function send(){var g=gasRun();if(g){try{g.withSuccessHandler(ok).withFailureHandler(fail).saveProgress(d);}catch(e){fail();}return;}
+    try{fetch(EXEC,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(d),credentials:"omit"}).then(function(r){return r.json();}).then(function(j){j&&j.ok?ok():fail();}).catch(fail);}catch(e){fail();}}
+  send();}
+
+go(0);
+
+/* =====================================================================
+   CROSSWORD (bonus)
+   ===================================================================== */
+var CWD={"l1":{"rows":16,"cols":17,"words":[{"answer":"ASSOTSIATSIYA","row":7,"col":1,"dir":"A","clue":"Shifokor yoki muhandislar tashkiloti tadbirlari bozori: ishtirok ixtiyoriy, badal to‘lanadi","num":12},{"answer":"KORPORATIV","row":1,"col":1,"dir":"D","clue":"Qarori tez, byudjetini kompaniya to‘liq to‘laydigan tadbirlar bozori","num":6},{"answer":"KEYTERING","row":1,"col":7,"dir":"D","clue":"Tadbir joyiga ovqatlanish xizmatini olib kelish","num":7},{"answer":"MOTIVATSIYA","row":0,"col":3,"dir":"D","clue":"Insentiv safarning asosiy maqsadi: xodimni ruhlantirish","num":2},{"answer":"NETVORKING","row":0,"col":11,"dir":"D","clue":"Tadbirda yangi kasbiy tanishuv va aloqalar o‘rnatish","num":4},{"answer":"BARQARORLIK","row":3,"col":13,"dir":"D","clue":"ISO 20121 standarti va «yashil» tadbirlar bilan bog‘liq trend","num":10},{"answer":"ROTATSIYA","row":5,"col":5,"dir":"D","clue":"Assotsiatsiya tadbirining har safar boshqa shaharda o‘tish qoidasi","num":11},{"answer":"INSENTIV","row":2,"col":9,"dir":"D","clue":"Eng yaxshi xodim va dilerlarni mukofotlash uchun kompaniya hisobidan uyushtiriladigan safar","num":8},{"answer":"DELEGAT","row":13,"col":0,"dir":"A","clue":"Kongressga o‘z tashkilotini vakil qilib kelgan ishtirokchi","num":16},{"answer":"VIRTUAL","row":11,"col":7,"dir":"A","clue":"To‘liq internet platformasida o‘tadigan tadbir formati","num":15},{"answer":"KONGRESS","row":0,"col":9,"dir":"A","clue":"Joyi 3–7 yil oldin tanlanadigan yirik ilmiy yoki kasbiy tadbir","num":3},{"answer":"SPIKER","row":13,"col":10,"dir":"A","clue":"Kongress yoki forumda ma’ruza qiluvchi","num":17},{"answer":"BLEISURE","row":7,"col":15,"dir":"D","clue":"Business + leisure: ishtirokchi tadbirdan keyin dam olishga qoladi","num":13},{"answer":"SINXRON","row":0,"col":16,"dir":"D","clue":"Kongressda nutq bilan bir vaqtda qilinadigan tarjima turi","num":5},{"answer":"SMERF","row":0,"col":2,"dir":"A","clue":"Ijtimoiy, harbiy, ta’lim, diniy va qardoshlik tashkilotlari segmenti","num":1},{"answer":"GIBRID","row":10,"col":8,"dir":"D","clue":"Jonli va onlayn ishtirok birlashgan tadbir formati","num":14},{"answer":"STEND","row":15,"col":4,"dir":"A","clue":"Ko‘rgazmada eksponent mahsulotini namoyish etadigan joy","num":20},{"answer":"ROI","row":3,"col":1,"dir":"A","clue":"Tadbir foydasi ko‘rsatkichi; 2008-yilgi inqirozdan keyin o‘lchana boshlagan (qisqartma)","num":9},{"answer":"DMC","row":13,"col":0,"dir":"D","clue":"Joyida transfer, ekskursiya va gidlarni tashkil qiluvchi kompaniya (qisqartma)","num":16},{"answer":"CVB","row":15,"col":0,"dir":"A","clue":"Shaharni MICE destinatsiyasi sifatida «sotadigan» konvensiya byurosi (qisqartma)","num":19},{"answer":"PCO","row":13,"col":11,"dir":"D","clue":"Kongressni boshidan oxirigacha boshqaruvchi professional tashkilotchi (qisqartma)","num":18},{"answer":"HOMIY","row":15,"col":10,"dir":"A","clue":"Moliyaviy yordam evaziga reklama va brend ko‘rinishi oladigan tomon","num":21}]},"l2":{"rows":15,"cols":17,"words":[{"answer":"KARVONSAROY","row":7,"col":2,"dir":"A","clue":"Ipak yo‘lidagi tunash, ombor va savdo joyi — biznes-mehmonxonaning ajdodi","num":14},{"answer":"SINGAPUR","row":3,"col":3,"dir":"D","clue":"1970–1980-yillarda MICE’ni davlat ustuvorligi deb e’lon qilgan Osiyo davlati","num":5},{"answer":"FRANKFURT","row":10,"col":2,"dir":"A","clue":"XV asrda kitob yarmarkasi bilan tanilgan; bugun IMEX ko‘rgazmasi o‘tadigan shahar","num":15},{"answer":"SHAMPAN","row":3,"col":3,"dir":"A","clue":"Fransiyadagi XII–XIII asr yarmarkalari: kredit va valyuta almashish shu yerda shakllangan","num":5},{"answer":"SAMARQAND","row":6,"col":9,"dir":"D","clue":"2023-yilda UN Tourism Bosh assambleyasining 25-sessiyasi o‘tgan shahar","num":13},{"answer":"KLAVIXO","row":12,"col":7,"dir":"A","clue":"1404-yilda Amir Temur saroyiga kelib kundalik yozgan Kastiliya elchisi","num":22},{"answer":"CHIMYON","row":3,"col":12,"dir":"D","clue":"Toshkentdan 80 km: insentiv guruhlar uchun rafting va tog‘ dam olishi","num":7},{"answer":"EXPO","row":11,"col":12,"dir":"D","clue":"Butunjahon ko‘rgazmasi; birinchisi 1851-yilda Londonda o‘tgan","num":20},{"answer":"BILLUR","row":5,"col":11,"dir":"A","clue":"1851-yilgi London ko‘rgazmasi uchun shisha va temirdan qurilgan «... saroy»","num":11},{"answer":"LEYPSIG","row":5,"col":14,"dir":"D","clue":"1165-yildan yarmarkalari bilan mashhur nemis shahri","num":12},{"answer":"DETROYT","row":2,"col":16,"dir":"D","clue":"1896-yilda birinchi konvensiya byurosi ochilgan AQSH shahri","num":4},{"answer":"SITE","row":10,"col":13,"dir":"A","clue":"Insentiv sayohatlar sohasi mutaxassislari jamiyati (qisqartma)","num":17},{"answer":"AGORA","row":10,"col":4,"dir":"D","clue":"Qadimgi Yunonistonda savdo va muhokama o‘tgan shaharning markaziy maydoni","num":16},{"answer":"IBTM","row":0,"col":6,"dir":"D","clue":"1988-yilda Jenevada boshlangan MICE ko‘rgazmalari tarmog‘i","num":1},{"answer":"IMEX","row":0,"col":6,"dir":"A","clue":"2003-yildan Frankfurt va Amerikada o‘tadigan MICE ko‘rgazmasi","num":1},{"answer":"XIVA","row":5,"col":5,"dir":"D","clue":"«Arda Khiva» majmuasi 5 000 turistni qabul qiladigan shahar","num":9},{"answer":"VENA","row":5,"col":7,"dir":"D","clue":"1815-yilda xalqaro diplomatik kongress o‘tgan shahar","num":10},{"answer":"EYFEL","row":10,"col":16,"dir":"D","clue":"1889-yilgi Parij ko‘rgazmasi uchun qurilgan minora","num":18},{"answer":"DUBAY","row":14,"col":1,"dir":"A","clue":"2020-yilgi Butunjahon ko‘rgazmasini o‘tkazgan shahar","num":23},{"answer":"TOQ","row":14,"col":11,"dir":"A","clue":"Buxoroda bitta mahsulotga ixtisoslashgan gumbazli savdo inshooti (... Zargaron)","num":24},{"answer":"IAPCO","row":12,"col":0,"dir":"A","clue":"Professional kongress tashkilotchilari (PCO) xalqaro assotsiatsiyasi","num":21},{"answer":"TIM","row":11,"col":0,"dir":"D","clue":"Buxorodagi «... Abdullaxon» savdo rastasi","num":19},{"answer":"ICCA","row":3,"col":11,"dir":"A","clue":"1963-yilda tuzilgan, xalqaro assotsiatsiya tadbirlari statistikasini yurituvchi tashkilot","num":6},{"answer":"KUK","row":12,"col":7,"dir":"D","clue":"Buyuk ko‘rgazmaga arzon poyezd sayohatlarini tashkil qilgan Tomas ...","num":22},{"answer":"UFI","row":4,"col":1,"dir":"A","clue":"1925-yilda tuzilgan ko‘rgazma industriyasining global assotsiatsiyasi","num":8},{"answer":"FORUM","row":1,"col":1,"dir":"D","clue":"Qadimgi Rimda senat majlislari va savdo bitimlari o‘tgan maydon","num":2},{"answer":"ITB","row":1,"col":4,"dir":"A","clue":"Berlinda o‘tadigan yirik turizm ko‘rgazmasi (qisqartma)","num":3}]}};
+var LV="l1",cw=null;
+function loadLevel(l){LV=l;[].forEach.call(document.querySelectorAll(".lvl"),function(b){b.setAttribute("aria-pressed",b.dataset.l===l?"true":"false");});
+  var D=CWD[l];cw={R:D.rows,C:D.cols,words:D.words.map(function(w){return Object.assign({},w);}),cells:{},inputs:{},curW:null,curKey:null,dir:"A",pts:0,solved:{},revealed:{},timer:null,t0:null,done:false,hints:0};
+  cw.words.forEach(function(w,wi){w.cells=[];for(var k=0;k<w.answer.length;k++){var r=w.row+(w.dir==="D"?k:0),c=w.col+(w.dir==="A"?k:0),key=r+"_"+c;if(!cw.cells[key])cw.cells[key]={ch:w.answer[k],words:{}};cw.cells[key].words[w.dir]=wi;w.cells.push(key);}});
+  var g=$("grid");g.innerHTML="";g.style.gridTemplateColumns="repeat("+cw.C+",var(--cs))";
+  for(var r=0;r<cw.R;r++)for(var c=0;c<cw.C;c++){var key=r+"_"+c,d=document.createElement("div");d.className="cell";
+    if(cw.cells[key]){var inp=document.createElement("input");inp.maxLength=1;inp.autocomplete="off";inp.setAttribute("autocapitalize","characters");inp.spellcheck=false;inp.dataset.k=key;inp.setAttribute("aria-label",(r+1)+"-qator, "+(c+1)+"-ustun");d.appendChild(inp);cw.inputs[key]=inp;bindCell(key);
+      var st=cw.words.filter(function(w){return w.row===r&&w.col===c;});if(st.length){var n=document.createElement("span");n.className="num";n.textContent=st[0].num;d.appendChild(n);}}
+    g.appendChild(d);}
+  ["A","D"].forEach(function(dir){var ol=$(dir==="A"?"cluesA":"cluesD");ol.innerHTML="";cw.words.map(function(w,i){return [w,i];}).filter(function(x){return x[0].dir===dir;}).sort(function(a,b){return a[0].num-b[0].num;}).forEach(function(x){
+    var li=document.createElement("li");li.innerHTML="<b>"+x[0].num+".</b>"+x[0].clue+" <span class=\"muted\">("+x[0].answer.length+")</span>";li.addEventListener("click",function(){selW(x[1]);var k=x[0].cells.find(function(k){return !cw.inputs[k].value;})||x[0].cells[0];cw.inputs[k].focus();});ol.appendChild(li);x[0].li=li;});});
+  cw.order=cw.words.map(function(w,i){return i;}).sort(function(a,b){var A=cw.words[a],B=cw.words[b];return A.dir===B.dir?A.num-B.num:(A.dir<B.dir?-1:1);});
+  $("cwTotal").textContent=cw.words.length;$("cwTime").textContent="00:00";$("curClue").textContent="Boshlash uchun istalgan katakni yoki savolni bosing.";upd();fitGrid();}
+function fitGrid(){if(!cw)return;var full=$("v-krossvord").clientWidth||900;var avail=full>=1000?full-22-360:full;var cs=Math.max(15,Math.min(38,Math.floor((avail-2*(cw.C-1))/cw.C)));$("grid").style.setProperty("--cs",cs+"px");$("curClue").style.maxWidth=(cs*cw.C+2*(cw.C-1))+"px";}
+window.addEventListener("resize",fitGrid);
+function selW(wi){cw.curW=wi;cw.dir=cw.words[wi].dir;var w=cw.words[wi];$("curClue").innerHTML="<b>"+w.num+" "+(w.dir==="A"?"gorizontal":"vertikal")+":</b> "+w.clue+" ("+w.answer.length+" harf)";paint();}
+function paint(){for(var k in cw.inputs)cw.inputs[k].classList.remove("hl","cur");cw.words.forEach(function(w){w.li.classList.remove("on");});
+  if(cw.curW!==null){cw.words[cw.curW].cells.forEach(function(k){cw.inputs[k].classList.add("hl");});cw.words[cw.curW].li.classList.add("on");var li=cw.words[cw.curW].li;if(li.scrollIntoViewIfNeeded)li.scrollIntoViewIfNeeded(false);}
+  if(cw.curKey)cw.inputs[cw.curKey].classList.add("cur");}
+function wFor(key,p){var ws=cw.cells[key].words;return ws[p]!==undefined?ws[p]:(ws.A!==undefined?ws.A:ws.D);}
+function tstart(){if(cw.timer||cw.done)return;cw.t0=Date.now();cw.timer=setInterval(function(){var s=Math.floor((Date.now()-cw.t0)/1000);$("cwTime").textContent=String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");},1000);}
+function bindCell(key){var inp=cw.inputs[key];
+  inp.addEventListener("mousedown",function(){if(cw.curKey===key&&document.activeElement===inp){var ws=cw.cells[key].words;if(ws.A!==undefined&&ws.D!==undefined){cw.dir=cw.dir==="A"?"D":"A";selW(wFor(key,cw.dir));}}});
+  inp.addEventListener("focus",function(){cw.curKey=key;if(cw.curW===null||cw.words[cw.curW].cells.indexOf(key)<0)selW(wFor(key,cw.dir));else paint();});
+  inp.addEventListener("keydown",function(e){
+    if(e.key==="Backspace"){e.preventDefault();if(inp.value&&!inp.readOnly){inp.value="";inp.classList.remove("ok","bad");}else mv(-1,true);return;}
+    var A={ArrowRight:[0,1],ArrowLeft:[0,-1],ArrowDown:[1,0],ArrowUp:[-1,0]}[e.key];if(A){e.preventDefault();arrow(A[0],A[1]);return;}
+    if(e.key==="Tab"||e.key==="Enter"){e.preventDefault();nextW(e.shiftKey?-1:1);return;}
+    if(inp.readOnly&&/^[a-zA-Z]$/.test(e.key)){e.preventDefault();mv(1,false);}});
+  inp.addEventListener("input",function(){if(inp.readOnly)return;var v=(inp.value||"").toUpperCase().replace(/[^A-Z]/g,"");inp.value=v.slice(-1);inp.classList.remove("ok","bad");if(inp.value){tstart();mv(1,false);}upd();});}
+function mv(step,clear){if(cw.curW===null)return;var cs=cw.words[cw.curW].cells,i=cs.indexOf(cw.curKey)+step;if(!clear){while(i>=0&&i<cs.length&&cw.inputs[cs[i]].readOnly)i+=step;}if(i<0||i>=cs.length)return;var k=cs[i];if(clear&&!cw.inputs[k].readOnly){cw.inputs[k].value="";cw.inputs[k].classList.remove("ok","bad");}cw.inputs[k].focus();}
+function arrow(dr,dc){var p=cw.curKey.split("_"),r=+p[0],c=+p[1],nd=dr?"D":"A";if(cw.dir!==nd&&cw.cells[cw.curKey].words[nd]!==undefined){cw.dir=nd;selW(wFor(cw.curKey,nd));return;}
+  for(var s=1;s<Math.max(cw.R,cw.C);s++){var rr=r+dr*s,cc=c+dc*s;if(rr<0||rr>=cw.R||cc<0||cc>=cw.C)return;var k=rr+"_"+cc;if(cw.inputs[k]){cw.dir=nd;cw.curW=wFor(k,nd);cw.inputs[k].focus();selW(cw.curW);return;}}}
+function nextW(step){var i=cw.order.indexOf(cw.curW===null?cw.order[0]:cw.curW);var n=cw.order[(i+step+cw.order.length)%cw.order.length];selW(n);var w=cw.words[n];var k=w.cells.find(function(k){return !cw.inputs[k].value;})||w.cells[0];cw.inputs[k].focus();}
+function upd(){var n=0;cw.words.forEach(function(w,wi){var ok=w.cells.every(function(k){return cw.inputs[k].value===cw.cells[k].ch;});w.li.classList.toggle("solved",ok);
+    if(ok){n++;if(!cw.solved[wi]){cw.solved[wi]=true;if(!cw.revealed[wi]){cw.pts+=10;beep("good");toast("✅ "+w.answer+" — +10");}w.cells.forEach(function(k){var x=cw.inputs[k];x.classList.remove("flash");void x.offsetWidth;x.classList.add("flash");});}}});
+  $("cwSolved").textContent=n;$("cwPts").textContent=cw.pts;
+  if(n===cw.words.length&&!cw.done){cw.done=true;clearInterval(cw.timer);cw.timer=null;confetti();beep("win");var team=$("cwTeam").value.trim()||"Talaba";
+    $("curClue").innerHTML="🎉 <b>Tabriklaymiz, "+esc(team)+"!</b> Krossvord yechildi: "+cw.pts+" ochko, vaqt "+$("cwTime").textContent+", yordam "+cw.hints+". Ekranni o‘qituvchiga ko‘rsating.";}}
+$("cwCheck").addEventListener("click",function(){var bad=0;for(var k in cw.inputs){var v=cw.inputs[k].value;cw.inputs[k].classList.remove("ok","bad");if(v){var g=v===cw.cells[k].ch;cw.inputs[k].classList.add(g?"ok":"bad");if(!g)bad++;}}toast(bad?"❌ Xato harflar: "+bad:"Xato yo‘q, davom eting!");beep(bad?"bad":"good");});
+$("cwHint").addEventListener("click",function(){if(!cw.curKey){toast("Avval katakni tanlang");return;}var inp=cw.inputs[cw.curKey];if(inp.value===cw.cells[cw.curKey].ch){toast("Bu harf to‘g‘ri — boshqa katakni tanlang");return;}
+  inp.value=cw.cells[cw.curKey].ch;inp.readOnly=true;inp.classList.add("rev");cw.pts-=3;cw.hints++;tstart();upd();mv(1,false);});
+$("cwRevealWord").addEventListener("click",function(){if(cw.curW===null){toast("Avval so‘zni tanlang");return;}var w=cw.words[cw.curW];if(cw.solved[cw.curW])return;cw.revealed[cw.curW]=true;cw.hints++;
+  w.cells.forEach(function(k){cw.inputs[k].value=cw.cells[k].ch;cw.inputs[k].readOnly=true;cw.inputs[k].classList.add("rev");});tstart();upd();});
+var rq=false;$("cwRestart").addEventListener("click",function(){if(!rq){rq=true;this.textContent="Ishonchingiz komilmi? Yana bosing";var b=this;setTimeout(function(){rq=false;b.textContent="Qaytadan";},3000);return;}rq=false;this.textContent="Qaytadan";if(cw.timer)clearInterval(cw.timer);loadLevel(LV);});
+[].forEach.call(document.querySelectorAll(".lvl"),function(b){b.addEventListener("click",function(){if(b.dataset.l===LV)return;if(cw.timer)clearInterval(cw.timer);loadLevel(b.dataset.l);});});
+loadLevel("l1");
+show(location.hash.slice(1)||"keys");
+})();
+</script>
+</body>
+</html>
