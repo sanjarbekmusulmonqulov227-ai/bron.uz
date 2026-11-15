@@ -58,14 +58,27 @@ const FEEDS = {
     ["Google News", GN("Uzbekistan tourism", "en-US", "US", "US:en"), true]
   ]
 };
-// Headline words that mark a tourism story.
+// Headline words that mark a tourism story. STRONG words are enough on their own; the weaker ones
+// (airport, airline, hotel, visa, festival...) also appear in unrelated world news, so those stories
+// must name Uzbekistan or one of its places (PLACE below) to be kept.
+const STRONG = {
+  uz: /turizm|turist|sayyoh|ziyorat|ekotur|туризм|турист|сайёҳ|зиёрат/i,
+  ru: /туризм|турист|паломни/i,
+  en: /touris|pilgrim/i
+};
 const TOPIC = {
   uz: /turizm|turist|sayyoh|sayoh|mehmonxona|aviareys|aviakompaniya|airways|aeroport|vizasiz|viza|ziyorat|muzey|festival|afrosiyob|tezyurar|ekotur|dam olish|kurort|sanator|туризм|турист|сайёҳ|меҳмонхона|авиарейс|аэропорт|визасиз|зиёрат/i,
   ru: /туризм|турист|туров|гостиниц|отел[ьяеи]|авиарейс|авиакомпан|аэропорт|безвиз|виз[аыу]|паломни|путешеств|фестивал|музе[йя]|санатор|курорт|афросиёб|скоростн|airways/i,
   en: /touris|tourist|travel|hotel|flight|airline|airways|airport|visa|visitor|pilgrim|festival|museum|heritage|resort|afrosiyob/i
 };
-// Headlines that match a topic word but are about something else.
-const NOT = /futbol|футбол|football|boks|бокс|chempionat|чемпионат|championship/i;
+// Headlines that match a topic word but are about something else: sport, crime, war and accidents
+// do not belong next to a booking form.
+const NOT = new RegExp([
+  "futbol|футбол|football|boks|бокс|chempionat|чемпионат|championship",
+  "zo['‘ʻ’`]?ravon|зўравон|jinsiy|жинсий|o['‘ʻ’`]?ldir|ўлдир|qotil|қотил|jinoyat|жиноят|hibs|ҳибс|giyohvand|гиёҳванд|kontrabanda|halok|ҳалок|portla|портла|urush|уруш|husiy|terror|o['‘ʻ’`]?g['‘ʻ’`]?irla",
+  "насил|изнасил|убий|убит|убил|арест|взрыв|войн|теракт|хусит|погиб|гибел|дтп|наркот|контрабанд|краж|мошенни",
+  "\\brape|murder|killed|arrest|explosion|\\bwar\\b|houthi|terror|abuse|smuggl|\\bdrugs?\\b|crash|\\bdies\\b|\\bdead\\b|fraud"
+].join("|"), "i");
 // Google News also finds stories about other countries; those must name Uzbekistan or one of its places.
 const PLACE = /o['‘ʻ’`]?zbek|uzbek|узбек|ўзбек|toshkent|tashkent|ташкент|тошкент|samarq|samarkand|самарканд|самарқанд|buxoro|bukhara|бухар|xiva|khiva|хив|farg['‘ʻ’`]?ona|fergana|ферган|nukus|нукус|termiz|termez|термез|qo['‘ʻ’`]?qon|kokand|коканд|andijon|andijan|андижан|namangan|наманган|shahrisabz|шахрисабз|chimyon|chimgan|чимган|charvak|chorvoq|чарвак|qoraqalpog|karakalpak|каракалпак|navoiy|navoi|навои|jizzax|jizzakh|джизак|qarshi|karshi|карши|guliston|surxondaryo|surkhandarya|сурхандарь|aral|orol|арал/i;
 // The list for each language keeps only headlines written in it (Uzbek Cyrillic counts as Uzbek).
@@ -78,7 +91,8 @@ const DIRECT = new Set(Object.values(FEEDS).flat().filter((f) => !f[2]).map((f) 
 function accept(lang, title, cats, direct) {
   if (!SCRIPT[lang](title) || NOT.test(title)) return false;
   if (!TOPIC[lang].test(`${title} ${cats || ""}`)) return false;
-  return direct || PLACE.test(title);
+  if (PLACE.test(title)) return true;
+  return direct && STRONG[lang].test(title);
 }
 
 const ENT = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", laquo: "«", raquo: "»", mdash: "—", ndash: "–", hellip: "…", rsquo: "’", lsquo: "‘", ldquo: "“", rdquo: "”" };
@@ -106,6 +120,14 @@ function parseFeed(xml) {
   return items;
 }
 
+// Kun.uz writes Uzbek Latin with Turkish letters (Toşkent, vaqtinça); bring it to the standard alphabet.
+const LAT = { ş: "sh", Ş: "Sh", ç: "ch", Ç: "Ch", ö: "o‘", Ö: "O‘", ğ: "g‘", Ğ: "G‘", ı: "i" };
+const fixLatin = (lang, t) => lang === "uz" && !/[а-яёўқғҳ]/i.test(t) ? t.replace(/[şŞçÇöÖğĞı]/g, (c) => LAT[c]) : t;
+// Two headlines are the same story when most of their words match (different outlets, same news).
+// Words almost every headline here shares (country, capital, "tourism") say nothing about the story.
+const COMMON = /^(o.?zbek|ozbek|uzbek|узбек|ўзбек|toshke|tashke|ташкен|тошкен|turizm|touris|туризм|турист|sayyoh|сайёҳ|respub|респуб|millio|миллио|mln)/;
+const words = (t) => new Set(norm(t).split(" ").filter((w) => w.length > 3 && !COMMON.test(w)).map((w) => w.slice(0, 6)));
+const sameStory = (a, b) => { let n = 0; for (const w of a) if (b.has(w)) n++; return n >= 3 && n / Math.min(a.size, b.size) >= 0.6; };
 const norm = (t) => t.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 async function news(prev) {
   const out = {}, report = {};
@@ -119,7 +141,7 @@ async function news(prev) {
         for (const it of items) {
           const when = Date.parse(it.date);
           if (!it.title || !/^https?:\/\//.test(it.link) || !(when > cutoff) || when > Date.now() + DAY) continue;
-          let title = it.title, source = name;
+          let title = fixLatin(lang, it.title), source = name;
           if (onTopic) {
             // Google News titles end with " - Publisher"; keep the publisher as the source.
             source = it.source || (/ - ([^-]+)$/.exec(title) || [])[1] || name;
@@ -136,12 +158,15 @@ async function news(prev) {
     }
     // Keep earlier headlines too, so a feed that is down today does not empty the list.
     // Older ones pass the same checks again, so a rule tightened later also cleans the saved list.
-    for (const old of (prev && prev[lang]) || []) if (Date.parse(old.d) > cutoff && accept(lang, old.t, "", DIRECT.has(old.s))) list.push(old);
-    const seen = new Set();
+    for (const old of (prev && prev[lang]) || []) {
+      const t = fixLatin(lang, old.t);
+      if (Date.parse(old.d) > cutoff && accept(lang, t, "", DIRECT.has(old.s))) list.push({ ...old, t });
+    }
+    const seen = new Set(), kept = [];
     out[lang] = list.sort((a, b) => b.d.localeCompare(a.d)).filter((x) => {
-      const k = norm(x.t).slice(0, 80);
-      if (seen.has(k) || seen.has(x.u)) return false;
-      seen.add(k); seen.add(x.u);
+      const k = norm(x.t).slice(0, 80), w = words(x.t);
+      if (seen.has(k) || seen.has(x.u) || kept.some((y) => sameStory(w, y))) return false;
+      seen.add(k); seen.add(x.u); kept.push(w);
       return true;
     }).slice(0, NEWS_MAX);
   }
