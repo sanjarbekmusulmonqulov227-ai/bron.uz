@@ -763,7 +763,7 @@ function renderRubric(){var last=0;$("rubric").innerHTML=MISSIONS.map(function(m
   return h+"<div class=\"rub"+(got?" done":"")+"\"><div>"+m.name+"</div><b>"+(got?v+"/":"")+m.max+"</b></div>";}).join("");}
 
 /* ---------- holat ---------- */
-var S,LSK="mice10_state";
+var S,LSK="mice11_state";
 function newState(){return {name:"",group:"",key:"",i:0,pts:{},xp:0,streak:0,best:0,jok:2,hints:0,fast:0,stars:{},t0:0,fastMs:30000,attempt:1,lastChap:0,started:Date.now(),done:false,ans:false,budget:BUDGET0,sat:70,blog:[],ch:{}};}
 S=newState();
 function saveState(){try{ls(LSK,JSON.stringify(S));}catch(e){}}
@@ -780,7 +780,8 @@ function award(id,p){var mx=MX[id].max;p=clamp(Math.round(p),0,mx);S.pts[id]=p;
   var oldR=rankOf(S.xp).i;S.xp+=xp;S.lastXp={xp:xp,mult:mult,fast:fast};S.stars[id]=full?3:p>=mx*.6?2:p>0?1:0;
   S.sat=clamp(S.sat+(full?1:p===0?-3:0),0,100);
   if(p>0)deltaOn("dPts","+"+p,true);deltaOn("dStar","+"+S.stars[id]+"⭐",S.stars[id]>0);hud();
-  var nr=rankOf(S.xp);if(nr.i>oldR)setTimeout(function(){rankUp(nr);},900);return p;}
+  checkRank(oldR);return p;}
+function checkRank(oldR){var nr=rankOf(S.xp);if(nr.i>oldR)setTimeout(function(){rankUp(nr);},900);}
 function rankUp(r){beep("win");confetti();var d=document.createElement("div");d.className="rankup";d.innerHTML="<div><span class=\"e\">"+r.e+"</span><div class=\"muted\" style=\"font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase\">Yangi status!</div><h2 style=\"margin:6px 0 4px\">"+r.n+"</h2><p class=\"muted\" style=\"margin:0 0 14px\">"+S.xp+" XP · ⭐ "+starsSum()+"</p><button class=\"btn gold\">Davom etish</button></div>";document.body.appendChild(d);
   function c(){d.remove();}d.querySelector("button").addEventListener("click",c);d.addEventListener("click",function(e){if(e.target===d)c();});setTimeout(c,4000);}
 function earned(p,id){var st=S.stars[id]||0,lx=S.lastXp||{xp:0};var stars="<span class=\"stars\">"+"⭐".repeat(st)+"<span style=\"opacity:.25\">"+"⭐".repeat(3-st)+"</span></span>";
@@ -828,8 +829,8 @@ function rDecide(sc){var ord=shuffle(sc.opts.map(function(o,i){return i;}));
   $("stage").innerHTML=frame(sc,"<div class=\"opts\">"+ord.map(function(i){var o=sc.opts[i];var b=o.e&&o.e.budget?(o.e.budget>0?"+":"−")+money(Math.abs(o.e.budget)):"$0";return "<button class=\"opt\" data-i=\""+i+"\">"+o.t+"<span class=\"cost\">"+b+"</span></button>";}).join("")+"</div>");
   [].forEach.call(document.querySelectorAll(".opt"),function(btn){btn.addEventListener("click",function(){var o=sc.opts[+btn.dataset.i];
     [].forEach.call(document.querySelectorAll(".opt"),function(x){x.disabled=true;});btn.classList.add(o.best?"good":"sel");
-    S.dec=S.dec||{};S.dec[sc.id]=o.k;if(sc.id==="gala")S.gala=o.k;S.ch=S.ch||{};S.ch[sc.id]=o.t.replace(/<[^>]+>/g,"");
-    var ch=apply(o.e,sc.lbl||sc.title);if(o.best){S.xp+=15;hud();}
+    S.dec=S.dec||{};S.dec[sc.id]=o.k;S.ch=S.ch||{};S.ch[sc.id]=o.t.replace(/<[^>]+>/g,"");
+    var ch=apply(o.e,sc.lbl||sc.title);if(o.best){var oR=rankOf(S.xp).i;S.xp+=15;hud();checkRank(oR);}
     finishScene(o.best?"good":"mid","<div class=\"row\" style=\"gap:6px;margin-bottom:8px\"><span class=\"earned\" style=\"margin:0\">⚖️ Qaror qabul qilindi</span>"+(o.best?"<span class=\"xpline\">+15 XP · professional tanlov</span>":"")+"</div>"+o.fb+chipsHtml(ch),sc);});});}
 function rChoice(sc){var keys="ABCD";var ord=shuffle(sc.opts.map(function(o,i){return i;}));
   $("stage").innerHTML=frame(sc,"<div class=\"opts\">"+ord.map(function(i,pos){var o=sc.opts[i];return "<button class=\"opt\" data-i=\""+i+"\">"+(o.img||"")+"<span class=\"k\">"+keys[pos]+"</span>"+o.t+(o.cost?"<span class=\"cost\">"+o.cost+"</span>":"")+"</button>";}).join("")+"</div>");
@@ -1156,14 +1157,14 @@ var SCENES=[
   fb:"Tur paket = turar joy + transport + ekskursiya + ovqat + sug‘urta, bitta narxda. 2 kunga 10 soatlik yo‘l sig‘maydi.",
   rule:"Paketni DMC bilan tuzing; har kun 8–10 soatdan oshmasin; keksa mehmonlar uchun dam olish vaqti."},
  {ch:11,m:"narx",w:"Tiens kompaniyasining Fransiyadagi insentiv safari 2014-yil dekabrida rejalashtirila boshlangan va 2015-yil mayida o‘tgan: guruh narxlari, mehmonxona bloklari va transport 5 oy oldin kelishilgan. Guruh tur narxi oldindan va yozma ravishda hisoblanadi.",type:"num",who:"MK",title:"Siz tuzgan paketning narxini hisoblang",
-  prep:function(sc){var pk=(S.pk>0&&S.pk<=350)?S.pk:280,own=pk===S.pk,sp=Math.round(pk*1.2);
-    sc.text=(own?"Siz tuzgan paket tannarxi":"Paketingiz chegaradan chiqdi, shuning uchun namunaviy paketni olamiz. Tannarx")+" — <b>$"+pk+"</b> bir kishiga. Agentlik (DMC) ustamasi — <b>20%</b>. Guruhda <b>20</b> kishi.";
+  prep:function(sc){var own=S.pk>0&&S.pk<=350,pk=own?S.pk:280,sp=Math.round(pk*1.2);
+    sc.text=(own?"Siz tuzgan paket tannarxi":(S.pk>350?"Paketingiz chegaradan chiqdi, shuning uchun namunaviy paketni olamiz. Tannarx":"Namunaviy paket tannarxi"))+" — <b>$"+pk+"</b> bir kishiga. Agentlik (DMC) ustamasi — <b>20%</b>. Guruhda <b>20</b> kishi.";
     sc.qs=[["Bir kishi uchun sotish narxi qancha? (butun dollargacha yaxlitlang)",sp,pk+" × 1,2 = "+(Math.round(pk*120)/100===sp?"$"+sp:String(Math.round(pk*120)/100).replace(".",",")+" ≈ $"+sp),"$",0.51],["20 kishilik guruhdan jami tushum qancha?",sp*20,sp+" × 20 = $"+(sp*20),"$",10.5],["Agentlikning shu guruhdan foydasi qancha?",(sp-pk)*20,"("+sp+" − "+pk+") × 20 = $"+((sp-pk)*20),"$",10.5]];},
   text:"",qs:[],
   rule:"Sotish narxi = tannarx + ustama; minimal guruh soni va bekor qilish shartlari shartnomada yoziladi."},
  /* 12-bob TADBIR KUNI */
  {ch:12,m:"risk1",w:"Parij-2024 Olimpiadasining ochilish marosimi tarixda birinchi marta stadiondan tashqarida — Sena daryosida o‘tdi va kuchli jala ostida qoldi. 1952-yildan beri yozgi Olimpiada ochilishida birinchi marta yomg‘ir yog‘gan. Ochiq havodagi tadbirda ob-havo — eng katta risk.",type:"choice",who:"TB",title:"Gala-kecha kuni jala",
-  prep:function(sc){var gv=S.gala||"ab";
+  prep:function(sc){var gv=(S.dec&&S.dec.gala)||"ab";
    if(gv==="c"){sc.crisis="Gala-kecha yopiq ballroomda — jala unga xalaqit bermaydi. Lekin avtobuslar to‘xtash joyidan zal eshigigacha 200 m ochiq yo‘lak, prognoz: 80% jala va +12°C.";
     sc.text="Siz galani yopiq zalga qo‘ygansiz — bu to‘g‘ri edi. Endi kichik muammo: mehmonlar 200 metrni yomg‘ir ostida yuradi. Nima qilamiz?";
     sc.opts=[{t:"Kirish yo‘lagiga vaqtinchalik soyabon-chodir, ko‘ngillilarga zontiklar, avtobuslarni eshik oldigacha olib kelish (xavfsizlik bilan kelishib)",cost:"$3 000",best:true,e:{budget:-3000,sat:2},fb:"To‘g‘ri: arzon va tez; mehmon «eshikdan eshikkacha» quruq yetib boradi."},
@@ -1213,7 +1214,7 @@ function go(i){S.i=i;S.ans=false;stopTimer();var sc=FLOW[i];$("hudWrap").style.d
 /* ---------- kirish ---------- */
 function rIntro(){var c=Object.keys(CAST).map(function(k){var x=CAST[k];var ini=x.n.split(" ").map(function(w){return w[0];}).join("");return "<div><span class=\"ava\" style=\"background:"+x.c+"\">"+ini+"</span><span><b>"+x.n+"</b><br><span class=\"muted\">"+x.r+"</span></span></div>";}).join("");
   var saved=null;try{saved=JSON.parse(ls(LSK)||"null");}catch(e){}
-  var resume=saved&&saved.name&&saved.i>0&&!saved.done?"<div class=\"resume\">⏸ <b>"+esc(saved.name)+"</b>, o‘yiningiz tugallanmagan ("+saved.i+"-topshiriq, "+(function(){var t=0;for(var k in saved.pts)t+=saved.pts[k];return t;})()+" ball). <button class=\"btn sm gold\" id=\"tResume\">Davom ettirish</button></div>":"";
+  var resume=saved&&saved.name&&saved.i>0&&!saved.done?"<div class=\"resume\">⏸ <b>"+esc(saved.name)+"</b>, o‘yiningiz tugallanmagan ("+Object.keys(saved.pts||{}).length+" / "+MISSIONS.length+" topshiriq bajarilgan, "+(function(){var t=0;for(var k in saved.pts)t+=saved.pts[k];return t;})()+" ball). <button class=\"btn sm gold\" id=\"tResume\">Davom ettirish</button></div>":"";
   var chaps=Object.keys(CHAPS).map(function(k){return "<li><b>"+CHAPS[k][0]+"</b> — "+CHAPS[k][1].toLowerCase()+"</li>";}).join("");
   $("stage").innerHTML="<div class=\"hero scene\"><div class=\"poster\"><span class=\"pill\">Amaliy mashg‘ulot · rolli o‘yin</span><h2 style=\"margin-top:10px\">Siz — forumning bosh tashkilotchisisiz</h2><p style=\"opacity:.92\">Turizm qo‘mitasi Samarqandda <b>Xalqaro turizm forumi</b>ni o‘tkazadi: 800 delegat, 40 davlat, 6 vazir, 60 stendli ko‘rgazma, gala-kecha va tur paket. Qo‘lingizda <b>$450 000</b> byudjet. Siz forumni brifdan hisobotgacha tashkil etasiz.</p><ol style=\"opacity:.92;font-size:14px;padding-left:20px;margin:10px 0 0\">"+chaps+"</ol></div>"+
    "<div class=\"card\">"+resume+
@@ -1246,9 +1247,11 @@ function headline(){var ER=eventRating(),d=S.dec||{},h,sub=[];
   h=ER.n>=5?"Samarqand forumi — yilning eng yaxshi xalqaro tadbiri":ER.n===4?"Samarqand forumi muvaffaqiyatli yakunlandi":ER.n===3?"Forum o‘tdi, lekin tashkilotchilarga savollar bor":"Forum: mehmonlar norozi, byudjet tanqid ostida";
   if(d.homiy==="volt")sub.push("Vazirlar nutqi oldidan energetik ichimlik reklamasi ijtimoiy tarmoqlarda muhokama qilindi");
   if(d.homiy==="air")sub.push("«SilkAir» hamkorligi: delegatlar arzon reyslardan mamnun");
-  if(S.gala==="ab")sub.push("Jala ham gala-kechani buzolmadi: B rejasi 3 soatda ishga tushdi");
-  if(S.gala==="a")sub.push("Gala-kecha kuni jala: tashkilotchilar zalni oxirgi daqiqada topdi");
-  if(S.gala==="c")sub.push("Gala-kecha yopiq zalda: ishonchli, ammo mehmonlar «Samarqand ruhini» kutgan edi");
+  var rOk=S.pts.risk1===MX.risk1.max;
+  if(S.pts.risk1!=null&&!rOk)sub.push("Gala-kecha kuni jala: inqirozga tayyorgarlik yetishmadi, mehmonlar kayfiyati tushdi");
+  else if(d.gala==="ab")sub.push("Jala ham gala-kechani buzolmadi: B rejasi 3 soatda ishga tushdi");
+  else if(d.gala==="a")sub.push("Gala-kecha kuni jala: tashkilotchilar zalni oxirgi daqiqada topdi");
+  else if(d.gala==="c")sub.push("Gala-kecha yopiq zalda: ishonchli, ammo mehmonlar «Samarqand ruhini» kutgan edi");
   if(S.budget<RESERVE)sub.push("Byudjet zaxirasi sarflab yuborildi — moliyaviy hisobot savol uyg‘otdi");
   if(S.sat>=90)sub.push("Delegatlar: «Yana Samarqandga kelamiz!»");
   return "<div class=\"news\"><div class=\"nm\">📰 «Forum xabarnomasi» · ertangi son <span>(o‘yin uchun to‘qilgan)</span></div><h3>"+h+"</h3>"+(sub.length?"<ul>"+sub.map(function(x){return "<li>"+x+"</li>";}).join("")+"</ul>":"")+"</div>";}
@@ -1257,8 +1260,8 @@ function rFinal(){stopTimer();S.done=true;S.finished=S.finished||Date.now();save
   var t=know(),g=grade(t),xp=S.xp,rk=rankOf(xp),ER=eventRating(),stS=starsSum();if(ER.n>=4){confetti();beep("win");}else beep("good");
   var secs=Object.keys(CHAPS).map(function(k){var r=chapRes(+k);
     return "<div class=\"sec\"><h4>"+k+". "+CHAPS[k][0]+"<span>"+starRow(r.stars)+" "+r.got+" / "+r.mx+"</span></h4><ul>"+PASS[k].map(function(l){return "<li>"+l+"</li>";}).join("")+"</ul></div>";}).join("");
-  var spent=BUDGET0-S.budget;
-  var blog="<div class=\"sec\"><h4>💰 Byudjet hisoboti<span>"+money(spent)+" sarflandi</span></h4><table class=\"gl\" style=\"font-size:14px\">"+S.blog.map(function(b){return "<tr><td>"+esc(b.t)+"</td><td style=\"text-align:right;white-space:nowrap\">"+money(b.v)+"</td></tr>";}).join("")+"<tr><td><b>Boshlang‘ich byudjet</b></td><td style=\"text-align:right\"><b>"+money(BUDGET0)+"</b></td></tr><tr><td><b>Qoldiq</b> (zaxira me’yori "+money(RESERVE)+")</td><td style=\"text-align:right;color:"+(S.budget>=RESERVE?"var(--teal)":"var(--red)")+"\"><b>"+money(S.budget)+"</b></td></tr></table></div>";
+  var spent=0,inc=0;S.blog.forEach(function(b){if(b.v<0)spent-=b.v;else inc+=b.v;});
+  var blog="<div class=\"sec\"><h4>💰 Byudjet hisoboti<span>"+money(spent)+" sarflandi"+(inc?" · +"+money(inc)+" tushum":"")+"</span></h4><table class=\"gl\" style=\"font-size:14px\">"+S.blog.map(function(b){return "<tr><td>"+esc(b.t)+"</td><td style=\"text-align:right;white-space:nowrap\">"+money(b.v)+"</td></tr>";}).join("")+"<tr><td><b>Boshlang‘ich byudjet</b></td><td style=\"text-align:right\"><b>"+money(BUDGET0)+"</b></td></tr><tr><td><b>Qoldiq</b> (zaxira me’yori "+money(RESERVE)+")</td><td style=\"text-align:right;color:"+(S.budget>=RESERVE?"var(--teal)":"var(--red)")+"\"><b>"+money(S.budget)+"</b></td></tr></table></div>";
   var mine=S.ch&&Object.keys(S.ch).length?"<div class=\"sec\"><h4>Sizning tanlovlaringiz</h4><ul>"+(S.ch.sana?"<li>Sana: "+esc(S.ch.sana)+"</li>":"")+(S.ch.homiy?"<li>Homiy: "+esc(S.ch.homiy)+"</li>":"")+(S.ch.joy?"<li>Joy: "+esc(S.ch.joy)+"</li>":"")+(S.ch.gala?"<li>Gala-kecha: "+esc(S.ch.gala)+"</li>":"")+(S.ch.boshl?"<li>Boshlovchilar: "+esc(S.ch.boshl)+"</li>":"")+(S.ch.ichim?"<li>Kofe-breyk: "+esc(S.ch.ichim)+"</li>":"")+(S.ch.paket?"<li>Tur paket: "+esc(S.ch.paket)+"</li>":"")+"</ul></div>":"";
   var lvl=ER.n>=5?"Mukammal forum":ER.n===4?"Juda muvaffaqiyatli forum":ER.n===3?"Muvaffaqiyatli forum":ER.n===2?"O‘rtacha forum":"Zaif forum";
   $("stage").innerHTML="<div class=\"card scene final\"><span class=\"pill\">Forum tashkil etildi</span><h2 style=\"margin-top:10px\">"+esc(S.name)+" · "+esc(S.group)+"</h2>"+
