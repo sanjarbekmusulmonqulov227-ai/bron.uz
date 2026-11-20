@@ -520,6 +520,116 @@ button.pp{cursor:pointer;border-color:var(--gold)}button.pp.sel{background:var(-
 @keyframes apulse{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
 @keyframes stampin{from{transform:translate(-50%,-50%) rotate(-12deg) scale(2.2);opacity:0}to{transform:translate(-50%,-50%) rotate(-12deg) scale(1);opacity:1}}
 @media (prefers-reduced-motion:reduce){.aov .ai,.stamp{animation:none}}
+/* ===== v13: mavzuli rasmlar va harakat ===== */
+.chap{background:#132038}.chap svg.art,.chov .cimg svg.art{position:absolute;inset:0;width:100%;height:100%;display:block}
+.chap:after{background:linear-gradient(90deg,rgba(10,16,30,.82),rgba(10,16,30,.35) 55%,rgba(10,16,30,0))}
+.chov .cimg{background:#132038}.chov .cimg:after{background:linear-gradient(0deg,rgba(10,16,30,.88),rgba(10,16,30,.1) 60%,rgba(10,16,30,0))}
+.art .dr,.obsky .dr,#sgn.dr,.smap .route{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.1s ease forwards}
+.smap .route{animation-duration:3.4s}
+.art .gr{transform-box:fill-box;transform-origin:left center;animation:grow .8s cubic-bezier(.2,.8,.2,1) both}
+.art .pop{transform-box:fill-box;transform-origin:center;animation:popin .45s cubic-bezier(.2,1.6,.4,1) both}
+.art .fl{animation:floaty 3s ease-in-out infinite}
+.art .sw{transform-box:fill-box;transform-origin:top center;animation:swing 2.6s ease-in-out infinite}
+.art .tw,.obsky .tw{animation:twinkle 2.4s ease-in-out infinite}
+.art .mv{animation:drive 6s linear infinite}
+.art .sp{transform-box:view-box;transform-origin:440px 104px;animation:spin 6s linear infinite}
+.art .beam{transform-box:fill-box;transform-origin:top center;animation:sweep 3.2s ease-in-out infinite alternate}.art .beam.b2{animation-delay:-1.6s}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes popin{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes swing{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+@keyframes twinkle{0%,100%{opacity:.25}50%{opacity:1}}
+@keyframes drive{0%{transform:translateX(-30px)}50%{transform:translateX(70px)}100%{transform:translateX(-30px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes sweep{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
+/* tanlov va javob harakatlari */
+.opts .opt{animation:optin .35s ease both}
+.opts .opt:nth-child(2){animation-delay:.05s}.opts .opt:nth-child(3){animation-delay:.1s}.opts .opt:nth-child(4){animation-delay:.15s}.opts .opt:nth-child(5){animation-delay:.2s}.opts .opt:nth-child(6){animation-delay:.25s}.opts .opt:nth-child(7){animation-delay:.3s}.opts .opt:nth-child(n+8){animation-delay:.35s}
+.opt.good,.sopt.good{animation:okpop .45s cubic-bezier(.2,1.6,.4,1)}.opt.bad,.sopt.bad{animation:shake .4s}
+.fb.on{animation:fbin .35s ease both}
+#prog i.cur{animation:pulsec 1.4s ease-in-out infinite}
+@keyframes optin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes okpop{40%{transform:scale(1.03)}}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+@keyframes fbin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes pulsec{0%,100%{box-shadow:0 0 0 0 rgba(27,163,160,.55)}50%{box-shadow:0 0 0 5px rgba(27,163,160,0)}}
+/* ===== missiya brifingi ===== */
+.obwrap{max-width:720px;margin:0 auto}
+.ob{background:#fff;border:1px solid var(--line);border-radius:22px;padding:20px 20px 18px;box-shadow:var(--shadow)}
+.ob h2{font-family:Unbounded,Onest,sans-serif;font-size:clamp(19px,4.6vw,24px);margin:6px 0 6px}
+.obdots{display:flex;gap:6px;margin-bottom:6px}.obdots i{height:5px;flex:1;border-radius:3px;background:#e7dfcf}.obdots i.done{background:#c08f3e}.obdots i.cur{background:#1ba3a0}
+.obnav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:16px}
+.btn.big{padding:15px 22px;font-size:17px}
+.ob0{padding:0;overflow:hidden;border:0;background:#0e1b36}
+.obhero{position:relative;color:#fff;background:radial-gradient(120% 70% at 70% 0%,#24407d 0%,#0e1b36 62%)}
+.obsky{display:block;width:100%;height:auto;max-height:46vh}
+.call[hidden],.pchat[hidden]{display:none}
+.obt{position:relative;padding:0 22px 24px}
+.obt .kick{margin:0;color:#e2b867;font-weight:700;font-size:15px}
+.obt h1{font-family:Unbounded,Onest,sans-serif;font-size:clamp(34px,9vw,58px);line-height:1.02;margin:6px 0 10px;letter-spacing:-.02em;animation:fbin .8s .9s both}
+.obt .lead{font-size:17px;line-height:1.5;color:#dbe3f2;max-width:46ch;margin:0 0 18px;animation:fbin .8s 1.2s both}
+.obbtns{display:flex;flex-direction:column;gap:10px;max-width:420px;animation:fbin .8s 1.5s both}
+.obbtns .btn.ghost{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.3)}
+.linkb{background:none;border:0;color:#c9d4ea;text-decoration:underline;padding:8px;align-self:flex-start;min-height:44px}
+.phone{max-width:360px;margin:12px auto 0;border:8px solid #0e1b36;border-radius:30px;background:#f3eee3;min-height:340px;padding:16px 12px;position:relative}
+.call{display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:28px;text-align:center}
+.call .ava{width:72px;height:72px;font-size:24px}.call small{color:var(--muted)}.call .btn{margin-top:18px;background:#1c8a78;border-color:#1c8a78;color:#fff}
+.ava.ring{animation:ring 1.2s ease-in-out infinite}
+@keyframes ring{0%,100%{box-shadow:0 0 0 0 rgba(28,138,120,.6)}50%{box-shadow:0 0 0 14px rgba(28,138,120,0)}}
+.pchat,.mchat{display:flex;flex-direction:column;gap:8px}
+.mb{max-width:86%;padding:9px 12px;border-radius:14px;font-size:15px;line-height:1.45;animation:fbin .3s ease both}
+.mb.them{background:#fff;border:1px solid #e3dccb;align-self:flex-start;border-bottom-left-radius:4px}
+.mb.me{background:#1d3a7a;color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.mb.meh{background:#fff6e8;border-color:#efd3a1}
+.mb.typing{display:flex;gap:4px;padding:12px 14px}.mb.typing span{width:7px;height:7px;border-radius:50%;background:#9aa3b2;animation:bob 1s infinite}.mb.typing span:nth-child(2){animation-delay:.15s}.mb.typing span:nth-child(3){animation-delay:.3s}
+@keyframes bob{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(-4px);opacity:1}}
+.roles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
+.rl{border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:3px;animation:optin .4s ease both;background:#fbf8f1}
+.rl svg{width:26px;height:26px;color:#1ba3a0}.rl b{font-size:16px}.rl span{font-size:13.5px;color:var(--muted);line-height:1.4}
+.mhud{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0 4px}
+.mhud div{background:#132038;color:#fff;border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.mhud span{font-size:12.5px;opacity:.8}.mhud b{font-size:20px;font-variant-numeric:tabular-nums}.mhud i{height:5px;background:rgba(255,255,255,.15);border-radius:3px;overflow:hidden}.mhud em{display:block;height:100%;background:#1ba3a0;transition:width .6s ease}
+.smap{width:100%;height:auto;display:block;margin-top:10px}
+.mnode{cursor:pointer}.mnode circle{fill:#fff;stroke:#c08f3e;stroke-width:2;transition:fill .3s}.mnode text{font:700 13px Onest,sans-serif;fill:#7a5a1f}.mnode .ml{font-size:10px;font-weight:600;fill:#5d6676}
+.mnode.lit circle{fill:#1d3a7a;stroke:#e2b867}.mnode.lit text{fill:#fff}.mnode.lit .ml{fill:#1b2333}
+.mnode.sel circle{fill:#1ba3a0;stroke:#0e1b36;stroke-width:3}.mnode:focus-visible circle{stroke:#c8321e;stroke-width:4}
+.mcap{min-height:48px;margin-top:8px;background:#fbf8f1;border-radius:12px;padding:10px 12px;font-size:15px}
+.w5{display:grid;gap:6px;margin:10px 0}.w5 div{display:flex;gap:10px;align-items:center;font-size:16px;animation:optin .4s ease both}
+.w5 .st{color:#e2b867;font-size:22px;animation:popin .5s cubic-bezier(.2,1.6,.4,1) both;display:inline-block}
+.wgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.wgrid div{background:#f3eee3;border-radius:12px;padding:10px;font-size:13.5px;line-height:1.35}.wgrid b{display:block;font-family:Unbounded,Onest,sans-serif;font-size:22px;color:#1d3a7a}
+.contract{background:#fffdf6;border:1px solid #e3d6b8;border-radius:16px;padding:18px;position:relative;box-shadow:inset 0 0 0 6px #fff,inset 0 0 0 7px #eadfc5}
+.contract .ch{display:flex;justify-content:space-between;font-size:12.5px;color:#7a5a1f;font-weight:700}
+.contract .duty{font-size:14px;color:var(--muted)}
+.sign{position:relative;height:74px;border-bottom:1px dashed #b9ab8c;margin:6px 0 14px}.sign svg{width:240px;height:60px}
+.sign span{position:absolute;right:4px;bottom:-20px;font-size:12px;color:var(--muted)}
+#sgn{stroke-dasharray:1;stroke-dashoffset:1}
+.stampk{position:absolute;right:10px;top:4px;border:3px solid #1c8a78;color:#1c8a78;font-weight:900;padding:2px 10px;border-radius:6px;transform:rotate(-10deg) scale(1.8);opacity:0;transition:transform .35s cubic-bezier(.2,1.6,.4,1) .6s,opacity .2s .6s}
+.stampk.on{opacity:1;transform:rotate(-10deg) scale(1)}
+/* ===== intervyu ===== */
+.meet{display:grid;gap:10px}
+.brief{background:#fffdf6;border:1px solid #e3d6b8;border-radius:14px;padding:10px 12px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px}
+.brief .bh{grid-column:1/-1;font-weight:800;color:#7a5a1f;font-size:13px}
+.bf{font-size:13px;border-bottom:1px dashed #d8ccb0;padding:3px 0}.bf span{display:block;color:var(--muted);font-size:12px}.bf i{font-style:normal;color:#b8ad98}
+.bf.ok i{color:#145c45;font-weight:700;animation:fbin .4s ease both}.bf.ok span:before{content:"✓ ";color:#1c8a78}
+.mchat{max-height:260px;overflow:auto;padding:4px 2px}
+.qleft{font-size:14px;color:var(--muted)}.qleft b{color:#1d3a7a;font-size:18px}
+.qchips{display:flex;flex-wrap:wrap;gap:8px}
+.qchip{border:1.5px solid #1d3a7a;color:#1d3a7a;background:#fff;border-radius:999px;padding:9px 14px;font-weight:600;font-size:14.5px;text-align:left;min-height:44px;animation:optin .35s ease both}
+.qchip:hover:not(:disabled){background:#eef2fb}.qchip.asked{opacity:.4;text-decoration:line-through}.qchip.miss{border-style:dashed;border-color:#1c8a78;color:#1c8a78;opacity:1}
+.qchip:disabled{cursor:default}
+/* ===== SMART konstruktor ===== */
+.sltr{display:flex;gap:6px;margin-bottom:8px}.sltr span{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font:800 18px Unbounded,Onest,sans-serif;background:#efe8d8;color:#b8ad98;transition:background .3s,color .3s,transform .3s}
+.sltr span.on{background:#1d3a7a;color:#e2b867;transform:translateY(-2px)}
+.sprev{background:#0e1b36;color:#fff;border-radius:14px;padding:12px 14px;font-size:15.5px;line-height:1.5;margin-bottom:10px}.sprev u{color:#7f8db0;text-decoration:none}.sprev b{color:#e2b867}
+.slot{margin:10px 0}.sl{font-weight:700;margin-bottom:6px}.sl small{color:var(--muted);font-weight:600;margin-left:4px}
+.sopts{display:flex;flex-wrap:wrap;gap:8px}
+.sopt{border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:9px 12px;text-align:left;font-size:14.5px;min-height:44px}
+.sopt.sel{border-color:#1d3a7a;background:#eef2fb;box-shadow:inset 0 0 0 1px #1d3a7a}
+.sopt.good{border-color:#1c8a78;background:#e3f4ef}.sopt.bad{border-color:#c2413b;background:#fbe3e1}.sopt.best{border-style:dashed;border-color:#1c8a78}
+@media (min-width:720px){.roles{grid-template-columns:repeat(3,minmax(0,1fr))}.meet{grid-template-columns:240px 1fr;align-items:start}.meet .brief{grid-template-columns:1fr;grid-row:span 3}}
+@media (prefers-reduced-motion:reduce){.art *,.obsky *,.opts .opt,.fb.on,#prog i.cur,.rl,.w5 div,.w5 .st,.qchip,.mb,.ava.ring,.obt h1,.obt .lead,.obbtns{animation:none!important}.art .dr,.obsky .dr,.smap .route{stroke-dashoffset:0}#sgn.dr{stroke-dashoffset:0}}
+
 
 .world{margin-top:10px;background:linear-gradient(135deg,#eef4ff,#f6fbff);border:1px solid #c9d8f2;border-radius:12px;padding:10px 12px;font-size:14px;color:var(--ink);line-height:1.5}
 .world .wh{font-weight:800;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#2c5ea8;margin-bottom:3px}
@@ -617,6 +727,13 @@ button.pp{cursor:pointer;border-color:var(--gold)}button.pp.sel{background:var(-
     <li><b>🏅 Status (XP bo‘yicha):</b> 🎒 Stajyor → 📋 Koordinator (300) → 🗂️ Loyiha menejeri (650) → 🎖️ Bosh menejer (1000) → 👑 Bosh tashkilotchi (1350). XP = ball × 10, 🔥 seriya ×1,5/×2, ⚡ tez javob +20.</li>
     <li><b>⚖️ Boshqaruv qarorlari:</b> homiy va gala-kecha joyini tanlash — ball berilmaydi, lekin byudjet, mamnunlik va keyingi voqealar (masalan, jala kuni nima bo‘lishi) shu qarorga bog‘liq. Professional tanlov +15 XP.</li><li><b>🌍 Jahon tajribasi:</b> har javobdan keyin haqiqiy xalqaro tadbirdan misol (ITB Berlin, Parij-2024, BMT, YuNESKO Samarqand sessiyasi va boshq.).</li><li><b>🏆 Tadbir reytingi (5 yulduz):</b> forum o‘tkazildi · ball 71+ · ball 86+ · zaxira saqlandi · mamnunlik 80+.</li>
     <li>Baho faqat <b>100 ballik</b> natijadan qo‘yiladi. 💡 Maslahat va 🃏 50/50 bahoni kamaytirmaydi.</li>
+  </ul>
+  <h3>O‘yin qanday tuzilgan: jahon tajribasidan</h3>
+  <ul class="xplist">
+    <li><b>Ko‘rsatkichlar muvozanati</b> — «Reigns» mobil o‘yinidagi kabi: har qaror yuqoridagi ko‘rsatkichlarni (byudjet, mamnunlik) o‘zgartiradi, ularni muvozanatda saqlash kerak.</li>
+    <li><b>Qaror → natija</b> — mehmonxona biznesi simulyatsiyalari (masalan, Cesim Hospitality) kabi: qaror qabul qilasiz, darhol oqibatini ko‘rasiz.</li>
+    <li><b>Kutilmagan vaziyat kartalari</b> — Oxford Brookes universitetining «The Event Troubleshooter» o‘quv o‘yini kabi: real vaziyatlarda muammo hal qilish.</li>
+    <li><b>O‘ynab o‘rganish</b> — uzun qoida o‘rniga brifing, mashq va qadam-baqadam yangi mexanika.</li>
   </ul>
   <h3>Baholash</h3>
   <table class="gl"><tr><th>Ball</th><th>Baho</th></tr>
@@ -796,6 +913,33 @@ var DSG2={
  F:'<svg viewBox="0 0 240 135" role="img" aria-label="Afisha: Registon va QR bor, inglizcha nom juda mayda"><rect width="240" height="135" rx="10" fill="#16305c"/>'+regi(170,118,0.75,"#e2b867","#16305c")+'<text x="14" y="24" fill="#e2b867" font-size="7.5" font-weight="700" letter-spacing="1.2" font-family="sans-serif">SAMARQAND · 14–16 MAY 2027</text><text x="14" y="48" fill="#fff" font-size="15" font-weight="800" font-family="sans-serif">Xalqaro turizm forumi</text><text x="14" y="58" fill="#8fa0c2" font-size="5" font-family="sans-serif">International Tourism Forum</text>'+qr(205,10,3.6)+'</svg>',
  G:'<svg viewBox="0 0 240 135" role="img" aria-label="Afisha: butunlay yangi pushti-sariq uslub"><rect width="240" height="135" rx="10" fill="#ff4f8b"/><circle cx="40" cy="30" r="36" fill="#ffd23f"/><circle cx="214" cy="20" r="22" fill="#7a3cff"/>'+regi(150,104,0.7,"#ffffff","#ff4f8b")+'<text x="12" y="62" fill="#fff" font-size="16" font-weight="900" font-style="italic" font-family="sans-serif">SAMARQAND FEST!</text><text x="12" y="76" fill="#fff" font-size="10" font-weight="700" font-family="sans-serif">International Tourism Forum</text>'+qr(205,48,3.4)+sponsorStrip()+'</svg>',
  H:DSG.A.replace('</svg>',qr(205,96,3.4)+'</svg>')};
+/* ---------- bob rasmlari: har bob o‘z mavzusidagi SVG sahna ---------- */
+var CPAL={1:["#1d3a7a","#e2b867"],2:["#0f5c63","#f2c14e"],3:["#2b2e6b","#7fd1c7"],4:["#5a2e1e","#e8b86b"],5:["#123b5c","#9ad3f5"],6:["#6b1f4f","#f7c6d9"],7:["#1b1035","#ffd166"],8:["#4a0e14","#e9c46a"],9:["#2a1a3e","#f4a259"],10:["#0e3b43","#a7e8bd"],11:["#173c6b","#f2d49b"],12:["#101b33","#ff7a59"]};
+function chapArt(c){var P=CPAL[c]||CPAL[1],bg=P[0],ac=P[1],W="#f5f1e8",o="";
+  function d(k){return ' style="animation-delay:'+k+'s"';}
+  var deco=star8(40,40,26,ac,.18)+star8(40,40,13,ac,.14)+star8(118,170,18,ac,.1);
+  switch(c){
+  case 1:o='<rect x="372" y="34" width="104" height="146" rx="8" fill="'+W+'"/><rect x="400" y="26" width="48" height="16" rx="4" fill="'+ac+'"/>';
+    for(var k=0;k<4;k++){o+='<rect x="410" y="'+(64+k*28)+'" width="52" height="6" rx="3" fill="#c9cfdb"/><path class="dr" pathLength="1"'+d(.3+k*.35)+' d="M386 '+(66+k*28)+' l6 6 l10 -12" stroke="#1c8a78" stroke-width="4" fill="none" stroke-linecap="round"/>';}
+    o+='<g class="fl"><rect x="496" y="70" width="42" height="74" rx="8" fill="'+ac+'"/><rect x="501" y="80" width="32" height="50" rx="3" fill="'+bg+'"/></g><path class="tw" d="M548 74 q10 10 0 20 M556 66 q16 18 0 36" stroke="'+ac+'" stroke-width="3" fill="none"/>';break;
+  case 2:var wd=[120,80,150,70,110];for(var k=0;k<5;k++)o+='<rect class="gr"'+d(k*.15)+' x="'+(330+k*14)+'" y="'+(40+k*26)+'" width="'+wd[k]+'" height="14" rx="7" fill="'+(k%2?ac:W)+'"/>';
+    for(var k=0;k<5;k++)o+='<ellipse class="pop"'+d(.8+k*.12)+' cx="518" cy="'+(170-k*10)+'" rx="22" ry="7" fill="'+ac+'" stroke="'+bg+'" stroke-width="2"/>';break;
+  case 3:var xs=[340,384,428,472,516];xs.forEach(function(x,k){o+='<g class="pop"'+d(k*.15)+'><circle cx="'+x+'" cy="'+(96+(k%2)*14)+'" r="15" fill="'+W+'"/><path d="M'+(x-24)+' '+(170)+' q24 -50 48 0z" fill="'+(k===2?ac:W)+'"/><rect x="'+(x-8)+'" y="'+(132+(k%2)*6)+'" width="16" height="10" rx="2" fill="'+bg+'"/></g>';});break;
+  case 4:o='<rect x="340" y="104" width="190" height="72" fill="'+W+'"/><path d="M372 104 a63 50 0 0 1 126 0z" fill="'+ac+'"/>';for(var k=0;k<6;k++)o+='<rect x="'+(352+k*30)+'" y="116" width="10" height="60" fill="'+bg+'" opacity=".55"/>';
+    o+='<rect x="340" y="172" width="190" height="8" fill="'+ac+'"/><path class="sw" d="M435 54 v-26 l22 8 l-22 8" fill="'+ac+'" stroke="'+ac+'" stroke-width="2"/>';break;
+  case 5:o='<rect x="370" y="26" width="150" height="16" rx="4" fill="'+ac+'"/>';for(var r=0;r<5;r++)for(var k=0;k<8;k++)o+='<circle class="pop"'+d(r*.12+k*.03)+' cx="'+(378+k*19)+'" cy="'+(70+r*24)+'" r="6" fill="'+W+'"/>';break;
+  case 6:o='<path d="M400 182 l30 -150 l30 150 M430 32 v150" stroke="'+W+'" stroke-width="5" fill="none"/><rect x="384" y="50" width="92" height="70" rx="4" fill="'+bg+'" stroke="'+ac+'" stroke-width="4"/>'+star8(430,85,18,ac,.9);
+    ["#e2b867","#1ba3a0","#c8321e","#f7c6d9"].forEach(function(cl,k){o+='<circle class="pop"'+d(.3+k*.15)+' cx="'+(500+(k%2)*28)+'" cy="'+(80+Math.floor(k/2)*30)+'" r="11" fill="'+cl+'"/>';});break;
+  case 7:o='<path class="beam" d="M380 0 L340 170 L420 170Z" fill="'+ac+'" opacity=".28"/><path class="beam b2" d="M500 0 L460 170 L540 170Z" fill="'+ac+'" opacity=".28"/><ellipse cx="440" cy="176" rx="110" ry="16" fill="'+W+'" opacity=".9"/><path d="M440 176 v-60" stroke="'+W+'" stroke-width="5"/><rect x="430" y="96" width="20" height="28" rx="10" fill="'+ac+'"/>';break;
+  case 8:o='<path d="M410 190 L440 90 L470 90 L500 190Z" fill="#c8321e"/>';[360,530].forEach(function(x,k){o+='<path d="M'+x+' 186 v-120" stroke="'+W+'" stroke-width="4"/><path class="sw"'+d(k*.4)+' d="M'+x+' 66 q20 -8 40 0 q-20 8 0 30 q-20 -8 -40 0z" fill="'+ac+'"/>';});
+    o+='<circle cx="455" cy="60" r="16" fill="none" stroke="'+W+'" stroke-width="4"/><path d="M455 44 v12" stroke="'+W+'" stroke-width="4"/>';break;
+  case 9:o='<path d="M330 30 Q440 70 550 30" stroke="'+W+'" stroke-width="2" fill="none"/>';for(var k=0;k<5;k++){var x=350+k*45,y=30+Math.sin((k+.5)/5*Math.PI)*36;o+='<g class="sw"'+d(k*.2)+'><path d="M'+x+' '+y+' v10" stroke="'+W+'" stroke-width="2"/><ellipse cx="'+x+'" cy="'+(y+24)+'" rx="11" ry="15" fill="'+ac+'"/></g>';}
+    o+='<ellipse cx="400" cy="160" rx="44" ry="12" fill="'+W+'"/><ellipse cx="500" cy="160" rx="44" ry="12" fill="'+W+'"/><path d="M482 154 a18 14 0 0 1 36 0z" fill="'+ac+'"/>';break;
+  case 10:o='<path d="M330 182 L560 150 M330 196 L560 172" stroke="'+W+'" stroke-width="3" stroke-dasharray="14 10"/><g class="mv"><rect x="350" y="120" width="96" height="40" rx="8" fill="'+ac+'"/><rect x="358" y="128" width="70" height="14" rx="3" fill="'+bg+'"/><circle cx="372" cy="162" r="8" fill="'+W+'"/><circle cx="426" cy="162" r="8" fill="'+W+'"/></g><g class="fl"><path d="M470 52 l60 -10 l-20 14 l-40 4z M494 46 l-10 -16 l10 0 l14 14z" fill="'+W+'"/></g>';break;
+  case 11:o='<circle class="fl" cx="510" cy="48" r="20" fill="'+ac+'"/>'+regi(440,182,0.95,W,bg)+'<rect x="500" y="140" width="40" height="40" rx="5" fill="'+ac+'"/><path d="M512 140 v-8 h16 v8" stroke="'+ac+'" stroke-width="4" fill="none"/>';break;
+  case 12:o='<circle cx="440" cy="104" r="56" fill="'+W+'"/><circle cx="440" cy="104" r="4" fill="'+bg+'"/><path d="M440 104 v-34" stroke="'+bg+'" stroke-width="5" stroke-linecap="round"/><path class="sp" d="M440 104 h40" stroke="'+ac+'" stroke-width="4" stroke-linecap="round"/>';
+    [[360,40],[530,50],[520,160]].forEach(function(p,k){o+='<g class="tw"'+d(k*.5)+'>';for(var a=0;a<8;a++){var r=a*Math.PI/4;o+='<path d="M'+p[0]+' '+p[1]+' l'+(Math.cos(r)*14).toFixed(1)+' '+(Math.sin(r)*14).toFixed(1)+'" stroke="'+ac+'" stroke-width="3" stroke-linecap="round"/>';}o+='</g>';});break;}
+  return '<svg class="art" viewBox="0 0 560 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="560" height="200" fill="'+bg+'"/>'+deco+o+'</svg>';}
 var MISSIONS=[
  {id:"tur",name:"Tadbir turi",ch:1,max:2},
  {id:"brif",name:"Brif ma’lumotlari",ch:1,max:2},
@@ -855,6 +999,27 @@ function chapRes(c){var ms=MISSIONS.filter(function(x){return x.ch===c;}),got=0,
 function renderRubric(){var last=0;$("rubric").innerHTML=MISSIONS.map(function(m){var v=S?S.pts[m.id]:undefined,got=v!==undefined;var h="";if(m.ch!==last){last=m.ch;h="<div class=\"rubh\">"+m.ch+"-bob · "+CHAPS[m.ch][0]+"</div>";}
   return h+"<div class=\"rub"+(got?" done":"")+"\"><div>"+m.name+"</div><b>"+(got?v+"/":"")+m.max+"</b></div>";}).join("");}
 
+/* ---------- intervyu: savol ber — brif to‘lsin ---------- */
+function rInterview(sc){var used=0,good=0,lines=[],busy=false,ord=shuffle(sc.opts.map(function(o,i){return i;}));
+  var doc="<div class='brief' id='brDoc'><div class='bh'>Brif varaqasi</div>"+sc.fields.map(function(f){return "<div class='bf' data-f='"+f[0]+"'><span>"+f[1]+"</span><i>bo‘sh</i></div>";}).join("")+"</div>";
+  $("stage").innerHTML=frame(sc,"<div class='meet'>"+doc+"<div class='mchat' id='mChat' aria-live='polite'></div><div class='qleft'>Qolgan savollar: <b id='qLeft'>"+sc.n+"</b></div><div class='qchips'>"+ord.map(function(i){return "<button class='qchip' data-i='"+i+"'>"+sc.opts[i].q+"</button>";}).join("")+"</div></div>");
+  var chat=$("mChat");function bub(cls,html){var b=document.createElement("div");b.className="mb "+cls;b.innerHTML=html;chat.appendChild(b);try{b.scrollIntoView({block:"nearest",behavior:RM?"auto":"smooth"});}catch(e){}return b;}
+  [].forEach.call(document.querySelectorAll(".qchip"),function(btn){btn.addEventListener("click",function(){if(busy||used>=sc.n)return;var o=sc.opts[+btn.dataset.i];busy=true;btn.disabled=true;btn.classList.add("asked");used++;$("qLeft").textContent=sc.n-used;beep("click");
+    bub("me",o.q);var ty=bub("them typing","<span></span><span></span><span></span>");
+    setTimeout(function(){ty.classList.remove("typing");ty.innerHTML=o.a;if(o.good){good++;var f=document.querySelector(".bf[data-f='"+o.f+"'] i");if(f){f.textContent=o.v;f.parentNode.classList.add("ok");}beep("good");}else{ty.classList.add("meh");}
+      lines.push((o.good?"✅ ":"❌ ")+"«"+o.q+"» — "+o.fb);busy=false;
+      if(used>=sc.n){[].forEach.call(document.querySelectorAll(".qchip"),function(x){x.disabled=true;if(sc.opts[+x.dataset.i].good&&!x.classList.contains("asked"))x.classList.add("miss");});
+        var p=award(sc.m,good*MX[sc.m].max/sc.n);S.ch=S.ch||{};finishScene(verdict(good,sc.n),earned(p,sc.m)+"<b>Brif varaqasi: "+good+" / "+sc.fields.length+" bo‘lim to‘ldi.</b><br>"+lines.join("<br>"),sc);}},RM?50:900);});});}
+/* ---------- SMART konstruktor ---------- */
+function rSmart(sc){var pick=sc.slots.map(function(){return -1;}),ords=sc.slots.map(function(s){return shuffle(s[2].map(function(x,i){return i;}));});
+  function sentence(){var t=function(k){return pick[k]<0?"<u>……</u>":"<b>"+sc.slots[k][2][pick[k]]+"</b>";};return "«"+t(2)+" "+t(0)+" va "+t(1)+" — "+t(3)+".»";}
+  $("stage").innerHTML=frame(sc,"<div class='smartb'><div class='sltr' aria-hidden='true'>"+"SMART".split("").map(function(l){return "<span>"+l+"</span>";}).join("")+"</div><div class='sprev' id='sPrev'>"+sentence()+"</div>"+sc.slots.map(function(s,k){return "<div class='slot'><div class='sl'>"+s[0]+" <small>"+s[1]+"</small></div><div class='sopts' role='radiogroup' aria-label='"+s[0]+"'>"+ords[k].map(function(i){return "<button class='sopt' role='radio' aria-checked='false' data-k='"+k+"' data-i='"+i+"'>"+s[2][i]+"</button>";}).join("")+"</div></div>";}).join("")+"<div class='row' style='margin-top:14px'><button class='btn' id='smOk' disabled>Maqsadni tasdiqlash</button></div></div>");
+  [].forEach.call(document.querySelectorAll(".sopt"),function(b){b.addEventListener("click",function(){var k=+b.dataset.k;pick[k]=+b.dataset.i;[].forEach.call(document.querySelectorAll(".sopt[data-k='"+k+"']"),function(x){var on=x===b;x.classList.toggle("sel",on);x.setAttribute("aria-checked",on?"true":"false");});
+    $("sPrev").innerHTML=sentence();var n=pick.filter(function(v){return v>=0;}).length;[].forEach.call(document.querySelectorAll(".sltr span"),function(s,i){s.classList.toggle("on",i<Math.round(n/4*5));});$("smOk").disabled=n<sc.slots.length;beep("click");});});
+  $("smOk").addEventListener("click",function(){$("smOk").disabled=true;var ok=0,lines=[];sc.slots.forEach(function(s,k){var g=pick[k]===0;if(g)ok++;lines.push((g?"✅ ":"❌ ")+s[0]+" "+s[3][pick[k]]+(g?"":" To‘g‘risi: «"+s[2][0]+"»."));});
+    [].forEach.call(document.querySelectorAll(".sopt"),function(x){x.disabled=true;var i=+x.dataset.i,k=+x.dataset.k;if(i===0)x.classList.add(pick[k]===0?"good":"best");else if(pick[k]===i)x.classList.add("bad");});
+    var p=award(sc.m,ok*MX[sc.m].max/sc.slots.length);finishScene(verdict(ok,sc.slots.length),earned(p,sc.m)+"<b>"+ok+" / "+sc.slots.length+" bo‘lak to‘g‘ri.</b><br>"+lines.join("<br>")+"<br><b>Namuna:</b> «2027-yil 1-aprelgacha 800 delegat 40 davlatdan ro‘yxatdan o‘tsin va so‘rovnomada kamida 85% «yaxshi» yoki «a’lo» desin — Samarqandni MICE shahri sifatida tanitish uchun.»",sc);});
+  startTimer();}
 /* ---------- talablar: buyurtmachi, mehmonlar va jamoa ---------- */
 var TALAB=[
  {who:"GR",t:"Byudjetdan chiqmang: oxirida kamida $45 000 zaxira qolsin.",f:function(){return S.budget>=RESERVE;},where:"butun o‘yin"},
@@ -891,6 +1056,9 @@ function alarmOv(sc,done){var stop=!!sc.stopHtml;var d=document.createElement("d
   d.innerHTML="<div class=\"abox\" role=\"alertdialog\" aria-modal=\"true\"><div class=\"ah\"><span class=\"ai\" aria-hidden=\"true\">"+(stop?"✋":"⚡")+"</span><div><small>"+(stop?"Buyurtmachi ishni to‘xtatdi":(sc.alarmT||"Kutilmagan vaziyat"))+"</small><h2>"+sc.title+"</h2></div></div>"+(stop?sc.stopHtml:"<p class=\"atx\">"+sc.crisis+"</p>")+"<button class=\"btn gold\">"+(stop?"Tushunarli — qaytadan qilamiz":"Vaziyatni hal qilish")+"</button></div>";
   document.body.appendChild(d);beep("bad");var b=d.querySelector("button");try{b.focus();}catch(e){}b.addEventListener("click",function(){d.remove();done&&done();});}
 
+var RM=false;try{RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;}catch(e){}
+function tween(id,to,fmt){var el=$(id);if(!el)return;fmt=fmt||String;var from=+(el.dataset.v||to);el.dataset.v=to;if(RM||from===to){el.textContent=fmt(to);return;}
+  var t0=null,dur=500;function st(t){if(!t0)t0=t;var k=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-k,3);el.textContent=fmt(Math.round(from+(to-from)*e));if(k<1)requestAnimationFrame(st);}requestAnimationFrame(st);}
 /* ---------- holat ---------- */
 var S,LSK="mice12_state";
 function newState(){return {name:"",group:"",key:"",i:0,pts:{},xp:0,streak:0,best:0,jok:2,hints:0,fast:0,stars:{},t0:0,fastMs:30000,attempt:1,lastChap:0,started:Date.now(),done:false,ans:false,budget:BUDGET0,sat:70,blog:[],ch:{}};}
@@ -916,24 +1084,24 @@ function earned(p,id){var st=S.stars[id]||0,lx=S.lastXp||{xp:0};var stars="<span
   var extra=lx.xp?"<span class=\"xpline\">+"+lx.xp+" XP"+(lx.mult>1?" · 🔥×"+String(lx.mult).replace(".",","):"")+(lx.fast?" · ⚡ tez":"")+"</span>":"";
   return "<div class=\"row\" style=\"gap:6px;margin-bottom:8px\"><span class=\"earned\" style=\"margin:0\">+"+p+" / "+MX[id].max+" ball</span>"+stars+extra+"</div>";}
 function deltaOn(k,txt,pos){var m=$(k);if(!m)return;var d=document.createElement("span");d.className="delta "+(pos?"p":"n");d.textContent=txt;m.appendChild(d);setTimeout(function(){d.remove();},1900);}
-function hud(){var t=know();$("mPts").textContent=t;$("bPts").style.width=Math.min(100,t)+"%";
+function hud(){var t=know();tween("mPts",t);$("bPts").style.width=Math.min(100,t)+"%";
   var done=Object.keys(S.pts).length,mx=0;Object.keys(S.pts).forEach(function(k){mx+=MX[k].max;});$("mSub").textContent=done+" / "+MISSIONS.length+" topshiriq";
   var r=rankOf(S.xp);$("mStar").textContent=starsSum();$("mRank").textContent=r.e+" "+r.n;$("mStreak").textContent=S.streak;$("cStreak").classList.toggle("hot",S.streak>=3);$("mMult").textContent=S.streak>=5?" ×2":S.streak>=3?" ×1,5":"";$("mJok").textContent=S.jok;
-  $("mBud").textContent=money(S.budget);var bp=clamp(S.budget/BUDGET0*100,0,100);$("bBud").style.width=bp+"%";$("bBud").style.background=S.budget<RESERVE?"var(--red)":S.budget<BUDGET0*.3?"var(--gold)":"var(--teal)";$("mBud").style.color=S.budget<RESERVE?"var(--red)":"";
-  $("mSat").textContent=S.sat;$("bSat").style.width=S.sat+"%";
+  tween("mBud",S.budget,money);var bp=clamp(S.budget/BUDGET0*100,0,100);$("bBud").style.width=bp+"%";$("bBud").style.background=S.budget<RESERVE?"var(--red)":S.budget<BUDGET0*.3?"var(--gold)":"var(--teal)";$("mBud").style.color=S.budget<RESERVE?"var(--red)":"";
+  tween("mSat",S.sat);$("bSat").style.width=S.sat+"%";
   var tm=$("mTal");if(tm)tm.textContent=talDone()+"/"+TALAB.length;$("whoName").textContent=S.name;$("whoGroup").textContent=S.group?"· "+S.group:"";}
 
 /* ---------- sahna ramkasi ---------- */
 function msg(who,text){var c=CAST[who];var ini=c.n.split(" ").map(function(w){return w[0];}).join("");
   return "<div class=\"msg\"><div class=\"ava\" style=\"background:"+c.c+"\">"+ini+"</div><div class=\"bubble\"><div class=\"whoName\">"+c.n+" · "+c.r+"</div>"+text+"</div></div>";}
-var HOW={order:"kartalarni ↑ ↓ tugmalari bilan to‘g‘ri tartibga qo‘ying, so‘ng «Tekshirish».",sort:"kartani bosing, keyin to‘g‘ri ustunni tanlang. Hammasi joylashgach — «Tekshirish».",multi:"aytilgan sondagi variantni belgilang, so‘ng «Tasdiqlash».",builder:"ro‘yxatdan tanlab to‘plam yig‘ing: narx chegarasi va talablarni kuzating.",choice:"bitta eng to‘g‘ri javobni bosing. Qisman to‘g‘ri javob 1 ball oladi.",match:"har bir qator yonidagi ro‘yxatdan mos javobni tanlang, so‘ng «Tekshirish»ni bosing.",num:"faqat raqam yozing (bo‘sh joy va $ belgisisiz), so‘ng «Javobni topshirish».",decide:"variantlarni solishtiring va bittasini tanlang. To‘g‘ri-noto‘g‘ri bali yo‘q, lekin byudjet, mamnunlik va keyingi voqealar shu qarorga bog‘liq."};
+var HOW={interview:"savollardan birini bosing — buyurtmachi javob beradi. To‘g‘ri savol brif varaqasini to‘ldiradi. Savollar soni cheklangan!",smartb:"har qatordan bitta bo‘lakni tanlang — tepada maqsad jumlasi yig‘iladi. Keyin «Maqsadni tasdiqlash».",order:"kartalarni ↑ ↓ tugmalari bilan to‘g‘ri tartibga qo‘ying, so‘ng «Tekshirish».",sort:"kartani bosing, keyin to‘g‘ri ustunni tanlang. Hammasi joylashgach — «Tekshirish».",multi:"aytilgan sondagi variantni belgilang, so‘ng «Tasdiqlash».",builder:"ro‘yxatdan tanlab to‘plam yig‘ing: narx chegarasi va talablarni kuzating.",choice:"bitta eng to‘g‘ri javobni bosing. Qisman to‘g‘ri javob 1 ball oladi.",match:"har bir qator yonidagi ro‘yxatdan mos javobni tanlang, so‘ng «Tekshirish»ni bosing.",num:"faqat raqam yozing (bo‘sh joy va $ belgisisiz), so‘ng «Javobni topshirish».",decide:"variantlarni solishtiring va bittasini tanlang. To‘g‘ri-noto‘g‘ri bali yo‘q, lekin byudjet, mamnunlik va keyingi voqealar shu qarorga bog‘liq."};
 var timerH=null;
 function startTimer(){var sp=$("spd");if(!sp||S.noFast)return;var i=sp.querySelector("i");i.style.transitionDuration=S.fastMs+"ms";requestAnimationFrame(function(){requestAnimationFrame(function(){i.style.width="0%";});});timerH=setTimeout(function(){sp.classList.add("off");},S.fastMs);}
 function stopTimer(){if(timerH){clearTimeout(timerH);timerH=null;}var sp=$("spd");if(sp){var i=sp.querySelector("i");var w=getComputedStyle(i).width;i.style.transitionDuration="0ms";i.style.width=w;}}
-function chapStrip(sc){var c=sc.ch;if(!c)return "";return "<div class=\"chap\" style=\"background-image:url("+chapImg(c)+")\"><span>"+c+"-bob<b>"+CHAPS[c][0]+" · "+CHAPS[c][1]+"</b></span></div>";}
+function chapStrip(sc){var c=sc.ch;if(!c)return "";return "<div class=\"chap\" style=\"--acc:"+CPAL[c][1]+"\">"+chapArt(c)+"<span>"+c+"-bob<b>"+CHAPS[c][0]+" · "+CHAPS[c][1]+"</b></span></div>";}
 function starRow(n,max){max=max||3;return "<span class=\"stars\">"+"⭐".repeat(n)+"<span style=\"opacity:.25\">"+"⭐".repeat(Math.max(0,max-n))+"</span></span>";}
 function chapIntro(c,done){var prev="";if(c>1){var r=chapRes(c-1);prev="<div class=\"prevch\"><div class=\"muted\" style=\"font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em\">"+(c-1)+"-bob yakunlandi · "+CHAPS[c-1][0]+"</div><div style=\"font-size:26px;margin:4px 0\">"+starRow(r.stars)+"</div><div>"+r.got+" / "+r.mx+" ball · 💰 "+money(S.budget)+" · 😊 "+S.sat+"</div></div>";if(r.stars===3){beep("win");}}
-  var d=document.createElement("div");d.className="chov";d.innerHTML="<div class=\"cbox\"><div class=\"cimg\" style=\"background-image:url("+chapImg(c)+")\"><div><small>"+c+"-bob · "+NCH+" dan</small><h2>"+CHAPS[c][0]+"</h2></div></div><div class=\"cbody\">"+prev+"<p>"+CHAPS[c][1]+"</p><button class=\"btn gold\" style=\"width:100%;padding:13px\">Boshlash →</button></div></div>";
+  var d=document.createElement("div");d.className="chov";d.innerHTML="<div class=\"cbox\"><div class=\"cimg\">"+chapArt(c)+"<div><small>"+c+"-bob · "+NCH+" dan</small><h2>"+CHAPS[c][0]+"</h2></div></div><div class=\"cbody\">"+prev+"<p>"+CHAPS[c][1]+"</p><button class=\"btn gold\" style=\"width:100%;padding:13px\">Boshlash →</button></div></div>";
   document.body.appendChild(d);if(!prev)beep("whoosh");var closed=false;function close(){if(closed)return;closed=true;d.remove();done&&done();}d.querySelector("button").addEventListener("click",close);d.addEventListener("click",function(e){if(e.target===d)close();});}
 function frame(sc,body){var crisis=sc.crisis?"<div class=\"crisis\"><span style=\"font-size:26px\">⚡</span><div><b>INQIROZ</b><div style=\"font-size:14px;opacity:.9\">"+sc.crisis+"</div></div></div>":"";
   var speed=(!sc.noFast&&sc.type!=="decide")?"<div class=\"speed\" id=\"spd\"><i></i><span>⚡ Tez javob bonusi: +20 XP</span></div>":"";
@@ -1046,26 +1214,27 @@ var SCENES=[
    {t:"<b>Incentives</b> — mukofot safari",fb:"Yo‘q: insentiv — xodimni taqdirlash safari, unda ish mashg‘uloti bo‘lmaydi."},
    {t:"<b>Faqat Exhibition</b> — ko‘rgazma",ok:true,fb:"Qisman: ko‘rgazma bor, lekin forumning asosi — sessiyalar va nutqlar (Convention)."}],
   rule:"Toifani to‘g‘ri aniqlash — rejaning asosi: buyurtmachi, hajm, format va davriylikka qarab hammasi o‘zgaradi."},
- {ch:1,m:"brif",w:"Samarqand jahon miqyosidagi tadbirlarni allaqachon o‘tkazgan: 2023-yil 16–20-oktabrda BMT Turizm tashkiloti Bosh assambleyasining 25-sessiyasi (130 dan ortiq davlat), 2025-yil 30-oktabr – 13-noyabrda esa YuNESKO Bosh konferensiyasining 43-sessiyasi bo‘lib o‘tdi. Bu sessiya 40 yilda birinchi marta Parijdan tashqarida o‘tkazilgan. Bunday tadbirlar ham buyurtmachining batafsil talablaridan (brifdan) boshlanadi.",type:"multi",n:6,who:"TB",title:"Brifda qaysi ma’lumotlar bo‘lishi shart?",
-  text:"Buyurtmachi bilan birinchi uchrashuv. Brif — tadbirning <b>talablari</b>, keyinchalik qabul qilinadigan qarorlar emas. Qaysi <b>6 ta</b> savolni hoziroq so‘rash shart?",
-  opts:[{t:"🎯 Tadbir maqsadi va kutilgan natija",good:true,fb:"Maqsad — barcha qarorlarning asosi."},
-   {t:"👥 Ishtirokchilar soni va profili (davlatlar, lavozimlar)",good:true,fb:"Zal sig‘imi, tarjima, mehmonxona shundan kelib chiqadi."},
-   {t:"📅 Sana va davomiylik",good:true,fb:"Joy va mehmonxonani bron qilish uchun kerak."},
-   {t:"💰 Byudjet chegarasi",good:true,fb:"Byudjetsiz taklif tayyorlab bo‘lmaydi."},
-   {t:"🛡️ VIP mehmonlar va protokol talablari",good:true,fb:"Vazirlar kelsa — kortej, xavfsizlik, protokol."},
-   {t:"♿ Tillar, ovqatlanish va maxsus ehtiyojlar (halol, vegetarian, nogironlik)",good:true,fb:"Tarjima, menyu va inklyuzivlik shunga qarab rejalanadi."},
-   {t:"🎤 Gala-kechada qaysi xonanda chiqishi",fb:"Bu keyingi bosqich qarori: brif talablarni yig‘adi, yechimlarni emas."},
-   {t:"🏨 Har delegat qaysi xonada yashashi (rooming list)",fb:"Rooming list tadbirdan 1–2 hafta oldin, ro‘yxat yopilganda tuziladi."},
-   {t:"🎨 Afisha va bejlarning rangi",fb:"Dizayn maqsad va auditoriya aniq bo‘lgandan keyin tanlanadi."},
-   {t:"🍛 Tushlikdagi taomlarning aniq nomlari",fb:"Menyu keyin tuziladi; brifda faqat cheklovlar (halol, parhez, allergiya) so‘raladi."}],
+ {ch:1,m:"brif",w:"Samarqand jahon miqyosidagi tadbirlarni allaqachon o‘tkazgan: 2023-yil 16–20-oktabrda BMT Turizm tashkiloti Bosh assambleyasining 25-sessiyasi (130 dan ortiq davlat), 2025-yil 30-oktabr – 13-noyabrda esa YuNESKO Bosh konferensiyasining 43-sessiyasi bo‘lib o‘tdi. Bu sessiya 40 yilda birinchi marta Parijdan tashqarida o‘tkazilgan. Bunday tadbirlar ham buyurtmachining batafsil talablaridan (brifdan) boshlanadi.",type:"interview",n:6,noFast:true,who:"GR",title:"Birinchi uchrashuv: brifni to‘ldiring",
+  text:"Buyurtmachi bilan 30 daqiqalik uchrashuv. Vaqt faqat <b>6 ta savol</b>ga yetadi. To‘g‘ri savol bersangiz — brif varaqasi to‘ladi. Hozir hal qilinmaydigan narsani so‘rasangiz — savol behuda ketadi.",
+  fields:[["maqsad","Maqsad"],["ishtirok","Ishtirokchilar"],["sana","Sana"],["byudjet","Byudjet"],["vip","VIP va protokol"],["ehtiyoj","Til, ovqat, ehtiyojlar"]],
+  opts:[{q:"Forumdan qanday natija kutyapsiz?",good:true,f:"maqsad",a:"Samarqandni MICE shahri sifatida tanitish va kamida 50 ta B2B kelishuv.",v:"MICE shahri sifatida tanitish, 50+ B2B kelishuv",fb:"Maqsad — barcha qarorlarning asosi."},
+   {q:"Kimlar keladi va qancha?",good:true,f:"ishtirok",a:"800 delegat, 40 davlatdan: vazirlar, turoperatorlar, mehmonxonachilar.",v:"800 delegat, 40 davlat",fb:"Zal sig‘imi, tarjima, mehmonxona shundan kelib chiqadi."},
+   {q:"Qachon va necha kun?",good:true,f:"sana",a:"2027-yil may, 3 kun. Aniq sanani siz taklif qilasiz.",v:"2027-yil may, 3 kun",fb:"Joy va mehmonxonani bron qilish uchun kerak."},
+   {q:"Byudjet chegarasi qancha?",good:true,f:"byudjet",a:"$450 000. Undan oshmaslik kerak.",v:"$450 000",fb:"Byudjetsiz taklif tayyorlab bo‘lmaydi."},
+   {q:"VIP mehmonlar va protokol talablari bormi?",good:true,f:"vip",a:"6 vazir keladi: kutib olish, kortej, prezidium — hammasi protokol bo‘yicha.",v:"6 vazir: kortej, prezidium",fb:"Vazirlar kelsa — kortej, xavfsizlik, protokol."},
+   {q:"Qaysi tillar, ovqat va maxsus ehtiyojlar kerak?",good:true,f:"ehtiyoj",a:"O‘zbek, ingliz, rus tili; halol va vegetarian taom; aravachadagi mehmonlar ham bor.",v:"3 til, halol va vegetarian, aravacha",fb:"Tarjima, menyu va inklyuzivlik shunga qarab rejalanadi."},
+   {q:"Gala-kechada qaysi xonanda chiqadi?",a:"Buni hozir bilmaymiz — keyin o‘zingiz taklif qilasiz-ku.",fb:"Bu keyingi bosqich qarori: brif talablarni yig‘adi, yechimlarni emas."},
+   {q:"Har delegat qaysi xonada yashaydi?",a:"Ro‘yxat hali yo‘q, bu tadbirdan oldin aniqlanadi.",fb:"Xonalar ro‘yxati (rooming list) tadbirdan 1–2 hafta oldin tuziladi."},
+   {q:"Afisha qanday rangda bo‘lsin?",a:"Rang hozir muhim emas… Avval maqsad va auditoriya!",fb:"Dizayn maqsad va auditoriya aniq bo‘lgandan keyin tanlanadi."},
+   {q:"Tushlikka aynan qaysi taomlar bo‘ladi?",a:"Menyuni keyin tuzasiz. Hozir faqat cheklovlarni bilishingiz kerak.",fb:"Menyu keyin; brifda faqat cheklovlar so‘raladi."}],
   rule:"Brif = maqsad + auditoriya + sana + byudjet + talablar. Hammasi yozma ravishda tasdiqlanadi."},
- {ch:1,m:"smart",w:"Parij-2024 Olimpiadasi tashkilotchilari ariza bosqichidayoq raqamli maqsad qo‘ygan: o‘yinlarning uglerod izini oldingi o‘yinlarga nisbatan ikki baravar kamaytirish. Raqam bilan qo‘yilgan maqsadni keyin tekshirish va hisobot berish mumkin.",type:"choice",who:"GR",title:"Forum maqsadini SMART shaklida yozing",
-  text:"Qo‘mita raisi: «Forum muvaffaqiyatli bo‘lsin». Buni o‘lchanadigan maqsadga aylantiring.",
-  hint:"Har variantni 5 harf bo‘yicha tekshiring: S — aniq, M — raqam bormi, A — real ishmi, R — forumga kerakmi, T — muddat bormi.",
-  opts:[{t:"«2027-yil 1-aprelgacha 40 davlatdan 800 delegat ro‘yxatdan o‘tsin; yakuniy so‘rovnomada kamida 85% «yaxshi» yoki «a’lo» desin»",best:true,fb:"Aniq (kim, nima), o‘lchanadigan (800, 85%), erishiladigan, ahamiyatli va muddatli (1-aprel) — to‘liq SMART."},
-   {t:"«800 ta delegat ro‘yxatdan o‘tsin va forum yuqori saviyada, xalqaro standartlar darajasida o‘tsin»",ok:true,fb:"Raqam bor, lekin muddat yo‘q, «yuqori saviya»ni esa o‘lchab bo‘lmaydi."},
-   {t:"«Forum 2027-yil may oyida bo‘lib o‘tsin va barcha xorijiy mehmonlarga juda-juda yoqsin»",fb:"Sana bor, lekin natija o‘lchanmaydi: «juda yoqsin» — bu his, ko‘rsatkich emas."},
-   {t:"«2027-yil 1-aprelgacha 5 000 delegat ro‘yxatdan o‘tsin va 100% ishtirokchi «a’lo» desin»",fb:"O‘lchanadi va muddatli, lekin erishib bo‘lmaydi: zal 800 kishilik, 100% mamnunlik esa real emas (A buzilgan)."}],
+ {ch:1,m:"smart",w:"Parij-2024 Olimpiadasi tashkilotchilari ariza bosqichidayoq raqamli maqsad qo‘ygan: o‘yinlarning uglerod izini oldingi o‘yinlarga nisbatan ikki baravar kamaytirish. Raqam bilan qo‘yilgan maqsadni keyin tekshirish va hisobot berish mumkin.",type:"smartb",who:"GR",title:"Maqsadni SMART qilib yig‘ing",
+  text:"Qo‘mita raisi: «Forum muvaffaqiyatli bo‘lsin». Bu — orzu, maqsad emas. Har qatordan bitta bo‘lakni tanlab, o‘lchanadigan maqsad yig‘ing.",
+  hint:"Har bo‘lakni tekshiring: aniqmi? raqam bormi? real ishmi? forumga kerakmi? muddat bormi?",
+  slots:[["Nima bo‘lsin?","S · A",["800 delegat 40 davlatdan ro‘yxatdan o‘tsin","forum yuqori saviyada o‘tsin","5 000 delegat kelsin"],["Aniq va real: zal 800 kishilik.","Aniq emas: «yuqori saviya»ni o‘lchab bo‘lmaydi.","Real emas: zal 800 kishilik (A buzilgan)."]],
+   ["Qanday o‘lchaymiz?","M",["so‘rovnomada kamida 85% «yaxshi» yoki «a’lo» desin","mehmonlarga juda yoqsin","100% mehmon «a’lo» desin"],["O‘lchanadi va real.","«Yoqsin» — his, ko‘rsatkich emas.","100% — erishib bo‘lmaydi."]],
+   ["Qachongacha?","T",["2027-yil 1-aprelgacha","imkon qadar tezroq","qachondir kelajakda"],["Aniq muddat bor.","Muddat noaniq.","Muddat yo‘q."]],
+   ["Nima uchun?","R",["Samarqandni MICE shahri sifatida tanitish uchun","boshqa shaharlar ham qilgani uchun","rahbar shunday degani uchun"],["Ahamiyatli: buyurtmachi maqsadiga bog‘langan.","Bu sabab emas, taqlid.","Bu sabab forumning maqsadini ko‘rsatmaydi."]]],
   rule:"O‘lchanmagan natijani baholab bo‘lmaydi: har maqsadda raqam va muddat bo‘lsin."},
  {ch:1,id:"talab",type:"reqs",noFast:true},
  /* 2-bob REJA VA BYUDJET */
@@ -1415,7 +1584,7 @@ function prog(){var p=$("prog");p.innerHTML=FLOW.slice(1,-1).map(function(s,i){v
   var sc=FLOW[S.i];$("whoStage").textContent=sc&&sc.ch?sc.ch+"-bob · "+CHAPS[sc.ch][0]:"";}
 function go(i){S.i=i;S.ans=false;stopTimer();var sc=FLOW[i];$("hudWrap").style.display=(sc.type==="intro"||sc.type==="final")?"none":"";if(sc.type!=="intro"){prog();hud();}
   if(sc.prep)sc.prep(sc);S.t0=Date.now();S.noFast=!!sc.noFast||sc.type==="decide"||sc.type==="reqs";S.fastMs=({choice:30,multi:45,sort:90,order:70,match:75,num:120,builder:120}[sc.type]||60)*1000;if(sc.type!=="intro")saveState();
-  ({intro:rIntro,reqs:rReqs,decide:rDecide,choice:rChoice,multi:rMulti,sort:rSort,order:rOrder,match:rMatch,num:rNum,builder:rBuilder,final:rFinal})[sc.type](sc);
+  ({intro:rIntro,reqs:rReqs,interview:rInterview,smartb:rSmart,decide:rDecide,choice:rChoice,multi:rMulti,sort:rSort,order:rOrder,match:rMatch,num:rNum,builder:rBuilder,final:rFinal})[sc.type](sc);
   var needA=!!(sc.crisis||sc.stopHtml);function al(){if(!needA)return;stopTimer();alarmOv(sc,function(){S.t0=Date.now();startTimer();});}
   if(sc.ch&&sc.ch!==S.lastChap){S.lastChap=sc.ch;saveState();stopTimer();chapIntro(sc.ch,function(){S.t0=Date.now();startTimer();al();});}
   else{al();
@@ -1424,21 +1593,60 @@ if(sc.type==="final"&&S.lastChap===NCH){S.lastChap=NCH+1;saveState();}}
   var top=$("v-keys").getBoundingClientRect().top+scrollY-10;if(scrollY>top)scrollTo({top:top,behavior:"smooth"});}
 
 /* ---------- kirish ---------- */
-function rIntro(){function castH(gst){return Object.keys(CAST).filter(function(k){return !!CAST[k].g===gst;}).map(function(k){var x=CAST[k];var ini=x.n.split(" ").map(function(w){return w[0];}).join("");return "<div><span class=\"ava\" style=\"background:"+x.c+"\">"+ini+"</span><span><b>"+x.n+"</b><br><span class=\"muted\">"+x.r+"</span></span></div>";}).join("");}var c=castH(false),gs=castH(true);
-  var saved=null;try{saved=JSON.parse(ls(LSK)||"null");}catch(e){}
-  var resume=saved&&saved.name&&saved.i>0&&!saved.done?"<div class=\"resume\">⏸ <b>"+esc(saved.name)+"</b>, o‘yiningiz tugallanmagan ("+saved.i+"-topshiriq, "+(function(){var t=0;for(var k in saved.pts)t+=saved.pts[k];return t;})()+" ball). <button class=\"btn sm gold\" id=\"tResume\">Davom ettirish</button></div>":"";
-  var chaps=Object.keys(CHAPS).map(function(k){return "<li><b>"+CHAPS[k][0]+"</b> — "+CHAPS[k][1].toLowerCase()+"</li>";}).join("");
-  $("stage").innerHTML="<div class=\"hero scene\"><div class=\"poster\"><span class=\"pill\">Amaliy mashg‘ulot · rolli o‘yin</span><h2 style=\"margin-top:10px\">Siz — forumning bosh tashkilotchisisiz</h2><p style=\"opacity:.92\">Samarqandda <b>Xalqaro turizm forumi</b>: 800 delegat, 40 davlat, 6 vazir, 60 ta stend, gala-kecha va sayohat. Qo‘lingizda <b>$450 000</b>. Buyurtmachi va mehmonlar talab qo‘yadi, yo‘lda kutilmagan voqealar bo‘ladi. Forumni boshidan oxirigacha siz tashkil etasiz.</p><ol style=\"opacity:.92;font-size:14px;padding-left:20px;margin:10px 0 0\">"+chaps+"</ol></div>"+
-   "<div class=\"card\">"+resume+
-   "<div class=\"howplay\"><b>Qanday o‘ynaladi?</b><ol class=\"steps3\"><li><b>O‘qing.</b> Har sahnada jamoangizdan biri vaziyatni aytadi.</li><li><b>Qaror qiling.</b> Javobni tanlang, tartiblang yoki hisoblang.</li><li><b>O‘rganing.</b> Javobdan keyin — izoh, 📌 tashkilotchi qoidasi va 🌍 jahon tajribasi (haqiqiy tadbirlardan misol).</li></ol><ul style=\"margin:6px 0 0;padding-left:20px;font-size:14.5px\"><li>"+NCH+" bob, "+MISSIONS.length+" ta topshiriq. <b>Har topshiriq — 2 ball</b>, jami <b>100 ball</b>.</li><li><b>📋 Talablar:</b> buyurtmachi, mehmonlar va jamoa 10 ta talab qo‘yadi. Bajarilmasa — mehmon norozi.</li><li><b>⚡ Kutilmagan vaziyatlar:</b> mehmonxonada xona yo‘q, spiker kelmaydi, ofitsiantlar kelmadi, jala…</li><li><b>✋ Buyurtmachi to‘xtatadi:</b> «yoqmadi, qaytadan qiling» — ishni to‘g‘ri tartibda qayta qilasiz.</li><li><b>⚖️ Boshqaruv qarorlari</b> (homiy, gala-kecha joyi) — ball bermaydi, lekin oqibati keyinroq chiqadi.</li><li>Har topshiriq — 0 dan 3 gacha <b>⭐ yulduz</b>; har bob oxirida bob yulduzlari.</li><li><b>💰 Byudjet:</b> har qaror pul sarflaydi. 10% zaxirani saqlab qoling!</li><li><b>😊 Mehmonlar mamnunligi:</b> to‘g‘ri qarorlar oshiradi, xatolar tushiradi.</li><li><b>🏅 Status:</b> Stajyor → Koordinator → Loyiha menejeri → Bosh menejer → Bosh tashkilotchi.</li><li>Oxirida <b>5 yulduzli tadbir reytingi</b>, byudjet hisoboti va <b>«Tadbir pasporti»</b> (yuklab olasiz).</li></ul></div>"+
-   "<div class=\"field\"><label for=\"tName\">Ism va familiyangiz</label><input type=\"text\" id=\"tName\" placeholder=\"Masalan: Aziza Karimova\" maxlength=\"60\" autocomplete=\"off\"></div>"+
-   "<div class=\"field\"><label for=\"tGroup\">Guruh</label><input type=\"text\" id=\"tGroup\" placeholder=\"Masalan: 13-26\" maxlength=\"30\" autocomplete=\"off\"></div>"+
-   "<button class=\"btn gold\" id=\"tGo\" style=\"width:100%;padding:13px\">🚀 Tashkil etishni boshlash</button>"+
-   "<h3>Siz bilan ishlaydiganlar</h3><div class=\"cast\">"+c+"</div><h3>Talab qo‘yadigan mehmonlar</h3><div class=\"cast\">"+gs+"</div><p class=\"muted\" style=\"font-size:13px\">Qahramonlar, kompaniyalar va narxlar shartli; nazariya — ma’ruzalardan (1–2-mavzu va «Odamlar, xizmat, sanalar va pul»); «🌍 Jahon tajribasi» kartalaridagi faktlar — haqiqiy xalqaro tadbirlardan.</p></div>";
-  var tn=$("tName"),tg=$("tGroup");if(saved&&saved.name){tn.value=saved.name;tg.value=saved.group||"";}
-  if($("tResume"))$("tResume").addEventListener("click",function(){S=saved;if(S.budget==null){S.budget=BUDGET0;S.sat=70;S.blog=[];}hud();toast("Davom etamiz, "+S.name+"!");go(S.ans?S.i+1:Math.max(1,S.i));});
-  $("tGo").addEventListener("click",function(){var n=tn.value.trim(),g=tg.value.trim();if(n.length<3){toast("Ism va familiyani yozing");tn.focus();return;}if(!g){toast("Guruhni yozing");tg.focus();return;}
-    S=newState();S.name=n;S.group=g;S.key=(g+"_"+n).toLowerCase().replace(/[^a-z0-9а-яёўқғҳ‘’']+/gi,"_");S.attempt=(+ls("mice12_attempt")||0)+1;ls("mice12_attempt",String(S.attempt));hud();beep("good");sync("start");go(1);});}
+/* ---------- kirish: missiya brifingi (7 qadam) ---------- */
+var REG_PATH=["M40 250 V202 H70 V160 H110 V202 H140 V250","M80 250 V196 Q90 176 100 196 V250","M38 250 V124 M142 250 V124 M34 124 H42 M138 124 H146",
+ "M150 250 V206 H180 V166 H220 V206 H250 V250","M190 250 V200 Q200 180 210 200 V250","M228 166 Q240 140 252 166",
+ "M260 250 V202 H290 V160 H330 V202 H360 V250","M300 250 V196 Q310 176 320 196 V250","M262 202 Q276 176 290 202 M330 202 Q344 176 358 202","M258 250 V124 M362 250 V124 M254 124 H262 M358 124 H366"];
+function obSky(){var s="",r=[[30,40],[80,22],[130,60],[190,30],[250,52],[300,18],[350,44],[60,90],[220,96],[330,100],[170,12],[380,80],[110,118],[270,120]];
+  r.forEach(function(p,k){s+="<circle class='tw' style='animation-delay:"+(k*.23).toFixed(2)+"s' cx='"+p[0]+"' cy='"+p[1]+"' r='"+(k%3?1.3:2)+"' fill='#fff'/>";});
+  return "<svg class='obsky' viewBox='0 0 400 260' preserveAspectRatio='xMidYMax meet' aria-hidden='true'>"+s+"<path d='M340 54 a20 20 0 1 0 12 30 a16 16 0 1 1 -12 -30z' fill='#e2b867'/>"+REG_PATH.map(function(d,k){return "<path class='dr' pathLength='1' style='animation-delay:"+(.2+k*.18).toFixed(2)+"s' d='"+d+"' stroke='#e2b867' stroke-width='2.2' fill='none' stroke-linejoin='round'/>";}).join("")+"<path d='M0 250 H400' stroke='#e2b867' stroke-width='1' opacity='.5'/></svg>";}
+var OB_ROLE=[["Reja","Bosqichlar, sana va muddatlarni belgilaysiz","M4 6h16M4 12h10M4 18h13"],["Pul","$450 000 ni taqsimlaysiz, 10% zaxira saqlaysiz","M12 3v18M17 7H9.5a3 3 0 0 0 0 6h5a3 3 0 0 1 0 6H6"],["Jamoa","Pudratchi, xodim va ko‘ngillilarni tanlaysiz","M8 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21v-1a6 6 0 0 1 12 0v1M17 11a3 3 0 1 0 0-6M22 21v-1a5 5 0 0 0-4-4.9"],["Mehmonlar","VIP, xorijiy va aravachadagi mehmonlar talabini bajarasiz","M12 2l3 6 6 .9-4.5 4.4 1 6.7L12 17l-5.5 3 1-6.7L3 8.9 9 8z"],["Xizmat","Joy, ovqat, transport — mehmon ko‘rgan har bir lahza","M3 18h18M5 18a7 7 0 0 1 14 0M12 8V6"],["Inqiroz","Kutilmagan vaziyatda tez va to‘g‘ri qaror qilasiz","M12 3L2 21h20L12 3zM12 10v5M12 18v.5"]];
+function rIntro(){stopTimer();var saved=null;try{saved=JSON.parse(ls(LSK)||"null");}catch(e){}
+  var hasSave=saved&&saved.name&&saved.i>0&&!saved.done,step=0,N=7,timers=[];
+  function later(f,ms){timers.push(setTimeout(f,RM?0:ms));}
+  function clear(){timers.forEach(clearTimeout);timers=[];}
+  function dots(){var s="";for(var k=1;k<N;k++)s+="<i class='"+(k<step?"done":k===step?"cur":"")+"'></i>";return "<div class='obdots' aria-label='Brifing: "+step+"-qadam, jami "+(N-1)+"'>"+s+"</div>";}
+  function nav(next,label){return "<div class='obnav'>"+(step>1?"<button class='btn ghost' id='obBack'>Orqaga</button>":"<span></span>")+(next?"<button class='btn gold' id='obNext'>"+(label||"Davom etish")+"</button>":"")+"</div>";}
+  function shell(cls,inner){return "<div class='ob "+cls+"'>"+(step>0?dots():"")+inner+"</div>";}
+  function bind(){var b=$("obBack");if(b)b.addEventListener("click",function(){show(step-1);});var n=$("obNext");if(n)n.addEventListener("click",function(){show(step+1);});}
+  function show(k){clear();step=k;var h="";
+    if(k===0){h=shell("ob0","<div class='obhero'>"+obSky()+"<div class='obt'><p class='kick'>Samarqand · 2027-yil may</p><h1>Bosh tashkilotchi</h1><p class='lead'>800 delegat, 40 davlat, 6 vazir va $450&nbsp;000. Xalqaro turizm forumini boshidan oxirigacha siz tashkil etasiz.</p>"+
+      "<div class='obbtns'><button class='btn gold big' id='obStart'>Missiyani boshlash</button>"+(hasSave?"<button class='btn ghost' id='tResume'>Davom ettirish: "+esc(saved.name)+" · "+(function(){var t=0;for(var q in saved.pts)t+=saved.pts[q];return t;})()+" ball</button>":"")+"<button class='linkb' id='obSkip'>Brifingni o‘tkazib yuborish</button></div></div></div>");}
+    if(k===1){h=shell("ob1","<h2>Telefon jiringlayapti</h2><div class='phone'><div class='call' id='obCall'><span class='ava ring' style='background:"+CAST.GR.c+"'>GR</span><b>Gulnora Rahimova</b><small>Turizm qo‘mitasi</small><button class='btn gold' id='obAns'>Javob berish</button></div><div class='pchat' id='obChat' hidden></div></div>"+nav(false));}
+    if(k===2){h=shell("ob2","<h2>Bosh tashkilotchi nima qiladi?</h2><p class='muted'>Real hayotda bu — PCO (professional kongress tashkilotchisi) ishi. O‘yinda siz shu 6 ishni bajarasiz:</p><div class='roles'>"+OB_ROLE.map(function(r,i){return "<div class='rl' style='animation-delay:"+(i*.08)+"s'><svg viewBox='0 0 24 24' aria-hidden='true'><path d='"+r[2]+"' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg><b>"+r[0]+"</b><span>"+r[1]+"</span></div>";}).join("")+"</div>"+nav(true));}
+    if(k===3){h=shell("ob3","<h2>Mashq: bitta qaror qabul qiling</h2><p class='muted'>Har qaror ko‘rsatkichlarni o‘zgartiradi. Bu mashq hisobga olinmaydi.</p><div class='mhud'><div><span>💰 Byudjet</span><b id='dB'>$450 000</b><i><em id='dBb' style='width:100%'></em></i></div><div><span>😊 Mamnunlik</span><b id='dS'>70</b><i><em id='dSb' style='width:70%'></em></i></div></div>"+
+      msg("SN","Aeroportda delegatlarni 4 ta ko‘ngilli kutib oladi. Ularga logotipli forma tikamizmi?")+"<div class='opts'><button class='opt' id='dA'>Ha, logotipli forma tikamiz<span class='cost'>$800</span></button><button class='opt' id='dN'>Yo‘q, o‘z kiyimida tursin<span class='cost'>$0</span></button></div><div class='fb' id='dFb'></div>"+nav(false));}
+    if(k===4){h=shell("ob4","<h2>Yo‘l xaritasi: 12 bekat</h2><p class='muted'>Karvon brifdan hisobotgacha boradi. Bekatni bosing — nima bo‘lishini ko‘rasiz.</p>"+obMap()+"<div class='mcap' id='mCap' aria-live='polite'></div>"+nav(true));}
+    if(k===5){h=shell("ob5","<h2>Qanday g‘alaba qilasiz?</h2><div class='wins'><div class='w5'>"+["Forum o‘tkazildi","Ball 71 va undan yuqori","Ball 86 va undan yuqori","$45 000 zaxira saqlandi","Mamnunlik 80 va undan yuqori"].map(function(t,i){return "<div style='animation-delay:"+(i*.12)+"s'><span class='st'>★</span>"+t+"</div>";}).join("")+"</div>"+
+      "<div class='wgrid'><div><b>50</b>topshiriq, har biri 2 ball</div><div><b>10</b>talab: mehmon va buyurtmachidan</div><div><b>7</b>kutilmagan vaziyat</div><div><b>86+</b>ball = «5 · A’lo»</div></div><p class='muted' style='font-size:14px'>Har javobdan keyin — izoh, tashkilotchi qoidasi va dunyodagi haqiqiy tadbirdan misol. Oxirida «Tadbir pasporti»ni yuklab olasiz.</p></div>"+nav(true,"Shartnomaga o‘tish"));}
+    if(k===6){h=shell("ob6","<div class='contract'><div class='ch'><span>«Silk Road Events» MChJ</span><span>№ SRE-2027/05</span></div><h2>Mehnat shartnomasi</h2><p>Kompaniya quyidagi xodimni <b>Samarqand xalqaro turizm forumining bosh tashkilotchisi</b> etib tayinlaydi.</p>"+
+      "<div class='field'><label for='tName'>Ism va familiya</label><input type='text' id='tName' placeholder='Masalan: Aziza Karimova' maxlength='60' autocomplete='off'></div><div class='field'><label for='tGroup'>Guruh</label><input type='text' id='tGroup' placeholder='Masalan: 13-26' maxlength='30' autocomplete='off'></div>"+
+      "<p class='duty'>Vazifalar: forumni brifdan hisobotgacha tashkil etish · byudjetni saqlash · mehmonlar talablarini bajarish · kutilmagan vaziyatlarni hal qilish.</p><div class='sign'><svg viewBox='0 0 240 60' aria-hidden='true'><path id='sgn' pathLength='1' d='M10 42 C30 10 40 50 58 30 S80 12 92 38 S118 52 130 26 S160 18 170 40 S200 48 230 22' fill='none' stroke='#1d3a7a' stroke-width='2.4' stroke-linecap='round'/></svg><span>imzo</span><b class='stampk' id='stK'>TASDIQLANDI</b></div>"+
+      "<button class='btn gold big' id='tGo' style='width:100%'>Imzolash va ishni boshlash</button></div>"+(step>1?"<div class='obnav'><button class='btn ghost' id='obBack'>Orqaga</button><span></span></div>":""));}
+    $("stage").innerHTML="<div class='scene obwrap'>"+h+"</div>";bind();try{scrollTo({top:0,behavior:RM?"auto":"smooth"});}catch(e){}
+    if(k===0){$("obStart").addEventListener("click",function(){beep("whoosh");show(1);});$("obSkip").addEventListener("click",function(){show(6);});
+      if($("tResume"))$("tResume").addEventListener("click",function(){S=saved;if(S.budget==null){S.budget=BUDGET0;S.sat=70;S.blog=[];}hud();toast("Davom etamiz, "+S.name+"!");go(S.ans?S.i+1:Math.max(1,S.i));});}
+    if(k===1){var msgs=["Assalomu alaykum! Turizm qo‘mitasidan qo‘ng‘iroq qilyapman.","2027-yil may oyida Samarqandda <b>Xalqaro turizm forumi</b> bo‘ladi: 800 delegat, 40 davlat, 6 vazir.","Sessiyalar, 60 stendli ko‘rgazma, gala-kecha va forumdan keyin sayohat. Byudjet — <b>$450 000</b>.","Sizning kompaniyangizni <b>bosh tashkilotchi</b> qilib tanladik. Lekin talablarimiz ko‘p bo‘ladi — tayyormisiz?"];
+      $("obAns").addEventListener("click",function(){beep("good");$("obCall").hidden=true;var c=$("obChat");c.hidden=false;var i=0;
+        (function nextMsg(){if(i>=msgs.length){var b=document.createElement("div");b.className="obnav";b.innerHTML="<button class='btn ghost' id='obBack'>Orqaga</button><button class='btn gold' id='obNext'>Ha, qabul qilaman</button>";c.parentNode.parentNode.appendChild(b);bind();return;}
+          var t=document.createElement("div");t.className="mb them typing";t.innerHTML="<span></span><span></span><span></span>";c.appendChild(t);
+          later(function(){t.classList.remove("typing");t.innerHTML=msgs[i++];beep("click");later(nextMsg,450);},800);})();});}
+    if(k===3){var done=false;function pickD(a){if(done)return;done=true;$("dA").disabled=$("dN").disabled=true;(a?$("dA"):$("dN")).classList.add(a?"good":"sel");
+        var b=a?449200:450000,s=a?73:66;tween("dB",b,money);tween("dS",s);$("dBb").style.width=(b/450000*100)+"%";$("dSb").style.width=s+"%";
+        var f=$("dFb");f.className="fb on "+(a?"good":"mid");f.innerHTML=(a?"💰 −$800 · 😊 +3. Mehmon olomon ichida ko‘ngillini darhol topadi — xizmat yaxshilandi.":"💰 $0 · 😊 −4. Pul tejaldi, lekin mehmon kimdan yordam so‘rashni bilmaydi.")+"<br><b>Ko‘rdingizmi?</b> Har qaror pulga ham, mehmon kayfiyatiga ham ta’sir qiladi. Ikkalasini muvozanatda saqlash — tashkilotchining asosiy san’ati.";
+        var nv=document.createElement("div");nv.className="obnav";nv.innerHTML="<button class='btn ghost' id='obBack'>Orqaga</button><button class='btn gold' id='obNext'>Tushunarli</button>";f.parentNode.appendChild(nv);bind();}
+      $("dA").addEventListener("click",function(){pickD(true);});$("dN").addEventListener("click",function(){pickD(false);});}
+    if(k===4){var nodes=[].slice.call(document.querySelectorAll(".mnode"));function cap(c){$("mCap").innerHTML="<b>"+c+". "+CHAPS[c][0]+"</b> — "+CHAPS[c][1];nodes.forEach(function(n){n.classList.toggle("sel",+n.dataset.c===c);});}
+      nodes.forEach(function(n,i){later(function(){n.classList.add("lit");cap(i+1);},300+i*260);function sel(){clear();nodes.forEach(function(x){x.classList.add("lit");});cap(+n.dataset.c);beep("click");}n.addEventListener("click",sel);n.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();sel();}});});}
+    if(k===6){var tn=$("tName"),tg=$("tGroup");if(saved&&saved.name){tn.value=saved.name;tg.value=saved.group||"";}
+      $("tGo").addEventListener("click",function(){var n=tn.value.trim(),gg=tg.value.trim();if(n.length<3){toast("Ism va familiyani yozing");tn.focus();return;}if(!gg){toast("Guruhni yozing");tg.focus();return;}
+        $("tGo").disabled=true;var sg=$("sgn");if(sg)sg.classList.add("dr");$("stK").classList.add("on");beep("win");
+        later(function(){S=newState();S.name=n;S.group=gg;S.key=(gg+"_"+n).toLowerCase().replace(/[^a-z0-9а-яёўқғҳ‘’']+/gi,"_");S.attempt=(+ls("mice12_attempt")||0)+1;ls("mice12_attempt",String(S.attempt));hud();sync("start");go(1);},1300);});}}
+  show(0);}
+function obMap(){var pts=[[40,50],[120,50],[200,50],[280,50],[320,130],[240,130],[160,130],[80,130],[40,210],[120,210],[200,210],[280,210]];
+  var d="M"+pts[0].join(" ");for(var k=1;k<pts.length;k++){var p=pts[k],q=pts[k-1];if(p[1]!==q[1]){var mx=(k===4)?350:10;d+=" C"+mx+" "+q[1]+" "+mx+" "+p[1]+" "+p[0]+" "+p[1];}else d+=" L"+p.join(" ");}
+  return "<svg class='smap' viewBox='0 0 360 250' role='img' aria-label='12 bobdan iborat yo‘l xaritasi'><rect width='360' height='250' rx='14' fill='#f3e7cf'/>"+star8(330,30,14,"#c08f3e",.25)+star8(30,232,10,"#c08f3e",.2)+"<path class='dr route' pathLength='1' d='"+d+"' stroke='#b07a2e' stroke-width='3' stroke-dasharray='1' fill='none'/>"+
+    pts.map(function(p,i){return "<g class='mnode' data-c='"+(i+1)+"' tabindex='0' role='button' aria-label='"+(i+1)+"-bob: "+CHAPS[i+1][0]+"'><circle cx='"+p[0]+"' cy='"+p[1]+"' r='15'/><text x='"+p[0]+"' y='"+(p[1]+5)+"' text-anchor='middle'>"+(i+1)+"</text><text class='ml' x='"+p[0]+"' y='"+(p[1]+31)+"' text-anchor='middle'>"+CHAPS[i+1][0].split(" ")[0]+"</text></g>";}).join("")+"</svg>";}
 
 /* ---------- yakun: reyting, byudjet, Tadbir pasporti ---------- */
 var PASS={
