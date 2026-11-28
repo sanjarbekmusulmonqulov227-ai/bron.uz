@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /api/
+Disallow: /admin
+Disallow: /partner.html
+Sitemap: https://sanjarbekmusulmonqulov227-ai.github.io/bron.uz/sitemap.xml
